@@ -1,7 +1,14 @@
 from django.utils.translation import gettext, gettext_lazy as _
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django.contrib.admin import register
-from ..models import User
+from django.contrib.admin import register, StackedInline
+from ..models import User, UserAccessToken
+
+
+class UserAccessTokenInline(StackedInline):
+    model = UserAccessToken
+    fields = ('token', 'last_used', 'create_date', 'scopes',)
+    readonly_fields = ('token', 'last_used', 'create_date',)
+    extra = 0
 
 
 @register(User)
@@ -30,3 +37,7 @@ class UserAdmin(BaseUserAdmin):
     list_filter = ('is_superuser', 'status', 'groups')
     search_fields = ('email',)
     ordering = ('email',)
+
+    inlines = [
+        UserAccessTokenInline,
+    ]

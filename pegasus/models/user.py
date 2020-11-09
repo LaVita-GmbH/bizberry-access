@@ -136,10 +136,11 @@ class User(AbstractUser):
     def create_transaction_token(self) -> str:
         audiences: List[str] = [scope.code for scope in self.get_scopes()]
 
-        token, token_id = self._create_token(
+        token, _ = self._create_token(
             validity=timedelta(minutes=5),
             audiences=audiences,
         )
+
         return token
 
     @sync_to_async
@@ -171,4 +172,23 @@ class UserAccessToken(models.Model):
     token = models.CharField(max_length=128, unique=True, db_index=True, default=_default_user_accesstoken_token, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='access_tokens')
     last_used = models.DateTimeField(null=True, blank=True)
+    create_date = models.DateTimeField(auto_now_add=True)
     scopes = models.ManyToManyField(Scope, related_name='user_access_tokens')
+
+    def get_scopes(self) -> Set[Scope]:
+        return set(self.scopes.all())
+
+    @sync_to_async
+    def create_transaction_token(self) -> str:
+        scopes: Set[Scope] = self.user.get_scopes()
+        if self.scopes.count():
+            scopes = scopes.intersection(self.get_scopes())
+
+        audiences: List[str] = [scope.code for scope in scopes]
+
+        token, _ = self.user._create_token(
+            validity=timedelta(minutes=5),
+            audiences=audiences,
+        )
+
+        return token
