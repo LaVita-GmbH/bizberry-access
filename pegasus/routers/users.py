@@ -1,6 +1,5 @@
 from typing import Callable, List, Tuple
 from fastapi import APIRouter, Depends, Security
-from fautils.security.jwt import get_token
 from ..utils import JWTToken
 from ..models import User
 
