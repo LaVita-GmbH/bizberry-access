@@ -114,6 +114,10 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = 'pegasus.User'
 
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    'hashers_passlib.pbkdf2_sha512',
+]
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
@@ -137,6 +141,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 
 # JWT
+JWT_ISSUER = os.getenv('JWT_ISSUER')
 JWT_PRIVATE_KEY = os.getenv('JWT_PRIVATE_KEY')
 JWT_PUBLIC_KEY = os.getenv('JWT_PUBLIC_KEY')
 

@@ -10,7 +10,10 @@ class UserAdmin(BaseUserAdmin):
         (None, {'fields': ('id', 'password')}),
         (_('Personal info'), {'fields': ('email',)}),
         (_('Permissions'), {
-            'fields': ('status', 'is_superuser', 'groups', 'user_permissions'),
+            'fields': ('status', 'is_superuser',),
+        }),
+        (_('Scopes'), {
+            'fields': ('roles', 'scopes',),
         }),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
     )
@@ -21,6 +24,7 @@ class UserAdmin(BaseUserAdmin):
         }),
     )
     readonly_fields = ('id',)
+    filter_horizontal = ('roles', 'scopes',)
 
     list_display = ('id', 'email', 'is_active')
     list_filter = ('is_superuser', 'status', 'groups')
