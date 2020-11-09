@@ -14,10 +14,9 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException
 from django.core.exceptions import ObjectDoesNotExist
-from fautils.handlers.error import generic_exception_handler, object_does_not_exist_handler
+from jose.exceptions import JOSEError
+from fautils.handlers.error import generic_exception_handler, object_does_not_exist_handler, jose_error_handler
 from fautils.middleware.sentry import SentryAsgiMiddleware
-
-from .schemas.response import Health
 from fautils.wrappers import wrap_into_response
 from fautils.schemas.response import Response
 
@@ -27,6 +26,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'pegasus.settings')
 django_asgi = get_asgi_application()
 
 
+from .schemas.response import Health
 from . import routers
 
 
@@ -40,13 +40,12 @@ async def healthcheck():
     return Health(status='ok')
 
 
-app.include_router(routers.auth.router, prefix='/auth', tags=['auth'])
-app.include_router(routers.users.router, prefix='/users', tags=['users'])
+app.include_router(routers.auth.router, prefix='/access/auth', tags=['auth'])
+app.include_router(routers.users.router, prefix='/access/users', tags=['users'])
 app.mount('', django_asgi)
 
 app.add_middleware(SentryAsgiMiddleware)
 
 app.add_exception_handler(Exception, generic_exception_handler)
 app.add_exception_handler(ObjectDoesNotExist, object_does_not_exist_handler)
-# app.add_exception_handler(HTTPException, http_exception_handler)
-# app.add_exception_handler(RequestValidationError, validation_exception_handler)
+app.add_exception_handler(JOSEError, jose_error_handler)

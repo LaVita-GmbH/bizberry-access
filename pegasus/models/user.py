@@ -67,7 +67,6 @@ class User(AbstractUser):
     password = models.CharField(_('password'), max_length=144)
     status = models.CharField(max_length=16, choices=Status.choices, default=Status.ACTIVE)
     roles = models.ManyToManyField(Role, related_name='users', blank=True)
-    scopes = models.ManyToManyField(Scope, related_name='users', blank=True)
 
     first_name = None
     last_name = None
@@ -100,12 +99,14 @@ class User(AbstractUser):
     def clean(self):
         pass
 
+    @sync_to_async
+    def get_roles(self) -> Set[Role]:
+        return set(self.roles.all())
+
     def get_scopes(self) -> Set[Scope]:
         scopes = set()
         for role in self.roles.all():
             scopes.update(role.get_scopes())
-
-        scopes.update([scope for scope in self.scopes.all()])
 
         return scopes
 

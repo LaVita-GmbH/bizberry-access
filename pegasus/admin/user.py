@@ -8,6 +8,7 @@ class UserAccessTokenInline(StackedInline):
     model = UserAccessToken
     fields = ('token', 'last_used', 'create_date', 'scopes',)
     readonly_fields = ('token', 'last_used', 'create_date',)
+    filter_horizontal = ('scopes',)
     extra = 0
 
 
@@ -20,7 +21,7 @@ class UserAdmin(BaseUserAdmin):
             'fields': ('status', 'is_superuser',),
         }),
         (_('Scopes'), {
-            'fields': ('roles', 'scopes',),
+            'fields': ('roles',),
         }),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
     )
@@ -31,7 +32,7 @@ class UserAdmin(BaseUserAdmin):
         }),
     )
     readonly_fields = ('id',)
-    filter_horizontal = ('roles', 'scopes',)
+    filter_horizontal = ('roles',)
 
     list_display = ('id', 'email', 'is_active')
     list_filter = ('is_superuser', 'status', 'groups')
