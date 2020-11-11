@@ -1,0 +1,13 @@
+scopes:
+  services:
+    - key: pegasus
+      resources:
+        - key: users
+          actions:
+            - key: request_transaction_token
+              internal: true
+            - key: create
+            - key: read
+              selectors:
+                - key: me
+                - key: all

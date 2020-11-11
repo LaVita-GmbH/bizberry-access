@@ -12,8 +12,11 @@ class RoleAdmin(ModelAdmin):
         (_('Scopes'), {
             'fields': ('scopes', 'included_roles',),
         }),
+        (_('Options'), {
+            'fields': ('default_role',),
+        }),
     ]
 
     filter_horizontal = ('scopes', 'included_roles',)
 
-    list_display = ('id', 'name',)
+    list_display = ('id', 'name', 'default_role',)

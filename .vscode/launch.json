@@ -45,7 +45,7 @@
             "request": "launch",
             "program": "${workspaceFolder}\\manage.py",
             "args": [
-                "createsuperuser"
+                "apply_scopes"
             ],
             "env": {
                 "DEBUG": "true",

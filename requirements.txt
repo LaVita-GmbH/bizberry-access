@@ -2,3 +2,5 @@ fastapi
 python-multipart
 fautils
 django-hashers-passlib
+email-validator
+pyyaml

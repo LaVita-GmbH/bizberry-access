@@ -16,6 +16,7 @@ class Scope(models.Model):
     resource = models.CharField(max_length=24)
     action = models.CharField(max_length=48)
     selector = models.CharField(max_length=32, null=True, blank=True)
+    is_active = models.BooleanField(default=True)
 
     @cached_property
     def keys(self) -> List[str]:

@@ -6,6 +6,7 @@ from django.db import models
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import AbstractUser, UserManager as BaseUserManager
 from djutils.crypt import random_string_generator
 from . import Scope, Role
@@ -101,16 +102,33 @@ class User(AbstractUser):
 
     @sync_to_async
     def get_roles(self) -> Set[Role]:
-        return set(self.roles.all())
+        roles = set(self.roles.all())
+        if not roles:
+            try:
+                roles = {Role.objects.get(is_default=True)}
 
+            except ObjectDoesNotExist:
+                pass
+
+        return roles
+
+    @sync_to_async
     def get_scopes(self) -> Set[Scope]:
         scopes = set()
-        for role in self.roles.all():
+        for role in self.get_roles():
             scopes.update(role.get_scopes())
 
         return scopes
 
-    def _create_token(self, *, validity: timedelta, audiences: List[str] = []) -> Tuple[str, str]:
+    @sync_to_async
+    def _create_token(
+        self,
+        *,
+        validity: timedelta,
+        audiences: List[str] = [],
+        store_in_db: bool = False,
+        token_type: Optional['UserToken.Types'] = None,
+    ) -> Tuple[str, str]:
         time_now = datetime.now()
         time_expire = time_now + validity
 
@@ -131,29 +149,30 @@ class User(AbstractUser):
             algorithm='ES512',
         )
 
+        if store_in_db:
+            self.tokens.create(id=token_id, type=token_type)
+
         return token, token_id
 
-    @sync_to_async
-    def create_transaction_token(self) -> str:
-        audiences: List[str] = [scope.code for scope in self.get_scopes()]
+    async def create_transaction_token(self) -> str:
+        audiences: List[str] = [scope.code for scope in await self.get_scopes()]
 
-        token, _ = self._create_token(
+        token, _ = await self._create_token(
             validity=timedelta(minutes=5),
             audiences=audiences,
         )
 
         return token
 
-    @sync_to_async
-    def create_user_token(self) -> str:
-        token, token_id = self._create_token(
+    async def create_user_token(self) -> str:
+        token, token_id = await self._create_token(
             validity=timedelta(days=365),
             audiences=[
                 'pegasus.users.request_transaction_token'
-            ]
+            ],
+            store_in_db=True,
+            token_type=UserToken.Types.USER,
         )
-
-        self.tokens.create(id=token_id, type=UserToken.Types.USER)
 
         return token
 
@@ -176,18 +195,18 @@ class UserAccessToken(models.Model):
     create_date = models.DateTimeField(auto_now_add=True)
     scopes = models.ManyToManyField(Scope, related_name='user_access_tokens')
 
+    @sync_to_async
     def get_scopes(self) -> Set[Scope]:
         return set(self.scopes.all())
 
-    @sync_to_async
-    def create_transaction_token(self) -> str:
-        scopes: Set[Scope] = self.user.get_scopes()
+    async def create_transaction_token(self) -> str:
+        scopes: Set[Scope] = await self.user.get_scopes()
         if self.scopes.count():
-            scopes = scopes.intersection(self.get_scopes())
+            scopes = scopes.intersection(await self.get_scopes())
 
         audiences: List[str] = [scope.code for scope in scopes]
 
-        token, _ = self.user._create_token(
+        token, _ = await self.user._create_token(
             validity=timedelta(minutes=5),
             audiences=audiences,
         )
