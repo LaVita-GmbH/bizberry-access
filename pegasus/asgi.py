@@ -17,8 +17,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from jose.exceptions import JOSEError
 from fautils.handlers.error import generic_exception_handler, object_does_not_exist_handler, jose_error_handler
 from fautils.middleware.sentry import SentryAsgiMiddleware
-from fautils.wrappers import wrap_into_response
-from fautils.schemas.response import Response
 
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'pegasus.settings')
