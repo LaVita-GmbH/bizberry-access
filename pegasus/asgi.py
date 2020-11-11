@@ -34,8 +34,7 @@ app = FastAPI(
     title="PEGASUS",
 )
 
-@app.get('/health', response_model=Response.wraps(data=Health))
-@wrap_into_response
+@app.get('/health', response_model=Health)
 async def healthcheck():
     return Health(status='ok')
 

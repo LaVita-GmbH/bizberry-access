@@ -5,8 +5,6 @@ from fastapi.security import SecurityScopes
 from django.contrib.auth import authenticate as sync_authenticate
 from django.conf import settings
 from asgiref.sync import sync_to_async
-from fautils.wrappers import wrap_into_response
-from fautils.schemas import Response
 from ..utils import JWTToken
 from ..models import User, UserAccessToken
 from ..schemas import request, response
@@ -32,8 +30,7 @@ def get_user(
     return User.objects.get(id=token['sub'])
 
 
-@router.post('/user', response_model=Response.wraps(data=response.AuthUser))
-@wrap_into_response
+@router.post('/user', response_model=response.AuthUser)
 async def get_user_token(credentials: request.AuthUser = Body(...)):
     user: User = await authenticate(username=credentials.username, password=credentials.password)
     if not user:
@@ -48,8 +45,7 @@ async def get_user_token(credentials: request.AuthUser = Body(...)):
     )
 
 
-@router.post('/transaction', response_model=Response.wraps(data=response.AuthTransaction))
-@wrap_into_response
+@router.post('/transaction', response_model=response.AuthTransaction)
 async def get_transaction_token(user: Optional[User] = Security(get_user, scopes=['pegasus.users.request_transaction_token']), credentials: Optional[request.AuthTransaction] = Body(default=None)):
     transaction_token = None
 

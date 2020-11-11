@@ -20,8 +20,7 @@ def get_user(token: dict = Security(jwt_token)) -> request.Auth:
     )
 
 
-@router.post('/', response_model=Response.wraps(response.User))
-@wrap_into_response
+@router.post('/', response_model=response.User)
 async def create_user(auth: request.Auth = Security(get_user, scopes=['pegasus.users.create']), create_user: request.UserCreate = Body(...)):
     new_user = User.objects.create_user(
         email=create_user.email,
@@ -35,8 +34,7 @@ async def create_user(auth: request.Auth = Security(get_user, scopes=['pegasus.u
     return response_user
 
 
-@router.get('/me', response_model=Response.wraps(response.User))
-@wrap_into_response
+@router.get('/me', response_model=response.User)
 async def get_me(auth: request.Auth = Security(get_user, scopes=['pegasus.users.read.all', 'pegasus.users.read.me'])):
     response_user = await response.User.from_orm(auth.user)
     return response_user
