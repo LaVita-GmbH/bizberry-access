@@ -8,6 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import AbstractUser, UserManager as BaseUserManager
+from django.utils import timezone
 from djutils.crypt import random_string_generator
 from . import Scope, Role
 
@@ -105,18 +106,17 @@ class User(AbstractUser):
         roles = set(self.roles.all())
         if not roles:
             try:
-                roles = {Role.objects.get(is_default=True)}
+                roles = {Role.objects.get(is_default_role=True)}
 
             except ObjectDoesNotExist:
                 pass
 
         return roles
 
-    @sync_to_async
-    def get_scopes(self) -> Set[Scope]:
+    async def get_scopes(self) -> Set[Scope]:
         scopes = set()
-        for role in self.get_roles():
-            scopes.update(role.get_scopes())
+        for role in await self.get_roles():
+            scopes.update(await role.get_scopes())
 
         return scopes
 
@@ -129,7 +129,7 @@ class User(AbstractUser):
         store_in_db: bool = False,
         token_type: Optional['UserToken.Types'] = None,
     ) -> Tuple[str, str]:
-        time_now = datetime.now()
+        time_now = timezone.now()
         time_expire = time_now + validity
 
         token_id = random_string_generator(size=128)
@@ -137,6 +137,7 @@ class User(AbstractUser):
         claims = {
             'iss': settings.JWT_ISSUER,
             'iat': time_now,
+            'nbf': time_now,
             'exp': time_expire,
             'sub': self.id,
             'aud': audiences,

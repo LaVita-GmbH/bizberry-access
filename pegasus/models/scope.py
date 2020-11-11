@@ -20,7 +20,7 @@ class Scope(models.Model):
 
     @cached_property
     def keys(self) -> List[str]:
-        return [value for _, value in model_to_dict(self, fields=('service', 'resource', 'action', 'selector')).items() if value]
+        return list(filter(lambda s: s, [self.service, self.resource, self.action, self.selector,]))
 
     @cached_property
     def code(self) -> str:

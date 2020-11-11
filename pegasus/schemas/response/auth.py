@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 
 class AuthUserToken(BaseModel):
-    refresh: str
+    user: str
 
 
 class AuthUser(BaseModel):

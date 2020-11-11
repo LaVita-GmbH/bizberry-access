@@ -40,7 +40,7 @@ async def get_user_token(credentials: request.AuthUser = Body(...)):
 
     return response.AuthUser(
         token=response.AuthUserToken(
-            refresh=await user.create_user_token(),
+            user=await user.create_user_token(),
         )
     )
 

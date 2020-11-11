@@ -1,11 +1,12 @@
 from typing import Optional
 from pydantic import BaseModel, Field
+from fautils.security.jwt import Scope
 from ...models import User
 
 
 class Auth(BaseModel):
     user: User
-    scopes: tuple
+    scope: Scope
 
     class Config:
         arbitrary_types_allowed = True

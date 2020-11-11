@@ -10,13 +10,11 @@ https://docs.djangoproject.com/en/3.1/howto/deployment/asgi/
 import os
 from django.core.asgi import get_asgi_application
 from fastapi import FastAPI
-from fastapi.encoders import jsonable_encoder
-from fastapi.exceptions import RequestValidationError
-from starlette.exceptions import HTTPException
 from django.core.exceptions import ObjectDoesNotExist
 from jose.exceptions import JOSEError
-from fautils.handlers.error import generic_exception_handler, object_does_not_exist_handler, jose_error_handler
+from fautils.handlers.error import generic_exception_handler, object_does_not_exist_handler, jose_error_handler, http_exception_handler
 from fautils.middleware.sentry import SentryAsgiMiddleware
+from starlette.exceptions import HTTPException
 
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'pegasus.settings')
@@ -43,6 +41,7 @@ app.mount('', django_asgi)
 
 app.add_middleware(SentryAsgiMiddleware)
 
+app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(Exception, generic_exception_handler)
 app.add_exception_handler(ObjectDoesNotExist, object_does_not_exist_handler)
 app.add_exception_handler(JOSEError, jose_error_handler)

@@ -13,25 +13,33 @@ def _default_group_id():
 class Role(models.Model):
     id = models.CharField(max_length=32, primary_key=True, default=_default_group_id, editable=False)
     name = models.CharField(max_length=56)
-    included_roles = models.ManyToManyField('self', blank=True)
+    included_roles = models.ManyToManyField('self', blank=True, symmetrical=False, related_name='+')
     scopes = models.ManyToManyField(Scope, related_name='roles', blank=True)
-    default_role = models.BooleanField(default=False)
+    is_default_role = models.BooleanField(default=False)
 
     def __str__(self) -> str:
         return f'{self.name} ({self.id})'
 
-    @sync_to_async
-    def get_scopes(self, exclude_roles: Optional[set] = set()) -> Set[Scope]:
+    async def get_scopes(self, exclude_roles: Optional[set] = set()) -> Set[Scope]:
         scopes = set()
         exclude_roles.add(self.id)
-        for role in self.included_roles.exclude(id__in=exclude_roles):
-            scopes.update(async_to_sync(role.get_scopes(exclude_roles=exclude_roles)))
 
-        scopes.update(list(self.scopes.filter(is_active=True)))
+        @sync_to_async
+        def get_scopes():
+            return list(self.scopes.filter(is_active=True))
+
+        scopes.update(await get_scopes())
+
+        @sync_to_async
+        def get_roles():
+            return list(self.included_roles.exclude(id__in=exclude_roles))
+
+        for role in await get_roles():
+            scopes.update(await role.get_scopes(exclude_roles=exclude_roles))
 
         return scopes
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=('default_role',), name='default_role_unique', condition=models.Q(default_role=True)),
+            models.UniqueConstraint(fields=('is_default_role',), name='is_default_role_unique', condition=models.Q(is_default_role=True)),
         ]

@@ -11,3 +11,7 @@ scopes:
               selectors:
                 - key: me
                 - key: all
+            - key: write
+              selectors:
+                - key: me
+                - key: all
