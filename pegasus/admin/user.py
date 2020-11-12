@@ -1,7 +1,7 @@
 from django.utils.translation import gettext, gettext_lazy as _
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django.contrib.admin import register, StackedInline
-from ..models import User, UserAccessToken
+from django.contrib.admin import register, StackedInline, TabularInline
+from ..models import User, UserAccessToken, UserRoleRelation
 
 
 class UserAccessTokenInline(StackedInline):
@@ -12,6 +12,12 @@ class UserAccessTokenInline(StackedInline):
     extra = 0
 
 
+class UserRoleRelationInline(TabularInline):
+    model = UserRoleRelation
+    fields = ('role', 'tenant',)
+    extra = 0
+
+
 @register(User)
 class UserAdmin(BaseUserAdmin):
     fieldsets = (
@@ -19,9 +25,6 @@ class UserAdmin(BaseUserAdmin):
         (_('Personal info'), {'fields': ('email',)}),
         (_('Permissions'), {
             'fields': ('status', 'is_superuser',),
-        }),
-        (_('Scopes'), {
-            'fields': ('roles',),
         }),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
     )
@@ -41,4 +44,5 @@ class UserAdmin(BaseUserAdmin):
 
     inlines = [
         UserAccessTokenInline,
+        UserRoleRelationInline,
     ]

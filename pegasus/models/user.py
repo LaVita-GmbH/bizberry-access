@@ -1,4 +1,4 @@
-from typing import List, Set, Tuple, Optional
+from typing import List, Set, Tuple, Optional, Union
 from datetime import datetime, timedelta
 from jose import jwt
 from asgiref.sync import sync_to_async
@@ -10,7 +10,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import AbstractUser, UserManager as BaseUserManager
 from django.utils import timezone
 from djutils.crypt import random_string_generator
-from . import Scope, Role
+from . import Scope, Role, Tenant
 
 
 def _default_user_id():
@@ -68,7 +68,7 @@ class User(AbstractUser):
     email = models.CharField(max_length=320, unique=True)
     password = models.CharField(_('password'), max_length=144)
     status = models.CharField(max_length=16, choices=Status.choices, default=Status.ACTIVE)
-    roles = models.ManyToManyField(Role, related_name='users', blank=True)
+    roles = models.ManyToManyField(Role, related_name='users', blank=True, through='UserRoleRelation', through_fields=('user', 'role'),)
 
     first_name = None
     last_name = None
@@ -102,8 +102,11 @@ class User(AbstractUser):
         pass
 
     @sync_to_async
-    def get_roles(self) -> Set[Role]:
-        roles = set(self.roles.all())
+    def get_roles(self, tenant: Union[Tenant, str]) -> Set[Role]:
+        if isinstance(tenant, str):
+            tenant: Tenant = Tenant.objects.get(id=tenant)
+
+        roles = set([rel.role for rel in self.roles_rel.filter(tenant=tenant)])
         if not roles:
             try:
                 roles = {Role.objects.get(is_default_role=True)}
@@ -113,9 +116,9 @@ class User(AbstractUser):
 
         return roles
 
-    async def get_scopes(self) -> Set[Scope]:
+    async def get_scopes(self, tenant: Union[Tenant, str]) -> Set[Scope]:
         scopes = set()
-        for role in await self.get_roles():
+        for role in await self.get_roles(tenant=tenant):
             scopes.update(await role.get_scopes())
 
         return scopes
@@ -125,7 +128,7 @@ class User(AbstractUser):
         self,
         *,
         validity: timedelta,
-        tenant: str,
+        tenant: Union[Tenant, str],
         audiences: List[str] = [],
         store_in_db: bool = False,
         token_type: Optional['UserToken.Types'] = None,
@@ -135,13 +138,16 @@ class User(AbstractUser):
 
         token_id = random_string_generator(size=128)
 
+        if isinstance(tenant, str):
+            tenant: Tenant = Tenant.objects.get(id=tenant)
+
         claims = {
             'iss': settings.JWT_ISSUER,
             'iat': time_now,
             'nbf': time_now,
             'exp': time_expire,
             'sub': self.id,
-            'ten': tenant,
+            'ten': tenant.id,
             'aud': audiences,
             'jti': token_id,
         }
@@ -153,23 +159,25 @@ class User(AbstractUser):
         )
 
         if store_in_db:
-            self.tokens.create(id=token_id, type=token_type)
+            self.tokens.create(id=token_id, tenant=tenant, type=token_type)
 
         return token, token_id
 
-    async def create_transaction_token(self) -> str:
-        audiences: List[str] = [scope.code for scope in await self.get_scopes()]
+    async def create_transaction_token(self, tenant: Union[Tenant, str]) -> str:
+        audiences: List[str] = [scope.code for scope in await self.get_scopes(tenant=tenant)]
 
         token, _ = await self._create_token(
             validity=timedelta(minutes=5),
+            tenant=tenant,
             audiences=audiences,
         )
 
         return token
 
-    async def create_user_token(self) -> str:
+    async def create_user_token(self, tenant: Union[Tenant, str]) -> str:
         token, token_id = await self._create_token(
             validity=timedelta(days=365),
+            tenant=tenant,
             audiences=[
                 'pegasus.users.request_transaction_token'
             ],
@@ -180,12 +188,19 @@ class User(AbstractUser):
         return token
 
 
+class UserRoleRelation(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='roles_rel')
+    role = models.ForeignKey(Role, on_delete=models.CASCADE, related_name='users_rel')
+    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE)
+
+
 class UserToken(models.Model):
     class Types(models.TextChoices):
         USER = 'user', _('User Token')
 
     id = models.CharField(max_length=128, primary_key=True, default=_default_user_token_id, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tokens')
+    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE, related_name='user_tokens')
     type = models.CharField(max_length=16, choices=Types.choices)
     create_date = models.DateTimeField(auto_now_add=True)
 
@@ -194,6 +209,7 @@ class UserAccessToken(models.Model):
     id = models.CharField(max_length=64, primary_key=True, default=_default_user_accesstoken_id, editable=False)
     token = models.CharField(max_length=128, unique=True, db_index=True, default=_default_user_accesstoken_token, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='access_tokens')
+    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE, related_name='user_access_tokens')
     last_used = models.DateTimeField(null=True, blank=True)
     create_date = models.DateTimeField(auto_now_add=True)
     scopes = models.ManyToManyField(Scope, related_name='user_access_tokens')
@@ -212,6 +228,7 @@ class UserAccessToken(models.Model):
         token, _ = await self.user._create_token(
             validity=timedelta(minutes=5),
             audiences=audiences,
+            tenant=self.tenant,
         )
 
         return token

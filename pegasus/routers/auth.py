@@ -5,6 +5,8 @@ from fastapi.security import SecurityScopes
 from django.contrib.auth import authenticate as sync_authenticate
 from django.conf import settings
 from asgiref.sync import sync_to_async
+from olympus.schemas import Access
+from olympus.exceptions import AuthError
 from ..utils import JWTToken
 from ..models import User, UserAccessToken
 from ..schemas import request, response
@@ -20,19 +22,18 @@ user_token = JWTToken(
 authenticate = sync_to_async(sync_authenticate, thread_sensitive=True)
 
 
-def get_user(
-    scopes: SecurityScopes,
-    token: dict = Depends(user_token),
-) -> Optional[User]:
-    if not token:
+def access_user(access: Optional[Access] = Security(user_token)) -> Access:
+    if not access:
         return
 
-    return User.objects.get(id=token['sub'])
+    access.user = User.objects.get(id=access.user_id)
+
+    return access
 
 
 @router.post('/user', response_model=response.AuthUser)
 async def get_user_token(credentials: request.AuthUser = Body(...)):
-    user: User = await authenticate(username=credentials.username, password=credentials.password)
+    user: User = await authenticate(email=credentials.email, password=credentials.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -40,13 +41,13 @@ async def get_user_token(credentials: request.AuthUser = Body(...)):
 
     return response.AuthUser(
         token=response.AuthUserToken(
-            user=await user.create_user_token(),
+            user=await user.create_user_token(tenant=credentials.tenant.id),
         )
     )
 
 
 @router.post('/transaction', response_model=response.AuthTransaction)
-async def get_transaction_token(user: Optional[User] = Security(get_user, scopes=['pegasus.users.request_transaction_token']), credentials: Optional[request.AuthTransaction] = Body(default=None)):
+async def get_transaction_token(access: Optional[Access] = Security(access_user, scopes=['pegasus.users.request_transaction_token']), credentials: Optional[request.AuthTransaction] = Body(default=None)):
     transaction_token = None
 
     if credentials and credentials.access_token:
@@ -57,11 +58,11 @@ async def get_transaction_token(user: Optional[User] = Security(get_user, scopes
         user_accesstoken: UserAccessToken = await get_token_from_access_token(credentials.access_token)
         transaction_token = await user_accesstoken.create_transaction_token()
 
-    elif user:
-        transaction_token = await user.create_transaction_token()
+    elif access and access.user:
+        transaction_token = await access.user.create_transaction_token(access.tenant_id)
 
     else:
-        raise HTTPException(status_code=401)
+        raise AuthError
 
     return response.AuthTransaction(
         token=response.AuthTransactionToken(

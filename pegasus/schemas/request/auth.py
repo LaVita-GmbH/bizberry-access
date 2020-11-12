@@ -1,20 +1,13 @@
 from typing import Optional
 from pydantic import BaseModel, Field
-from olympus.security.jwt import Scope
 from ...models import User
-
-
-class Auth(BaseModel):
-    user: User
-    scope: Scope
-
-    class Config:
-        arbitrary_types_allowed = True
+from . import TenantReference
 
 
 class AuthUser(BaseModel):
-    username: Optional[str]
+    email: Optional[str]
     password: str
+    tenant: TenantReference
 
 
 class AuthTransaction(BaseModel):

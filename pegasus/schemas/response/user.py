@@ -19,11 +19,11 @@ class User(BaseModel):
         orm_mode = True
 
     @classmethod
-    async def from_orm(cls, obj: models.User):
+    async def from_orm(cls, obj: models.User, tenant: str):
         values = {
             'id': obj.id,
             'email': obj.email,
             'status': obj.status,
-            'roles': [Role.from_orm(role) for role in await obj.get_roles()],
+            'roles': [Role.from_orm(role) for role in await obj.get_roles(tenant=tenant)],
         }
         return cls(**values)

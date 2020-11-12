@@ -2,6 +2,7 @@ from typing import Dict, Tuple
 from asgiref.sync import sync_to_async
 from fastapi import APIRouter, Security, Body
 from olympus.exceptions import AccessError
+from olympus.schemas import Access
 from ..utils import JWTToken
 from ..models import User, Role
 from ..schemas import response, request
@@ -9,20 +10,19 @@ from ..schemas import response, request
 
 router = APIRouter()
 
-jwt_token = JWTToken(scheme_name="Transaction Token")
+transaction_token = JWTToken(scheme_name="Transaction Token")
 
 
-def auth_user(token: dict = Security(jwt_token)) -> request.Auth:
-    return request.Auth(
-        user=User.objects.get(id=token['sub']),
-        scope=token['scope'],
-    )
+def access_user(access: Access = Security(transaction_token)) -> Access:
+    access.user = User.objects.get(id=access.user_id)
+
+    return access
 
 
 @sync_to_async
-def get_user_by_id(user_id: str, auth: request.Auth):
+def get_user_by_id(user_id: str, access: Access):
     user = User.objects.get(id=user_id)
-    if auth.scope.selector != 'all' and user != auth.user:
+    if access.scope.selector != 'all' and user != access.user:
         raise AccessError
 
     return user
@@ -42,20 +42,20 @@ def create_user(body: request.UserCreate):
 
 
 @router.post('/', response_model=response.User)
-async def post_user(auth: request.Auth = Security(auth_user, scopes=['pegasus.users.create',]), body: request.UserCreate = Body(...)):
+async def post_user(access: Access = Security(access_user, scopes=['pegasus.users.create',]), body: request.UserCreate = Body(...)):
     new_user = await create_user(body)
 
-    response_user = await response.User.from_orm(new_user)
+    response_user = await response.User.from_orm(new_user, tenant=access.tenant_id)
     return response_user
 
 
 @router.get('/me', response_model=response.User)
-async def get_me(auth: request.Auth = Security(auth_user, scopes=['pegasus.users.read.me',])):
-    return await get_user(auth.user.id, auth=auth)
+async def get_me(access: Access = Security(access_user, scopes=['pegasus.users.read.me',])):
+    return await get_user(access.user.id, access=access)
 
 
 @router.get('/{user_id}', response_model=response.User)
-async def get_user(user_id: str, auth: request.Auth = Security(auth_user, scopes=['pegasus.users.read.all', 'pegasus.users.read.me'])):
-    user = await get_user_by_id(user_id, auth)
+async def get_user(user_id: str, access: Access = Security(access_user, scopes=['pegasus.users.read.all', 'pegasus.users.read.me'])):
+    user = await get_user_by_id(user_id, access)
 
-    return await response.User.from_orm(user)
+    return await response.User.from_orm(user, tenant=access.tenant_id)

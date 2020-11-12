@@ -1,1 +1,1 @@
-from . import user, scope, role
+from . import user, scope, role, tenant
