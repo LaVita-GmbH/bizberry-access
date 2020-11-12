@@ -1,7 +1,7 @@
 from typing import Dict, Tuple
 from asgiref.sync import sync_to_async
 from fastapi import APIRouter, Security, Body
-from fautils.exceptions import AccessError
+from olympus.exceptions import AccessError
 from ..utils import JWTToken
 from ..models import User, Role
 from ..schemas import response, request

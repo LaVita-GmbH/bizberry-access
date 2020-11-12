@@ -12,8 +12,8 @@ from django.core.asgi import get_asgi_application
 from fastapi import FastAPI
 from django.core.exceptions import ObjectDoesNotExist
 from jose.exceptions import JOSEError
-from fautils.handlers.error import generic_exception_handler, object_does_not_exist_handler, jose_error_handler, http_exception_handler
-from fautils.middleware.sentry import SentryAsgiMiddleware
+from olympus.handlers.error import generic_exception_handler, object_does_not_exist_handler, jose_error_handler, http_exception_handler
+from olympus.middleware.sentry import SentryAsgiMiddleware
 from starlette.exceptions import HTTPException
 
 

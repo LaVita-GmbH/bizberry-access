@@ -1,5 +1,5 @@
 from django.conf import settings
-from fautils.security.jwt import JWTToken as BaseJWTToken
+from olympus.security.jwt import JWTToken as BaseJWTToken
 
 
 class JWTToken(BaseJWTToken):

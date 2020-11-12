@@ -1,6 +1,6 @@
 from typing import Optional
 from pydantic import BaseModel, Field
-from fautils.security.jwt import Scope
+from olympus.security.jwt import Scope
 from ...models import User
 
 

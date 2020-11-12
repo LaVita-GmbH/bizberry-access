@@ -125,6 +125,7 @@ class User(AbstractUser):
         self,
         *,
         validity: timedelta,
+        tenant: str,
         audiences: List[str] = [],
         store_in_db: bool = False,
         token_type: Optional['UserToken.Types'] = None,
@@ -140,6 +141,7 @@ class User(AbstractUser):
             'nbf': time_now,
             'exp': time_expire,
             'sub': self.id,
+            'ten': tenant,
             'aud': audiences,
             'jti': token_id,
         }

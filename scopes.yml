@@ -21,3 +21,9 @@ scopes:
               selectors:
                 - key: me
                 - key: all
+
+        - key: tenants
+          actions:
+            - key: create
+            - key: read
+            - key: write
