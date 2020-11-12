@@ -6,6 +6,12 @@ scopes:
           actions:
             - key: request_transaction_token
               internal: true
+            - key: impersonate
+              selectors:
+                - key: others
+            - key: impersionation
+              selectors:
+                - key: restricted
             - key: create
             - key: read
               selectors:
