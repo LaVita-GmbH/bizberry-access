@@ -28,7 +28,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 't#4w_p3jg=61)r3y$e95eyl46lkb+#_-ifas@&$9hm_ko_lo9o'
+SECRET_KEY = os.getenv('SECRET_KEY', 't#4w_p3jg=61)r3y$e95eyl46lkb+#_-ifas@&$9hm_ko_lo9o')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True if os.getenv('DEBUG') else False
@@ -75,8 +75,6 @@ TEMPLATES = [
         },
     },
 ]
-
-WSGI_APPLICATION = 'pegasus.wsgi.application'
 
 
 # Database
