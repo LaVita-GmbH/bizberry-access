@@ -41,7 +41,7 @@ def create_user(body: request.UserCreate):
     return new_user
 
 
-@router.post('/', response_model=response.User)
+@router.post('', response_model=response.User)
 async def post_user(access: Access = Security(access_user, scopes=['pegasus.users.create',]), body: request.UserCreate = Body(...)):
     new_user = await create_user(body)
 

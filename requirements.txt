@@ -3,3 +3,5 @@ python-multipart
 django-hashers-passlib
 email-validator
 pyyaml
+sentry-asgi
+sentry-sdk
