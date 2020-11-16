@@ -18,6 +18,10 @@ class TenantCountry(BaseModel):
         )
 
 
+class TenantCountriesList(BaseModel):
+    countries: List[TenantCountry]
+
+
 class Tenant(BaseModel):
     id: str
     name: Optional[str] = None
