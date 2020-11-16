@@ -116,10 +116,10 @@ class User(AbstractUser):
 
         return roles
 
-    async def get_scopes(self, tenant: Union[Tenant, str]) -> Set[Scope]:
+    async def get_scopes(self, tenant: Union[Tenant, str], include_critical: bool = True) -> Set[Scope]:
         scopes = set()
         for role in await self.get_roles(tenant=tenant):
-            scopes.update(await role.get_scopes())
+            scopes.update(await role.get_scopes(include_critical=include_critical))
 
         return scopes
 
@@ -163,8 +163,8 @@ class User(AbstractUser):
 
         return token, token_id
 
-    async def create_transaction_token(self, tenant: Union[Tenant, str]) -> str:
-        audiences: List[str] = [scope.code for scope in await self.get_scopes(tenant=tenant)]
+    async def create_transaction_token(self, tenant: Union[Tenant, str], include_critical: bool = False) -> str:
+        audiences: List[str] = [scope.code for scope in await self.get_scopes(tenant=tenant, include_critical=include_critical)]
 
         token, _ = await self._create_token(
             validity=timedelta(minutes=5),
@@ -212,16 +212,20 @@ class UserAccessToken(models.Model):
     tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE, related_name='user_access_tokens')
     last_used = models.DateTimeField(null=True, blank=True)
     create_date = models.DateTimeField(auto_now_add=True)
-    scopes = models.ManyToManyField(Scope, related_name='user_access_tokens')
+    scopes = models.ManyToManyField(Scope, related_name='user_access_tokens', limit_choices_to={'is_active': True, 'is_internal': False})
 
     @sync_to_async
-    def get_scopes(self) -> Set[Scope]:
-        return set(self.scopes.all())
+    def get_scopes(self, include_critical: bool = True) -> Set[Scope]:
+        filters = models.Q()
+        if not include_critical:
+            filters &= models.Q(is_critical=False)
 
-    async def create_transaction_token(self) -> str:
+        return set(self.scopes.filter(filters))
+
+    async def create_transaction_token(self, include_critical: bool = False) -> str:
         scopes: Set[Scope] = await self.user.get_scopes()
         if self.scopes.count():
-            scopes = scopes.intersection(await self.get_scopes())
+            scopes = scopes.intersection(await self.get_scopes(include_critical=include_critical))
 
         audiences: List[str] = [scope.code for scope in scopes]
 

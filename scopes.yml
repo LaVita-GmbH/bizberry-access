@@ -7,9 +7,11 @@ scopes:
             - key: request_transaction_token
               internal: true
             - key: impersonate
+              critical: true
               selectors:
                 - key: others
             - key: impersionation
+              internal: true
               selectors:
                 - key: restricted
             - key: create
@@ -18,6 +20,7 @@ scopes:
                 - key: me
                 - key: all
             - key: write
+              critical: true
               selectors:
                 - key: me
                 - key: all

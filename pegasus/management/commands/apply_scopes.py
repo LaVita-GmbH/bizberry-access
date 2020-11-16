@@ -1,4 +1,5 @@
 import os.path
+from typing import Any, List
 import yaml
 from django.core.management.base import BaseCommand, CommandError, CommandParser
 from django.conf import settings
@@ -11,6 +12,17 @@ class Command(BaseCommand):
     def add_arguments(self, parser: CommandParser):
         parser.add_argument('--file', type=str, default=os.path.join(settings.BASE_DIR, 'scopes.yml'), required=False)
 
+    @classmethod
+    def _get_attribute_with_fallbacks(cls, key: str, objects: List[dict], fallback: Any = None):
+        for obj in objects:
+            try:
+                return obj[key]
+
+            except KeyError:
+                pass
+
+        return fallback
+
     def handle(self, *args, **options):
         current_scopes = []
 
@@ -19,18 +31,9 @@ class Command(BaseCommand):
             services = definition['scopes']['services']
             for service in services:
                 for resource in service['resources']:
-                    if resource.get('internal'):
-                        continue
-
                     for action in resource['actions']:
-                        if action.get('internal'):
-                            continue
-
                         selectors = action.get('selectors') or [{'key': None}]
                         for selector in selectors:
-                            if selector.get('internal'):
-                                continue
-
                             print(service['key'], resource['key'], action['key'], selector['key'])
                             scope, _ = Scope.objects.get_or_create(
                                 service=service['key'],
@@ -41,8 +44,11 @@ class Command(BaseCommand):
 
                             if not scope.is_active:
                                 scope.is_active = True
-                                scope.save()
 
+                            scope.is_internal = self._get_attribute_with_fallbacks('internal', [selector, action, resource, service], False)
+                            scope.is_critical = self._get_attribute_with_fallbacks('critical', [selector, action, resource, service], False)
+
+                            scope.save()
                             current_scopes.append(scope)
 
         old_scopes = Scope.objects.exclude(id__in=[scope.id for scope in current_scopes])

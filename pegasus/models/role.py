@@ -14,19 +14,23 @@ class Role(models.Model):
     id = models.CharField(max_length=32, primary_key=True, default=_default_group_id, editable=False)
     name = models.CharField(max_length=56)
     included_roles = models.ManyToManyField('self', blank=True, symmetrical=False, related_name='+')
-    scopes = models.ManyToManyField(Scope, related_name='roles', blank=True)
+    scopes = models.ManyToManyField(Scope, related_name='roles', blank=True, limit_choices_to={'is_active': True, 'is_internal': False})
     is_default_role = models.BooleanField(default=False)
 
     def __str__(self) -> str:
         return f'{self.name} ({self.id})'
 
-    async def get_scopes(self, exclude_roles: Optional[set] = set()) -> Set[Scope]:
+    async def get_scopes(self, include_critical: bool = True, exclude_roles: Optional[set] = set()) -> Set[Scope]:
         scopes = set()
         exclude_roles.add(self.id)
 
         @sync_to_async
         def get_scopes():
-            return list(self.scopes.filter(is_active=True))
+            filters = models.Q(is_active=True, is_internal=False)
+            if not include_critical:
+                filters &= models.Q(is_critical=False)
+
+            return list(self.scopes.filter(filters))
 
         scopes.update(await get_scopes())
 
