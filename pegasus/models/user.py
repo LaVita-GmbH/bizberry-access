@@ -61,13 +61,18 @@ class UserManager(BaseUserManager):
 
 class User(AbstractUser):
     class Status(models.TextChoices):
-        ACTIVE = 'active', _('Active')
-        TERMINATED = 'terminated', _('Terminated')
+        ACTIVE = 'active', _("Active")
+        TERMINATED = 'terminated', _("Terminated")
+
+    class Type(models.TextChoices):
+        USER = 'user', _("User")
+        SERVICE = 'service', _("Service")
 
     id = models.CharField(max_length=64, primary_key=True, default=_default_user_id, editable=False)
     email = models.CharField(max_length=320, unique=True)
     password = models.CharField(_('password'), max_length=144)
     status = models.CharField(max_length=16, choices=Status.choices, default=Status.ACTIVE)
+    type = models.CharField(max_length=16, choices=Type.choices, default=Type.USER)
     roles = models.ManyToManyField(Role, related_name='users', blank=True, through='UserRoleRelation', through_fields=('user', 'role'),)
 
     first_name = None
@@ -107,7 +112,7 @@ class User(AbstractUser):
             tenant: Tenant = Tenant.objects.get(id=tenant)
 
         roles = set([rel.role for rel in self.roles_rel.filter(tenant=tenant)])
-        if not roles:
+        if not roles and self.type == self.Type.USER:
             try:
                 roles = {Role.objects.get(is_default_role=True)}
 

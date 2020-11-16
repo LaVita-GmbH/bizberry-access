@@ -30,3 +30,12 @@ scopes:
             - key: create
             - key: read
             - key: write
+
+    - key: elysium
+      resources:
+        - key: client
+          actions:
+            - key: create
+        - key: address
+          actions:
+            - key: create
