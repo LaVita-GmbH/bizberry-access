@@ -1,11 +1,8 @@
 from typing import Optional
 from datetime import timedelta
 from django.utils import timezone
-from django.utils.translation import TranslatorCommentWarning
-from fastapi import APIRouter, Depends, HTTPException, status, Body, Security
-from fastapi.security import SecurityScopes
+from fastapi import APIRouter, HTTPException, status, Body, Security
 from django.contrib.auth import authenticate as sync_authenticate
-from django.conf import settings
 from asgiref.sync import sync_to_async
 from olympus.schemas import Access, Error
 from olympus.exceptions import AuthError
