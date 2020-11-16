@@ -50,12 +50,12 @@ async def post_user(access: Access = Security(access_user, scopes=['pegasus.user
 
 
 @router.get('/me', response_model=response.User)
-async def get_me(access: Access = Security(access_user, scopes=['pegasus.users.read.me',])):
+async def get_me(access: Access = Security(access_user, scopes=['pegasus.users.read.own',])):
     return await get_user(access.user.id, access=access)
 
 
 @router.get('/{user_id}', response_model=response.User)
-async def get_user(user_id: str, access: Access = Security(access_user, scopes=['pegasus.users.read.all', 'pegasus.users.read.me'])):
+async def get_user(user_id: str, access: Access = Security(access_user, scopes=['pegasus.users.read.any', 'pegasus.users.read.own'])):
     user = await get_user_by_id(user_id, access)
 
     return await response.User.from_orm(user, tenant=access.tenant_id)

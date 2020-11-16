@@ -1,0 +1,85 @@
+scopes:
+  services:
+    - key: pegasus
+      resources:
+        - key: users
+          actions:
+            - key: request_transaction_token
+              internal: true
+            - key: impersonate
+              critical: true
+              selectors:
+                - key: others
+            - key: impersionation
+              internal: true
+              selectors:
+                - key: restricted
+            - key: create
+            - key: read
+              selectors:
+                - key: own
+                - key: any
+            - key: write
+              critical: true
+              selectors:
+                - key: own
+                - key: any
+
+        - key: tenants
+          actions:
+            - key: create
+            - key: read
+            - key: write
+
+    - key: elysium
+      resources:
+        - key: clients
+          actions:
+            - key: create
+              selectors:
+                - key: own
+                - key: any
+                - key: norel
+        - key: addresses
+          actions:
+            - key: create
+              selectors:
+                - key: own
+                - key: any
+            - key: read
+              selectors:
+                - key: own
+                - key: any
+            - key: write
+              selectors:
+                - key: own
+                - key: any
+
+roles:
+  - key: default
+    is_default: true
+    scopes:
+      - code: pegasus.users.read.own
+      - code: pegasus.users.write.own
+      - code: pegasus.tenants.read
+      - code: elysium.clients.create.own
+      - code: elysium.addresses.create.own
+      - code: elysium.addresses.read.own
+      - code: elysium.addresses.write.own
+
+  - key: admin
+    scopes:
+      - code: pegasus.users.read.any
+      - code: pegasus.users.write.any
+      - code: pegasus.tenants.create
+      - code: pegasus.tenants.write
+      - code: elysium.clients.create.any
+      - code: elysium.addresses.create.any
+      - code: elysium.addresses.read.any
+      - code: elysium.addresses.write.any
+    included_roles:
+      - key: default
+
+  - key: consumer
+    scopes:
+      - code: elysium.clients.create.norel

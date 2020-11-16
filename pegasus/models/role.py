@@ -15,7 +15,8 @@ class Role(models.Model):
     name = models.CharField(max_length=56)
     included_roles = models.ManyToManyField('self', blank=True, symmetrical=False, related_name='+')
     scopes = models.ManyToManyField(Scope, related_name='roles', blank=True, limit_choices_to={'is_active': True, 'is_internal': False})
-    is_default_role = models.BooleanField(default=False)
+    is_default = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self) -> str:
         return f'{self.name} ({self.id})'

@@ -13,10 +13,20 @@ class RoleAdmin(ModelAdmin):
             'fields': ('scopes', 'included_roles',),
         }),
         (_('Options'), {
-            'fields': ('is_default_role',),
+            'fields': ('is_default',),
         }),
     ]
 
     filter_horizontal = ('scopes', 'included_roles',)
 
-    list_display = ('id', 'name', 'is_default_role',)
+    list_display = ('id', 'name', 'is_default',)
+
+    def has_add_permission(self, request) -> bool:
+        return False
+
+    def has_change_permission(self, request, obj=None) -> bool:
+        return False
+
+    def has_delete_permission(self, request, obj=None) -> bool:
+        return False
+
