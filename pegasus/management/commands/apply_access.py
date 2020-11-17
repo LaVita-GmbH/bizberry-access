@@ -1,9 +1,13 @@
 import os.path
+import logging
 from typing import Any, List
 import yaml
 from django.core.management.base import BaseCommand, CommandError, CommandParser
 from django.conf import settings
 from ...models import Scope, Role
+
+
+_logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -32,13 +36,13 @@ class Command(BaseCommand):
                 for action in resource['actions']:
                     selectors = action.get('selectors') or [{'key': None}]
                     for selector in selectors:
-                        print(service['key'], resource['key'], action['key'], selector['key'])
                         scope, _ = Scope.objects.get_or_create(
                             service=service['key'],
                             resource=resource['key'],
                             action=action['key'],
                             selector=selector['key'],
                         )
+                        _logger.info("Apply Scope %s", scope)
 
                         scope.is_active = True
                         scope.is_internal = self._get_attribute_with_fallbacks('internal', [selector, action, resource, service], False)
@@ -49,11 +53,13 @@ class Command(BaseCommand):
 
         old_scopes = Scope.objects.exclude(id__in=[scope.id for scope in current_scopes])
         old_scopes.update(is_active=False)
+        if old_scopes:
+            _logger.info("Deactivated %i scopes", len(old_scopes))
 
     def sync_roles(self, roles):
         current_roles = []
         for role in roles:
-            print(role.get('key'))
+            _logger.info("Apply role %s", role.get('key'))
             role_obj, _ = Role.objects.get_or_create(name=role.get('key'))
 
             role_obj.is_active = True
@@ -62,8 +68,8 @@ class Command(BaseCommand):
             scope_objs = []
             for scope in role.get('scopes', []):
                 service, resource, action, selector = (scope.get('code').split('.') + [None])[:4]
-                print(service, resource, action, selector)
                 scope_obj = Scope.objects.get(service=service, resource=resource, action=action, selector=selector)
+                _logger.info("Apply Scope %s to Role %s", scope_obj, role_obj)
                 scope_objs.append(scope_obj)
 
             role_obj.scopes.set(scope_objs)
@@ -79,6 +85,8 @@ class Command(BaseCommand):
 
         old_roles = Role.objects.exclude(id__in=[role.id for role in current_roles])
         old_roles.update(is_active=False)
+        if old_roles:
+            _logger.info("Deactivated %i roles", len(old_roles))
 
     def handle(self, *args, **options):
         with open(options['file'], 'r') as file:

@@ -37,21 +37,39 @@ scopes:
           actions:
             - key: create
               selectors:
-                - key: own
-                - key: any
                 - key: norel
-        - key: addresses
-          actions:
-            - key: create
-              selectors:
                 - key: own
                 - key: any
             - key: read
               selectors:
+                - key: norelact
                 - key: own
                 - key: any
             - key: write
               selectors:
+                - key: norelact
+                - key: own
+                - key: any
+        - key: addresses
+          actions:
+            - key: create
+              selectors:
+                - key: norelact
+                - key: own
+                - key: any
+            - key: read
+              selectors:
+                - key: norelact
+                - key: own
+                - key: any
+            - key: write
+              selectors:
+                - key: norelact
+                - key: own
+                - key: any
+            - key: delete
+              selectors:
+                - key: norelact
                 - key: own
                 - key: any
 
@@ -82,4 +100,11 @@ roles:
 
   - key: consumer
     scopes:
+      - code: pegasus.tenants.read
       - code: elysium.clients.create.norel
+      - code: elysium.clients.read.norelact
+      - code: elysium.clients.write.norelact
+      - code: elysium.addresses.create.norelact
+      - code: elysium.addresses.read.norelact
+      - code: elysium.addresses.write.norelact
+      - code: elysium.addresses.delete.norelact

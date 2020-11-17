@@ -138,6 +138,23 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 
+# Logging
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+}
+
+
 # JWT
 JWT_ISSUER = os.getenv('JWT_ISSUER')
 JWT_PRIVATE_KEY = os.getenv('JWT_PRIVATE_KEY')
