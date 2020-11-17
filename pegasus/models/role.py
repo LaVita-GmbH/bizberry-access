@@ -21,8 +21,11 @@ class Role(models.Model):
     def __str__(self) -> str:
         return f'{self.name} ({self.id})'
 
-    async def get_scopes(self, include_critical: bool = True, exclude_roles: Optional[set] = set()) -> Set[Scope]:
+    async def get_scopes(self, include_critical: bool = True, exclude_roles: Optional[set] = None) -> Set[Scope]:
         scopes = set()
+        if not exclude_roles:
+            exclude_roles = set()
+
         exclude_roles.add(self.id)
 
         @sync_to_async

@@ -50,6 +50,9 @@ scopes:
                 - key: norelact
                 - key: own
                 - key: any
+            - key: delete
+              selectors:
+                - key: any
         - key: addresses
           actions:
             - key: create
@@ -84,6 +87,7 @@ roles:
       - code: elysium.addresses.create.own
       - code: elysium.addresses.read.own
       - code: elysium.addresses.write.own
+      - code: elysium.addresses.delete.own
 
   - key: admin
     scopes:
@@ -92,9 +96,13 @@ roles:
       - code: pegasus.tenants.create
       - code: pegasus.tenants.write
       - code: elysium.clients.create.any
+      - code: elysium.clients.read.any
+      - code: elysium.clients.write.any
+      - code: elysium.clients.delete.any
       - code: elysium.addresses.create.any
       - code: elysium.addresses.read.any
       - code: elysium.addresses.write.any
+      - code: elysium.addresses.delete.any
     included_roles:
       - key: default
 
