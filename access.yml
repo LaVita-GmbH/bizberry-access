@@ -19,7 +19,7 @@ scopes:
               selectors:
                 - key: own
                 - key: any
-            - key: write
+            - key: edit
               critical: true
               selectors:
                 - key: own
@@ -29,7 +29,7 @@ scopes:
           actions:
             - key: create
             - key: read
-            - key: write
+            - key: edit
 
     - key: elysium
       resources:
@@ -45,7 +45,7 @@ scopes:
                 - key: norelact
                 - key: own
                 - key: any
-            - key: write
+            - key: edit
               selectors:
                 - key: norelact
                 - key: own
@@ -65,7 +65,7 @@ scopes:
                 - key: norelact
                 - key: own
                 - key: any
-            - key: write
+            - key: edit
               selectors:
                 - key: norelact
                 - key: own
@@ -81,27 +81,27 @@ roles:
     is_default: true
     scopes:
       - code: pegasus.users.read.own
-      - code: pegasus.users.write.own
+      - code: pegasus.users.edit.own
       - code: pegasus.tenants.read
       - code: elysium.clients.create.own
       - code: elysium.addresses.create.own
       - code: elysium.addresses.read.own
-      - code: elysium.addresses.write.own
+      - code: elysium.addresses.edit.own
       - code: elysium.addresses.delete.own
 
   - key: admin
     scopes:
       - code: pegasus.users.read.any
-      - code: pegasus.users.write.any
+      - code: pegasus.users.edit.any
       - code: pegasus.tenants.create
-      - code: pegasus.tenants.write
+      - code: pegasus.tenants.edit
       - code: elysium.clients.create.any
       - code: elysium.clients.read.any
-      - code: elysium.clients.write.any
+      - code: elysium.clients.edit.any
       - code: elysium.clients.delete.any
       - code: elysium.addresses.create.any
       - code: elysium.addresses.read.any
-      - code: elysium.addresses.write.any
+      - code: elysium.addresses.edit.any
       - code: elysium.addresses.delete.any
     included_roles:
       - key: default
@@ -111,8 +111,8 @@ roles:
       - code: pegasus.tenants.read
       - code: elysium.clients.create.norel
       - code: elysium.clients.read.norelact
-      - code: elysium.clients.write.norelact
+      - code: elysium.clients.edit.norelact
       - code: elysium.addresses.create.norelact
       - code: elysium.addresses.read.norelact
-      - code: elysium.addresses.write.norelact
+      - code: elysium.addresses.edit.norelact
       - code: elysium.addresses.delete.norelact

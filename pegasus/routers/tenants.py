@@ -58,7 +58,7 @@ async def get_tenant(tenant_id: str):
 
 
 @router.patch('/{tenant_id}', response_model=response.Tenant)
-async def patch_tenant(tenant_id: str, access: Access = Security(transaction_token, scopes=['pegasus.tenants.write',]), body: request.TenantPatch = Body(...)):
+async def patch_tenant(tenant_id: str, access: Access = Security(transaction_token, scopes=['pegasus.tenants.edit',]), body: request.TenantPatch = Body(...)):
     tenant = await tenant_by_id(tenant_id)
 
     await tenant_edit(tenant, body=body)
@@ -67,7 +67,7 @@ async def patch_tenant(tenant_id: str, access: Access = Security(transaction_tok
 
 
 @router.post('/{tenant_id}/countries', response_model=response.TenantCountry)
-async def create_tenant_country(tenant_id: str, access: Access = Security(transaction_token, scopes=['pegasus.tenants.write',]), body: request.TenantCountryCreate = Body(...)):
+async def create_tenant_country(tenant_id: str, access: Access = Security(transaction_token, scopes=['pegasus.tenants.edit',]), body: request.TenantCountryCreate = Body(...)):
     tenant = await tenant_by_id(tenant_id)
     country = await tenant_country_create(tenant, body)
     return await response.TenantCountry.from_orm(country)
