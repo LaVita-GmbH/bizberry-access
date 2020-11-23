@@ -49,8 +49,8 @@ async def post_user(access: Access = Security(access_user, scopes=['pegasus.user
     return response_user
 
 
-@router.get('/me', response_model=response.User)
-async def get_me(access: Access = Security(access_user, scopes=['pegasus.users.read.own',])):
+@router.get('/self', response_model=response.User)
+async def get_self(access: Access = Security(access_user, scopes=['pegasus.users.read.own',])):
     return await get_user(access.user.id, access=access)
 
 
