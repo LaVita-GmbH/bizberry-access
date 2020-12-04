@@ -49,5 +49,5 @@ class Role(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=('is_default_role',), name='is_default_role_unique', condition=models.Q(is_default_role=True)),
+            models.UniqueConstraint(fields=('is_default',), name='is_default_unique', condition=models.Q(is_default=True)),
         ]

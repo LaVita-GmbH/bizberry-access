@@ -37,8 +37,6 @@ scopes:
           actions:
             - key: create
               selectors:
-                - key: norel
-                - key: own
                 - key: any
             - key: read
               selectors:
@@ -83,7 +81,8 @@ roles:
       - code: pegasus.users.read.own
       - code: pegasus.users.edit.own
       - code: pegasus.tenants.read
-      - code: elysium.clients.create.own
+      - code: elysium.clients.read.own
+      - code: elysium.clients.edit.own
       - code: elysium.addresses.create.own
       - code: elysium.addresses.read.own
       - code: elysium.addresses.edit.own
@@ -91,6 +90,7 @@ roles:
 
   - key: admin
     scopes:
+      - code: pegasus.users.create
       - code: pegasus.users.read.any
       - code: pegasus.users.edit.any
       - code: pegasus.tenants.create
@@ -109,9 +109,6 @@ roles:
   - key: consumer
     scopes:
       - code: pegasus.tenants.read
-      - code: elysium.clients.create.norel
-      - code: elysium.clients.read.norelact
-      - code: elysium.clients.edit.norelact
       - code: elysium.addresses.create.norelact
       - code: elysium.addresses.read.norelact
       - code: elysium.addresses.edit.norelact

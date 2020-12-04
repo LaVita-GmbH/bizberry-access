@@ -10,6 +10,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import AbstractUser, UserManager as BaseUserManager
 from django.utils import timezone
 from djutils.crypt import random_string_generator
+from .. import exchanges
 from . import Scope, Role, Tenant
 
 
@@ -107,14 +108,18 @@ class User(AbstractUser):
         pass
 
     @sync_to_async
-    def get_roles(self, tenant: Union[Tenant, str]) -> Set[Role]:
-        if isinstance(tenant, str):
+    def get_roles(self, tenant: Optional[Union[Tenant, str]] = None) -> Set[Tuple[Role, Tenant]]:
+        if tenant is not None and isinstance(tenant, str):
             tenant: Tenant = Tenant.objects.get(id=tenant)
 
-        roles = set([rel.role for rel in self.roles_rel.filter(tenant=tenant)])
+        roles_rel = self.roles_rel.all()
+        if tenant:
+            roles_rel = roles_rel.filter(tenant=tenant)
+
+        roles = set([(rel.role, rel.tenant) for rel in roles_rel])
         if not roles and self.type == self.Type.USER:
             try:
-                roles = {Role.objects.get(is_default_role=True)}
+                roles = {(Role.objects.get(is_default=True), None)}
 
             except ObjectDoesNotExist:
                 pass
@@ -123,7 +128,7 @@ class User(AbstractUser):
 
     async def get_scopes(self, tenant: Union[Tenant, str], include_critical: bool = True) -> Set[Scope]:
         scopes = set()
-        for role in await self.get_roles(tenant=tenant):
+        for role, tenant in await self.get_roles(tenant=tenant):
             scopes.update(await role.get_scopes(include_critical=include_critical))
 
         return scopes

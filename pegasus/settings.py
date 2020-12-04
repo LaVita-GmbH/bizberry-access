@@ -161,6 +161,10 @@ JWT_PRIVATE_KEY = os.getenv('JWT_PRIVATE_KEY')
 JWT_PUBLIC_KEY = os.getenv('JWT_PUBLIC_KEY')
 
 
+# Messaging
+BROKER_URL = os.getenv('BROKER_URL')
+
+
 # Sentry Integration
 
 sentry_sdk.init(

@@ -46,7 +46,13 @@ async def get_user_token(credentials: request.AuthUser = Body(...)):
 
 
 @router.post('/transaction', response_model=response.AuthTransaction)
-async def get_transaction_token(access: Optional[Access] = Security(access_user, scopes=['pegasus.users.request_transaction_token']), credentials: Optional[request.AuthTransaction] = Body(default=None)):
+async def get_transaction_token(
+    access: Optional[Access] = Security(access_user, scopes=['pegasus.users.request_transaction_token']),
+    credentials: Optional[request.AuthTransaction] = Body(default=None),
+):
+    """
+    Scopes: `pegasus.users.request_transaction_token`
+    """
     transaction_token = None
     include_critical = credentials and credentials.include_critical or False
 

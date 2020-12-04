@@ -23,7 +23,7 @@ django_asgi = get_asgi_application()
 
 
 from .schemas.response import Health
-from . import routers
+from . import routers, events
 
 
 app = FastAPI(

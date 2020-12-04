@@ -133,8 +133,4 @@ class Migration(migrations.Migration):
             name='user_permissions',
             field=models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', related_name='user_set', related_query_name='user', to='auth.Permission', verbose_name='user permissions'),
         ),
-        migrations.AddConstraint(
-            model_name='role',
-            constraint=models.UniqueConstraint(condition=models.Q(is_default_role=True), fields=('is_default_role',), name='is_default_role_unique'),
-        ),
     ]
