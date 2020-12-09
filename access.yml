@@ -76,8 +76,21 @@ scopes:
 
     - key: nektar
       resources:
+        - key: categories
+          actions:
+            - key: create
+            - key: read
+              selectors:
+                - key: any
+            - key: write
+              selectors:
+                - key: any
+            - key: delete
+              selectors:
+                - key: any
         - key: products
           actions:
+            - key: create
             - key: read
               selectors:
                 - key: any
@@ -121,9 +134,14 @@ roles:
       - code: elysium.addresses.read.any
       - code: elysium.addresses.edit.any
       - code: elysium.addresses.delete.any
+      - code: nektar.products.create
       - code: nektar.products.read.any
       - code: nektar.products.write.any
       - code: nektar.products.delete.any
+      - code: nektar.categories.create
+      - code: nektar.categories.read.any
+      - code: nektar.categories.write.any
+      - code: nektar.categories.delete.any
     included_roles:
       - key: default
 
@@ -134,3 +152,4 @@ roles:
       - code: elysium.addresses.read.norelact
       - code: elysium.addresses.edit.norelact
       - code: elysium.addresses.delete.norelact
+      - code: nektar.products.read.active
