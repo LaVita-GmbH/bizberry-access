@@ -74,6 +74,22 @@ scopes:
                 - key: own
                 - key: any
 
+    - key: nektar
+      resources:
+        - key: products
+          actions:
+            - key: read
+              selectors:
+                - key: any
+                - key: active
+                - key: terminated
+            - key: write
+              selectors:
+                - key: any
+            - key: delete
+              selectors:
+                - key: any
+
 roles:
   - key: default
     is_default: true
@@ -87,6 +103,8 @@ roles:
       - code: elysium.addresses.read.own
       - code: elysium.addresses.edit.own
       - code: elysium.addresses.delete.own
+      - code: nektar.products.read.active
+      - code: nektar.products.read.terminated
 
   - key: admin
     scopes:
@@ -103,6 +121,9 @@ roles:
       - code: elysium.addresses.read.any
       - code: elysium.addresses.edit.any
       - code: elysium.addresses.delete.any
+      - code: nektar.products.read.any
+      - code: nektar.products.write.any
+      - code: nektar.products.delete.any
     included_roles:
       - key: default
 
