@@ -19,7 +19,7 @@ scopes:
               selectors:
                 - key: own
                 - key: any
-            - key: edit
+            - key: update
               critical: true
               selectors:
                 - key: own
@@ -29,7 +29,7 @@ scopes:
           actions:
             - key: create
             - key: read
-            - key: edit
+            - key: update
 
     - key: elysium
       resources:
@@ -43,7 +43,7 @@ scopes:
                 - key: norelact
                 - key: own
                 - key: any
-            - key: edit
+            - key: update
               selectors:
                 - key: norelact
                 - key: own
@@ -63,7 +63,7 @@ scopes:
                 - key: norelact
                 - key: own
                 - key: any
-            - key: edit
+            - key: update
               selectors:
                 - key: norelact
                 - key: own
@@ -108,13 +108,13 @@ roles:
     is_default: true
     scopes:
       - code: pegasus.users.read.own
-      - code: pegasus.users.edit.own
+      - code: pegasus.users.update.own
       - code: pegasus.tenants.read
       - code: elysium.clients.read.own
-      - code: elysium.clients.edit.own
+      - code: elysium.clients.update.own
       - code: elysium.addresses.create.own
       - code: elysium.addresses.read.own
-      - code: elysium.addresses.edit.own
+      - code: elysium.addresses.update.own
       - code: elysium.addresses.delete.own
       - code: nektar.products.read.active
       - code: nektar.products.read.terminated
@@ -123,16 +123,16 @@ roles:
     scopes:
       - code: pegasus.users.create
       - code: pegasus.users.read.any
-      - code: pegasus.users.edit.any
+      - code: pegasus.users.update.any
       - code: pegasus.tenants.create
-      - code: pegasus.tenants.edit
+      - code: pegasus.tenants.update
       - code: elysium.clients.create.any
       - code: elysium.clients.read.any
-      - code: elysium.clients.edit.any
+      - code: elysium.clients.update.any
       - code: elysium.clients.delete.any
       - code: elysium.addresses.create.any
       - code: elysium.addresses.read.any
-      - code: elysium.addresses.edit.any
+      - code: elysium.addresses.update.any
       - code: elysium.addresses.delete.any
       - code: nektar.products.create
       - code: nektar.products.read.any
@@ -150,6 +150,6 @@ roles:
       - code: pegasus.tenants.read
       - code: elysium.addresses.create.norelact
       - code: elysium.addresses.read.norelact
-      - code: elysium.addresses.edit.norelact
+      - code: elysium.addresses.update.norelact
       - code: elysium.addresses.delete.norelact
       - code: nektar.products.read.active

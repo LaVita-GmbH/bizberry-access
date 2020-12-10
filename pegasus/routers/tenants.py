@@ -35,7 +35,7 @@ def tenant_country_create(tenant: Tenant, body: request.TenantCountryCreate) -> 
 
 
 @sync_to_async
-def tenant_edit(tenant: Tenant, body: request.TenantPatch) -> Tenant:
+def tenant_update(tenant: Tenant, body: request.TenantUpdate) -> Tenant:
     return tenant
 
 
@@ -60,15 +60,15 @@ async def get_tenant(tenant_id: str):
 @router.patch('/{tenant_id}', response_model=response.Tenant)
 async def patch_tenant(
     tenant_id: str,
-    access: Access = Security(transaction_token, scopes=['pegasus.tenants.edit',]),
+    access: Access = Security(transaction_token, scopes=['pegasus.tenants.update',]),
     body: request.TenantPatch = Body(...),
 ):
     """
-    Scopes: `pegasus.tenants.edit`
+    Scopes: `pegasus.tenants.update`
     """
     tenant = await tenant_by_id(tenant_id)
 
-    await tenant_edit(tenant, body=body)
+    await tenant_update(tenant, body=body)
 
     return await response.Tenant.from_orm(tenant)
 
@@ -76,11 +76,11 @@ async def patch_tenant(
 @router.post('/{tenant_id}/countries', response_model=response.TenantCountry)
 async def create_tenant_country(
     tenant_id: str,
-    access: Access = Security(transaction_token, scopes=['pegasus.tenants.edit',]),
+    access: Access = Security(transaction_token, scopes=['pegasus.tenants.update',]),
     body: request.TenantCountryCreate = Body(...),
 ):
     """
-    Scopes: `pegasus.tenants.edit`
+    Scopes: `pegasus.tenants.update`
     """
     tenant = await tenant_by_id(tenant_id)
     country = await tenant_country_create(tenant, body)

@@ -6,7 +6,7 @@ class TenantReference(BaseModel):
     id: str
 
 
-class TenantPatch(BaseModel):
+class TenantUpdate(BaseModel):
     name: Optional[str]
 
 

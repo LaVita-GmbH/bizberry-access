@@ -19,7 +19,7 @@ users.declare()
 
 @receiver(post_save, sender=models.User)
 def post_save_user(sender, instance: models.User, created: bool, **kwargs):
-    action = 'create' if created else 'edit'
+    action = 'create' if created else 'update'
     body = async_to_sync(response.User.from_orm)(instance, tenant=None).json()
     connection.ensure(users, users.publish)(
         message=body,
