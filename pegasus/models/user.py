@@ -62,12 +62,12 @@ class UserManager(BaseUserManager):
 
 class User(AbstractUser):
     class Status(models.TextChoices):
-        ACTIVE = 'active', _("Active")
-        TERMINATED = 'terminated', _("Terminated")
+        ACTIVE = 'ACTIVE', _("Active")
+        TERMINATED = 'TERMINATED', _("Terminated")
 
     class Type(models.TextChoices):
-        USER = 'user', _("User")
-        SERVICE = 'service', _("Service")
+        USER = 'USER', _("User")
+        SERVICE = 'SERVICE', _("Service")
 
     id = models.CharField(max_length=64, primary_key=True, default=_default_user_id, editable=False)
     email = models.CharField(max_length=320, unique=True)
@@ -206,7 +206,7 @@ class UserRoleRelation(models.Model):
 
 class UserToken(models.Model):
     class Types(models.TextChoices):
-        USER = 'user', _('User Token')
+        USER = 'USER', _('User Token')
 
     id = models.CharField(max_length=128, primary_key=True, default=_default_user_token_id, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tokens')
