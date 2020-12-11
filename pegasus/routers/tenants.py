@@ -61,7 +61,7 @@ async def get_tenant(tenant_id: str):
 async def patch_tenant(
     tenant_id: str,
     access: Access = Security(transaction_token, scopes=['pegasus.tenants.update',]),
-    body: request.TenantPatch = Body(...),
+    body: request.TenantUpdate = Body(...),
 ):
     """
     Scopes: `pegasus.tenants.update`
