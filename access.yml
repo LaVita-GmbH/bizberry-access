@@ -82,7 +82,7 @@ scopes:
             - key: read
               selectors:
                 - key: any
-            - key: write
+            - key: update
               selectors:
                 - key: any
             - key: delete
@@ -96,7 +96,20 @@ scopes:
                 - key: any
                 - key: active
                 - key: terminated
-            - key: write
+            - key: update
+              selectors:
+                - key: any
+            - key: delete
+              selectors:
+                - key: any
+        - key: pricelists
+          actions:
+            - key: create
+            - key: read
+              selectors:
+                - key: any
+                - key: active
+            - key: update
               selectors:
                 - key: any
             - key: delete
@@ -118,6 +131,7 @@ roles:
       - code: elysium.addresses.delete.own
       - code: nektar.products.read.active
       - code: nektar.products.read.terminated
+      - code: nektar.pricelists.read.active
 
   - key: admin
     scopes:
@@ -136,12 +150,16 @@ roles:
       - code: elysium.addresses.delete.any
       - code: nektar.products.create
       - code: nektar.products.read.any
-      - code: nektar.products.write.any
+      - code: nektar.products.update.any
       - code: nektar.products.delete.any
       - code: nektar.categories.create
       - code: nektar.categories.read.any
-      - code: nektar.categories.write.any
+      - code: nektar.categories.update.any
       - code: nektar.categories.delete.any
+      - code: nektar.pricelists.create
+      - code: nektar.pricelists.read.any
+      - code: nektar.pricelists.update.any
+      - code: nektar.pricelists.delete.any
     included_roles:
       - key: default
 

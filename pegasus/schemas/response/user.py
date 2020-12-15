@@ -6,10 +6,6 @@ from . import Role
 
 
 class User(BaseModel):
-    class Status(str, Enum):
-        ACTIVE = 'active'
-        TERMINATED = 'terminated'
-
     class RoleTenantRel(Role):
         class TenantReference(BaseModel):
             id: str
@@ -21,7 +17,7 @@ class User(BaseModel):
 
     id: str
     email: str
-    status: Status
+    status: models.User.Status
     roles: List[RoleTenantRel]
 
     class Config:
