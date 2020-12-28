@@ -116,6 +116,67 @@ scopes:
               selectors:
                 - key: any
 
+    - key: plutos
+      resources:
+        - key: accounts
+          actions:
+            - key: create
+            - key: read
+              selectors:
+                - key: any
+                - key: own
+            - key: update
+              selectors:
+                - key: any
+                - key: own
+            - key: delete
+              selectors:
+                - key: any
+                - key: own
+        - key: transactions
+          actions:
+            - key: create
+            - key: read
+              selectors:
+                - key: any
+                - key: act
+            - key: update
+              selectors:
+                - key: any
+                - key: act
+            - key: delete
+              selectors:
+                - key: any
+                - key: act
+        - key: taxes
+          actions:
+            - key: create
+            - key: read
+              selectors:
+                - key: any
+                - key: active
+                - key: terminated
+            - key: update
+              selectors:
+                - key: any
+            - key: delete
+              selectors:
+                - key: any
+        - key: providers
+          actions:
+            - key: create
+            - key: read
+              selectors:
+                - key: any
+                - key: active
+                - key: terminated
+            - key: update
+              selectors:
+                - key: any
+            - key: delete
+              selectors:
+                - key: any
+
 roles:
   - key: default
     is_default: true
@@ -160,6 +221,22 @@ roles:
       - code: nektar.pricelists.read.any
       - code: nektar.pricelists.update.any
       - code: nektar.pricelists.delete.any
+      - code: plutos.providers.create
+      - code: plutos.providers.read.any
+      - code: plutos.providers.update.any
+      - code: plutos.providers.delete.any
+      - code: plutos.taxes.create
+      - code: plutos.taxes.read.any
+      - code: plutos.taxes.update.any
+      - code: plutos.taxes.delete.any
+      - code: plutos.accounts.create
+      - code: plutos.accounts.read.any
+      - code: plutos.accounts.update.any
+      - code: plutos.accounts.delete.any
+      - code: plutos.transactions.create
+      - code: plutos.transactions.read.any
+      - code: plutos.transactions.update.any
+      - code: plutos.transactions.delete.any
     included_roles:
       - key: default
 
