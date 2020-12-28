@@ -1,6 +1,7 @@
+import json
 from kombu import Exchange
 from asgiref.sync import async_to_sync
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from ... import models
 from ...schemas import response
@@ -8,7 +9,7 @@ from ..base import connection
 
 
 users = Exchange(
-    name='olymp.pegasus.users',
+    name='olymp.access.users',
     type='topic',
     durable=True,
     channel=connection.channel(),
@@ -23,5 +24,14 @@ def post_save_user(sender, instance: models.User, created: bool, **kwargs):
     body = async_to_sync(response.User.from_orm)(instance, tenant=None).json()
     connection.ensure(users, users.publish)(
         message=body,
-        routing_key=f'v1.{action}',
+        routing_key=f'v1.data.{action}',
+    )
+
+
+@receiver(post_delete, sender=models.User)
+def post_delete_user(sender, instance: models.User, **kwargs):
+    body = json.dumps({'id': instance.id})
+    connection.ensure(users, users.publish)(
+        message=body,
+        routing_key='v1.data.delete',
     )
