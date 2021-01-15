@@ -176,6 +176,23 @@ scopes:
             - key: delete
               selectors:
                 - key: any
+    - key: liknon
+      resources:
+        - key: carts
+          actions:
+            - key: create
+            - key: read
+              selectors:
+                - key: any
+                - key: act
+            - key: update
+              selectors:
+                - key: any
+                - key: act
+            - key: delete
+              selectors:
+                - key: any
+                - key: act
 
 roles:
   - key: default
@@ -193,6 +210,10 @@ roles:
       - code: nektar.products.read.active
       - code: nektar.products.read.terminated
       - code: nektar.pricelists.read.active
+      - code: liknon.carts.create
+      - code: liknon.carts.read.act
+      - code: liknon.carts.update.act
+      - code: liknon.carts.delete.act
 
   - key: admin
     scopes:
@@ -237,6 +258,9 @@ roles:
       - code: plutos.transactions.read.any
       - code: plutos.transactions.update.any
       - code: plutos.transactions.delete.any
+      - code: liknon.carts.read.any
+      - code: liknon.carts.update.any
+      - code: liknon.carts.delete.any
     included_roles:
       - key: default
 
@@ -248,3 +272,8 @@ roles:
       - code: elysium.addresses.update.norelact
       - code: elysium.addresses.delete.norelact
       - code: nektar.products.read.active
+      - code: nektar.pricelists.read.active
+      - code: liknon.carts.create
+      - code: liknon.carts.read.act
+      - code: liknon.carts.update.act
+      - code: liknon.carts.delete.act
