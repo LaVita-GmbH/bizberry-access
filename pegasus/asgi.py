@@ -28,6 +28,7 @@ from . import routers, events
 
 app = FastAPI(
     title="PEGASUS",
+    openapi_url='/access/openapi.json',
 )
 
 @app.get('/health', response_model=Health)
