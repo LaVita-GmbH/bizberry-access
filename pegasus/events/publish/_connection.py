@@ -6,4 +6,3 @@ connection = Connection(
     settings.BROKER_URL,
     heartbeat=60,
 )
-connection._ensure_connection()

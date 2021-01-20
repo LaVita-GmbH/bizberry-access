@@ -1,13 +1,14 @@
 from typing import Optional
 from pydantic import BaseModel
+from .. import base
 
 
 class TenantReference(BaseModel):
     id: str
 
 
-class TenantUpdate(BaseModel):
-    name: Optional[str]
+class TenantUpdate(base.Tenant):
+    pass
 
 
 class TenantCountryCreate(BaseModel):
