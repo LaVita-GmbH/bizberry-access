@@ -189,7 +189,7 @@ class User(AbstractUser):
             validity=timedelta(days=365),
             tenant=tenant,
             audiences=[
-                'pegasus.users.request_transaction_token'
+                'access.users.request_transaction_token'
             ],
             store_in_db=True,
             token_type=UserToken.Types.USER,
