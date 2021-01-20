@@ -1,6 +1,6 @@
 scopes:
   services:
-    - key: pegasus
+    - key: access
       resources:
         - key: users
           actions:
@@ -31,7 +31,7 @@ scopes:
             - key: read
             - key: update
 
-    - key: elysium
+    - key: customer
       resources:
         - key: clients
           actions:
@@ -74,7 +74,7 @@ scopes:
                 - key: own
                 - key: any
 
-    - key: nektar
+    - key: catalogue
       resources:
         - key: categories
           actions:
@@ -116,7 +116,7 @@ scopes:
               selectors:
                 - key: any
 
-    - key: plutos
+    - key: finance
       resources:
         - key: accounts
           actions:
@@ -176,7 +176,8 @@ scopes:
             - key: delete
               selectors:
                 - key: any
-    - key: liknon
+
+    - key: sale
       resources:
         - key: carts
           actions:
@@ -193,6 +194,23 @@ scopes:
               selectors:
                 - key: any
                 - key: act
+
+    - key: shipping
+      resources:
+        - key: carriers
+          actions:
+            - key: create
+            - key: read
+              selectors:
+                - key: any
+                - key: active
+                - key: terminated
+            - key: update
+              selectors:
+                - key: any
+            - key: delete
+              selectors:
+                - key: any
 
 roles:
   - key: default
