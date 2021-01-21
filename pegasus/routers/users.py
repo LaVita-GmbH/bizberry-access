@@ -32,11 +32,8 @@ def get_user_by_id(user_id: str, access: Access):
 def create_user(body: request.UserCreate):
     new_user = User.objects.create_user(
         email=str(body.email),
-        password=str(body.password),
+        password=str(body.password.get_secret_value()),
     )
-
-    for role in body.roles:
-        new_user.roles.add(Role.objects.get(id=role.id))
 
     return new_user
 

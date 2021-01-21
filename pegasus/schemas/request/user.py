@@ -6,4 +6,3 @@ from . import RoleReference
 class UserCreate(BaseModel):
     email: EmailStr
     password: SecretStr
-    roles: List[RoleReference]

@@ -288,6 +288,7 @@ roles:
 
   - key: consumer
     scopes:
+      - code: access.users.create
       - code: access.tenants.read
       - code: customer.addresses.create.norelact
       - code: customer.addresses.read.norelact
