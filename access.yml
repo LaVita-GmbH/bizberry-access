@@ -232,6 +232,7 @@ roles:
       - code: sale.carts.update.act
       - code: sale.carts.delete.act
       - code: shipping.carriers.read.active
+      - code: finance.providers.read.active
 
   - key: admin
     scopes:
@@ -301,3 +302,4 @@ roles:
       - code: sale.carts.update.act
       - code: sale.carts.delete.act
       - code: shipping.carriers.read.active
+      - code: finance.providers.read.active
