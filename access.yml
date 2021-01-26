@@ -133,21 +133,6 @@ scopes:
               selectors:
                 - key: any
                 - key: own
-        - key: transactions
-          actions:
-            - key: create
-            - key: read
-              selectors:
-                - key: any
-                - key: act
-            - key: update
-              selectors:
-                - key: any
-                - key: act
-            - key: delete
-              selectors:
-                - key: any
-                - key: act
         - key: taxes
           actions:
             - key: create
@@ -180,6 +165,21 @@ scopes:
     - key: sale
       resources:
         - key: carts
+          actions:
+            - key: create
+            - key: read
+              selectors:
+                - key: any
+                - key: act
+            - key: update
+              selectors:
+                - key: any
+                - key: act
+            - key: delete
+              selectors:
+                - key: any
+                - key: act
+        - key: transactions
           actions:
             - key: create
             - key: read
@@ -233,6 +233,7 @@ roles:
       - code: sale.carts.delete.act
       - code: shipping.carriers.read.active
       - code: finance.providers.read.active
+      - code: sale.transactions.read.act
 
   - key: admin
     scopes:
@@ -273,10 +274,10 @@ roles:
       - code: finance.accounts.read.any
       - code: finance.accounts.update.any
       - code: finance.accounts.delete.any
-      - code: finance.transactions.create
-      - code: finance.transactions.read.any
-      - code: finance.transactions.update.any
-      - code: finance.transactions.delete.any
+      - code: sale.transactions.create
+      - code: sale.transactions.read.any
+      - code: sale.transactions.update.any
+      - code: sale.transactions.delete.any
       - code: sale.carts.read.any
       - code: sale.carts.update.any
       - code: sale.carts.delete.any
@@ -303,3 +304,4 @@ roles:
       - code: sale.carts.delete.act
       - code: shipping.carriers.read.active
       - code: finance.providers.read.active
+      - code: sale.transactions.read.act
