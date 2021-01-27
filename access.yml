@@ -234,6 +234,7 @@ roles:
       - code: shipping.carriers.read.active
       - code: finance.providers.read.active
       - code: sale.transactions.read.act
+      - code: sale.transactions.update.act
 
   - key: admin
     scopes:
@@ -305,3 +306,4 @@ roles:
       - code: shipping.carriers.read.active
       - code: finance.providers.read.active
       - code: sale.transactions.read.act
+      - code: sale.transactions.update.act
