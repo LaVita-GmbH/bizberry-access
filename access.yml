@@ -162,7 +162,7 @@ scopes:
               selectors:
                 - key: any
 
-    - key: sale
+    - key: checkout
       resources:
         - key: carts
           actions:
@@ -227,14 +227,14 @@ roles:
       - code: customer.addresses.delete.own
       - code: catalogue.products.read.active
       - code: catalogue.pricelists.read.active
-      - code: sale.carts.create
-      - code: sale.carts.read.act
-      - code: sale.carts.update.act
-      - code: sale.carts.delete.act
+      - code: checkout.carts.create
+      - code: checkout.carts.read.act
+      - code: checkout.carts.update.act
+      - code: checkout.carts.delete.act
       - code: shipping.carriers.read.active
       - code: finance.providers.read.active
-      - code: sale.transactions.read.act
-      - code: sale.transactions.update.act
+      - code: checkout.transactions.read.act
+      - code: checkout.transactions.update.act
 
   - key: admin
     scopes:
@@ -275,13 +275,13 @@ roles:
       - code: finance.accounts.read.any
       - code: finance.accounts.update.any
       - code: finance.accounts.delete.any
-      - code: sale.transactions.create
-      - code: sale.transactions.read.any
-      - code: sale.transactions.update.any
-      - code: sale.transactions.delete.any
-      - code: sale.carts.read.any
-      - code: sale.carts.update.any
-      - code: sale.carts.delete.any
+      - code: checkout.transactions.create
+      - code: checkout.transactions.read.any
+      - code: checkout.transactions.update.any
+      - code: checkout.transactions.delete.any
+      - code: checkout.carts.read.any
+      - code: checkout.carts.update.any
+      - code: checkout.carts.delete.any
       - code: shipping.carriers.create
       - code: shipping.carriers.read.any
       - code: shipping.carriers.update.any
@@ -299,11 +299,11 @@ roles:
       - code: customer.addresses.delete.norelact
       - code: catalogue.products.read.active
       - code: catalogue.pricelists.read.active
-      - code: sale.carts.create
-      - code: sale.carts.read.act
-      - code: sale.carts.update.act
-      - code: sale.carts.delete.act
+      - code: checkout.carts.create
+      - code: checkout.carts.read.act
+      - code: checkout.carts.update.act
+      - code: checkout.carts.delete.act
       - code: shipping.carriers.read.active
       - code: finance.providers.read.active
-      - code: sale.transactions.read.act
-      - code: sale.transactions.update.act
+      - code: checkout.transactions.read.act
+      - code: checkout.transactions.update.act
