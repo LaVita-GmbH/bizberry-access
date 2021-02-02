@@ -121,18 +121,25 @@ scopes:
         - key: accounts
           actions:
             - key: create
+              selectors:
+                - key: any
+                - key: own
+                - key: norelact
             - key: read
               selectors:
                 - key: any
                 - key: own
+                - key: norelact
             - key: update
               selectors:
                 - key: any
                 - key: own
+                - key: norelact
             - key: delete
               selectors:
                 - key: any
                 - key: own
+                - key: norelact
         - key: taxes
           actions:
             - key: create
@@ -233,6 +240,10 @@ roles:
       - code: checkout.carts.delete.act
       - code: shipping.carriers.read.active
       - code: finance.providers.read.active
+      - code: finance.accounts.create.own
+      - code: finance.accounts.read.own
+      - code: finance.accounts.update.own
+      - code: finance.accounts.delete.own
       - code: checkout.transactions.read.act
       - code: checkout.transactions.update.act
 
@@ -271,7 +282,7 @@ roles:
       - code: finance.taxes.read.any
       - code: finance.taxes.update.any
       - code: finance.taxes.delete.any
-      - code: finance.accounts.create
+      - code: finance.accounts.create.any
       - code: finance.accounts.read.any
       - code: finance.accounts.update.any
       - code: finance.accounts.delete.any
@@ -305,5 +316,9 @@ roles:
       - code: checkout.carts.delete.act
       - code: shipping.carriers.read.active
       - code: finance.providers.read.active
+      - code: finance.accounts.create.norelact
+      - code: finance.accounts.read.norelact
+      - code: finance.accounts.update.norelact
+      - code: finance.accounts.delete.norelact
       - code: checkout.transactions.read.act
       - code: checkout.transactions.update.act
