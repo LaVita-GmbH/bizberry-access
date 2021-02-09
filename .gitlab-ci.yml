@@ -16,6 +16,7 @@ variables:
   DOCKER_DRIVER: overlay2
   DOCKER_TLS_CERTDIR: "/certs"
   IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+  REF_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
   TAG_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
 
 before_script:
@@ -26,9 +27,12 @@ before_script:
 
 build:
   stage: build
+  interruptible: true
   script:
     - docker build --pull -t $IMAGE_NAME .
     - docker push $IMAGE_NAME
+    - docker tag $IMAGE_NAME $REF_NAME
+    - docker push $REF_NAME
   only:
     - master
     - develop
