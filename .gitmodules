@@ -1,3 +1,3 @@
 [submodule "olympus"]
 	path = olympus
-	url = git@git.lavita.local:web/olymp/services/olympus.git
+	url = https://git.lavita.local/web/olymp/services/olympus.git
