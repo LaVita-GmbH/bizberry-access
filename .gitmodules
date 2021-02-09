@@ -1,3 +1,3 @@
 [submodule "olympus"]
 	path = olympus
-	url = ./olympus.git
+	url = ../olympus.git
