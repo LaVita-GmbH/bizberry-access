@@ -12,6 +12,7 @@ variables:
   TAG_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
 
 before_script:
+  - apk update && apk add ca-certificates
   - echo $INTERNAL_CA_ROOT > /usr/local/share/ca-certificates/internal_ca_root.crt
   - update-ca-certificates
   - echo $CI_REGISTRY
