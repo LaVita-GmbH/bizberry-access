@@ -8,9 +8,19 @@ services:
       - cp /etc/gitlab-runner/certs/ca.crt /usr/local/share/ca-certificates/ca.crt && update-ca-certificates && dockerd-entrypoint.sh || exit
 
 stages:
-- build
-- test
-- release
+  - build
+  - release
+  - deploy  # dummy stage to follow the template guidelines
+  - review
+  - dast
+  - staging
+  - canary
+  - production
+  - incremental rollout 10%
+  - incremental rollout 25%
+  - incremental rollout 50%
+  - incremental rollout 100%
+  - cleanup
 
 variables:
   DOCKER_DRIVER: overlay2
@@ -46,3 +56,6 @@ release:
     - docker push $TAG_NAME
   only:
     - tags
+
+include:
+  - template: Jobs/Deploy.gitlab-ci.yml
