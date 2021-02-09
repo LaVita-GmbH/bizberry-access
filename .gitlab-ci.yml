@@ -29,13 +29,15 @@ variables:
   REF_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
   TAG_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
 
-before_script:
-  - cp /etc/gitlab-runner/certs/ca.crt /usr/local/share/ca-certificates/ca.crt
-  - update-ca-certificates --fresh > /dev/null
+.docker: &.docker
+  before_script:
+    - cp /etc/gitlab-runner/certs/ca.crt /usr/local/share/ca-certificates/ca.crt
+    - update-ca-certificates --fresh > /dev/null
 
-  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
 build:
+  <<: *.docker
   stage: build
   interruptible: true
   script:
@@ -49,6 +51,7 @@ build:
     - tags
 
 release:
+  <<: *.docker
   stage: release
   script:
     - docker pull $IMAGE_NAME
