@@ -20,6 +20,8 @@ before_script:
   - cp /etc/gitlab-runner/certs/ca.crt /usr/local/share/ca-certificates/ca.crt
   - update-ca-certificates --fresh > /dev/null
 
+  - find /certs
+
   - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
 build:
