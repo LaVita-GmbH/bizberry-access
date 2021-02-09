@@ -14,6 +14,8 @@ variables:
   TAG_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
 
 before_script:
+  - find /certs
+
   - apk update >/dev/null
   - apk add ca-certificates > /dev/null
   - rm -rf /var/cache/apk/*
