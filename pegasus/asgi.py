@@ -30,7 +30,7 @@ app = FastAPI(
     openapi_url='/access/openapi.json',
 )
 
-@app.get('/health', response_model=Health)
+@app.get('/', response_model=Health)
 async def healthcheck():
     return Health(status='ok')
 
