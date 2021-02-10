@@ -7,3 +7,4 @@ email-validator
 pyyaml
 sentry-asgi
 sentry-sdk
+djutils
