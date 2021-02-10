@@ -16,9 +16,6 @@ from olympus.handlers.error import generic_exception_handler, object_does_not_ex
 from olympus.middleware.sentry import SentryAsgiMiddleware
 from starlette.exceptions import HTTPException
 
-
-print(os.environ)
-
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'pegasus.settings')
 
 django_asgi = get_asgi_application()
