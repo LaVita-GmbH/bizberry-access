@@ -2,10 +2,10 @@ image: docker:latest
 
 services:
   - name: docker:dind
-    command:
-      - /bin/sh
-      - -c
-      - cp /etc/gitlab-runner/certs/ca.crt /usr/local/share/ca-certificates/ca.crt && update-ca-certificates && dockerd-entrypoint.sh || exit
+#    command:
+#      - /bin/sh
+#      - -c
+#      - cp /etc/gitlab-runner/certs/ca.crt /usr/local/share/ca-certificates/ca.crt && update-ca-certificates && dockerd-entrypoint.sh || exit
 
 stages:
   - build
@@ -31,8 +31,8 @@ variables:
 
 .docker_preset: &docker_preset
   before_script:
-    - cp /etc/gitlab-runner/certs/ca.crt /usr/local/share/ca-certificates/ca.crt
-    - update-ca-certificates --fresh > /dev/null
+#    - cp /etc/gitlab-runner/certs/ca.crt /usr/local/share/ca-certificates/ca.crt
+#    - update-ca-certificates --fresh > /dev/null
 
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
