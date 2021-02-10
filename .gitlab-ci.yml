@@ -51,4 +51,4 @@ build:
     - tags
 
 include:
-  - template: Jobs/Deploy.gitlab-ci.yml
+  - template: Jobs/Deploy.latest.gitlab-ci.yml
