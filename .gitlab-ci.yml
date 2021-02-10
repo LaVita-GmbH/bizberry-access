@@ -49,3 +49,6 @@ build:
     - master
     - develop
     - tags
+
+include:
+  - template: Jobs/Deploy.gitlab-ci.yml
