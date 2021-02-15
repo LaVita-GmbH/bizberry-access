@@ -30,6 +30,22 @@ def access_user(access: Optional[Access] = Security(user_token)) -> Access:
     return access
 
 
+@sync_to_async
+def _create_token(user, tenant):
+    return user.create_user_token(tenant=tenant.id)
+
+
+@sync_to_async
+def _get_token_from_access_token(access_token, include_critical: bool = False) -> UserAccessToken:
+    user_accesstoken: UserAccessToken = UserAccessToken.objects.get(token=access_token)
+    return user_accesstoken.create_transaction_token(include_critical=include_critical)
+
+
+@sync_to_async
+def _get_token_for_user(user, tenant_id, include_critical: bool = False):
+    return user.create_transaction_token(tenant_id, include_critical=include_critical)
+
+
 @router.post('/user', response_model=response.AuthUser)
 async def get_user_token(credentials: request.AuthUser = Body(...)):
     user: User = await authenticate(email=credentials.email, password=credentials.password)
@@ -38,9 +54,11 @@ async def get_user_token(credentials: request.AuthUser = Body(...)):
             status_code=status.HTTP_401_UNAUTHORIZED,
         )
 
+    token = await _create_token(user, tenant=credentials.tenant)
+
     return response.AuthUser(
         token=response.AuthUserToken(
-            user=await user.create_user_token(tenant=credentials.tenant.id),
+            user=token,
         )
     )
 
@@ -57,12 +75,7 @@ async def get_transaction_token(
     include_critical = credentials and credentials.include_critical or False
 
     if credentials and credentials.access_token:
-        @sync_to_async
-        def get_token_from_access_token(access_token) -> UserAccessToken:
-            return UserAccessToken.objects.get(token=access_token)
-
-        user_accesstoken: UserAccessToken = await get_token_from_access_token(credentials.access_token)
-        transaction_token = await user_accesstoken.create_transaction_token(include_critical=include_critical)
+        transaction_token = await _get_token_from_access_token(credentials.access_token, include_critical=include_critical)
 
     elif access and access.user:
         if include_critical and access.token.iat < timezone.now() - timedelta(hours=1):
@@ -71,7 +84,7 @@ async def get_transaction_token(
                 code='token_too_old_for_include_critical',
             ))
 
-        transaction_token = await access.user.create_transaction_token(access.tenant_id, include_critical=include_critical)
+        transaction_token = await _get_token_for_user(access.user, access.tenant_id)
 
     else:
         raise AuthError

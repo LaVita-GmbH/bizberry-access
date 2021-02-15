@@ -1,5 +1,6 @@
 from enum import Enum
 from typing import List, Optional, Set
+from asgiref.sync import sync_to_async
 from pydantic import BaseModel, Field
 from ... import models
 from . import Role
@@ -23,9 +24,10 @@ class User(BaseModel):
     class Config:
         orm_mode = True
 
+    @sync_to_async
     @classmethod
     async def from_orm(cls, obj: models.User, tenant: Optional[str]):
-        roles = await obj.get_roles(tenant=tenant)
+        roles = obj.get_roles(tenant=tenant)
         values = {
             'id': obj.id,
             'email': obj.email,

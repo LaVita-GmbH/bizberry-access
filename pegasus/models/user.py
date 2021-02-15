@@ -1,7 +1,6 @@
 from typing import List, Set, Tuple, Optional, Union
 from datetime import datetime, timedelta
 from jose import jwt
-from asgiref.sync import sync_to_async
 from django.db import models
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
@@ -107,7 +106,6 @@ class User(AbstractUser):
     def clean(self):
         pass
 
-    @sync_to_async
     def get_roles(self, tenant: Optional[Union[Tenant, str]] = None) -> Set[Tuple[Role, Tenant]]:
         if tenant is not None and isinstance(tenant, str):
             tenant: Tenant = Tenant.objects.get(id=tenant)
@@ -126,14 +124,13 @@ class User(AbstractUser):
 
         return roles
 
-    async def get_scopes(self, tenant: Union[Tenant, str], include_critical: bool = True) -> Set[Scope]:
+    def get_scopes(self, tenant: Union[Tenant, str], include_critical: bool = True) -> Set[Scope]:
         scopes = set()
-        for role, tenant in await self.get_roles(tenant=tenant):
-            scopes.update(await role.get_scopes(include_critical=include_critical))
+        for role, tenant in self.get_roles(tenant=tenant):
+            scopes.update(role.get_scopes(include_critical=include_critical))
 
         return scopes
 
-    @sync_to_async
     def _create_token(
         self,
         *,
@@ -173,10 +170,10 @@ class User(AbstractUser):
 
         return token, token_id
 
-    async def create_transaction_token(self, tenant: Union[Tenant, str], include_critical: bool = False) -> str:
-        audiences: List[str] = [scope.code for scope in await self.get_scopes(tenant=tenant, include_critical=include_critical)]
+    def create_transaction_token(self, tenant: Union[Tenant, str], include_critical: bool = False) -> str:
+        audiences: List[str] = [scope.code for scope in self.get_scopes(tenant=tenant, include_critical=include_critical)]
 
-        token, _ = await self._create_token(
+        token, _ = self._create_token(
             validity=timedelta(minutes=5),
             tenant=tenant,
             audiences=audiences,
@@ -184,8 +181,8 @@ class User(AbstractUser):
 
         return token
 
-    async def create_user_token(self, tenant: Union[Tenant, str]) -> str:
-        token, token_id = await self._create_token(
+    def create_user_token(self, tenant: Union[Tenant, str]) -> str:
+        token, token_id = self._create_token(
             validity=timedelta(days=365),
             tenant=tenant,
             audiences=[
@@ -224,7 +221,6 @@ class UserAccessToken(models.Model):
     create_date = models.DateTimeField(auto_now_add=True)
     scopes = models.ManyToManyField(Scope, related_name='user_access_tokens', limit_choices_to={'is_active': True, 'is_internal': False})
 
-    @sync_to_async
     def get_scopes(self, include_critical: bool = True) -> Set[Scope]:
         filters = models.Q()
         if not include_critical:
@@ -232,14 +228,14 @@ class UserAccessToken(models.Model):
 
         return set(self.scopes.filter(filters))
 
-    async def create_transaction_token(self, include_critical: bool = False) -> str:
-        scopes: Set[Scope] = await self.user.get_scopes()
+    def create_transaction_token(self, include_critical: bool = False) -> str:
+        scopes: Set[Scope] = self.user.get_scopes()
         if self.scopes.count():
-            scopes = scopes.intersection(await self.get_scopes(include_critical=include_critical))
+            scopes = scopes.intersection(self.get_scopes(include_critical=include_critical))
 
         audiences: List[str] = [scope.code for scope in scopes]
 
-        token, _ = await self.user._create_token(
+        token, _ = self.user._create_token(
             validity=timedelta(minutes=5),
             audiences=audiences,
             tenant=self.tenant,
