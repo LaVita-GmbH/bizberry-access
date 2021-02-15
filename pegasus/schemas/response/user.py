@@ -1,44 +1,22 @@
-from enum import Enum
-from typing import List, Optional, Set
-from asgiref.sync import sync_to_async
+from typing import List, Optional
 from pydantic import BaseModel, Field
+from olympus.utils.pydantic_django import DjangoORMBaseModel
 from ... import models
 from . import Role
 
 
-class User(BaseModel):
+class User(DjangoORMBaseModel):
     class RoleTenantRel(Role):
         class TenantReference(BaseModel):
-            id: str
+            id: str = Field(orm_field=models.UserRoleRelation.tenant)
 
-        tenant: Optional[TenantReference] = Field(None)
+        id: str = Field(orm_field=models.UserRoleRelation.role)
+        tenant: Optional[TenantReference]
 
         class Config:
             orm_mode = False
 
-    id: str
-    email: str
-    status: models.User.Status
-    roles: List[RoleTenantRel]
-
-    class Config:
-        orm_mode = True
-
-    @sync_to_async
-    @classmethod
-    async def from_orm(cls, obj: models.User, tenant: Optional[str]):
-        roles = obj.get_roles(tenant=tenant)
-        values = {
-            'id': obj.id,
-            'email': obj.email,
-            'status': obj.status,
-            'roles': [
-                cls.RoleTenantRel.parse_obj({
-                    'id': role.id,
-                    'tenant': {
-                        'id': role_tenant.id,
-                    } if role_tenant else None,
-                }) for role, role_tenant in roles
-            ],
-        }
-        return cls(**values)
+    id: str = Field(orm_field=models.User.id)
+    email: str = Field(orm_field=models.User.email)
+    status: models.User.Status = Field(orm_field=models.User.status)
+    roles: List[RoleTenantRel] = Field(orm_field=models.User.roles_rel)

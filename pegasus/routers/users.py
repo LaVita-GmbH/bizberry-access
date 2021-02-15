@@ -45,7 +45,7 @@ async def post_user(access: Access = Security(access_user, scopes=['access.users
     """
     new_user = await create_user(body)
 
-    response_user = await response.User.from_orm(new_user, tenant=access.tenant_id)
+    response_user = await response.User.from_orm(new_user)
     return response_user
 
 
@@ -64,4 +64,4 @@ async def get_user(user_id: str, access: Access = Security(access_user, scopes=[
     """
     user = await get_user_by_id(user_id, access)
 
-    return await response.User.from_orm(user, tenant=access.tenant_id)
+    return await response.User.from_orm(user)

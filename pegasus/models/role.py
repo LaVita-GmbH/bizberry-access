@@ -21,14 +21,13 @@ class Role(models.Model):
     def __str__(self) -> str:
         return f'{self.name} ({self.id})'
 
-    async def get_scopes(self, include_critical: bool = True, exclude_roles: Optional[set] = None) -> Set[Scope]:
+    def get_scopes(self, include_critical: bool = True, exclude_roles: Optional[set] = None) -> Set[Scope]:
         scopes = set()
         if not exclude_roles:
             exclude_roles = set()
 
         exclude_roles.add(self.id)
 
-        @sync_to_async
         def get_scopes():
             filters = models.Q(is_active=True, is_internal=False)
             if not include_critical:
@@ -36,14 +35,13 @@ class Role(models.Model):
 
             return list(self.scopes.filter(filters))
 
-        scopes.update(await get_scopes())
+        scopes.update(get_scopes())
 
-        @sync_to_async
         def get_roles():
             return list(self.included_roles.exclude(id__in=exclude_roles))
 
-        for role in await get_roles():
-            scopes.update(await role.get_scopes(exclude_roles=exclude_roles))
+        for role in get_roles():
+            scopes.update(role.get_scopes(exclude_roles=exclude_roles))
 
         return scopes
 
