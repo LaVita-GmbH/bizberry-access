@@ -308,8 +308,9 @@ roles:
       - code: customer.addresses.read.norelact
       - code: customer.addresses.update.norelact
       - code: customer.addresses.delete.norelact
-      - code: catalogue.products.read.active
       - code: catalogue.pricelists.read.active
+      - code: catalogue.categories.read.active
+      - code: catalogue.products.read.active
       - code: checkout.carts.create
       - code: checkout.carts.read.act
       - code: checkout.carts.update.act
