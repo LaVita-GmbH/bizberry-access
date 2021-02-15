@@ -82,6 +82,7 @@ scopes:
             - key: read
               selectors:
                 - key: any
+                - key: active
             - key: update
               selectors:
                 - key: any
@@ -108,7 +109,8 @@ scopes:
             - key: read
               selectors:
                 - key: any
-                - key: active
+                - key: default
+                - key: assigned
             - key: update
               selectors:
                 - key: any
@@ -232,8 +234,9 @@ roles:
       - code: customer.addresses.read.own
       - code: customer.addresses.update.own
       - code: customer.addresses.delete.own
+      - code: catalogue.pricelists.read.assigned
+      - code: catalogue.categories.read.active
       - code: catalogue.products.read.active
-      - code: catalogue.pricelists.read.active
       - code: checkout.carts.create
       - code: checkout.carts.read.act
       - code: checkout.carts.update.act
@@ -308,7 +311,7 @@ roles:
       - code: customer.addresses.read.norelact
       - code: customer.addresses.update.norelact
       - code: customer.addresses.delete.norelact
-      - code: catalogue.pricelists.read.active
+      - code: catalogue.pricelists.read.default
       - code: catalogue.categories.read.active
       - code: catalogue.products.read.active
       - code: checkout.carts.create

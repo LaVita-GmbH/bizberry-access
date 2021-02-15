@@ -25,27 +25,12 @@
             "justMyCode": false
         },
         {
-            "name": "Python: Django",
+            "name": "Pegasus: Apply Scopes",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}\\manage.py",
             "args": [
-                "runserver"
-            ],
-            "env": {
-                "DEBUG": "true",
-                "SENTRY_DSN": "https://8717cb6b6a72485591dc3a5db3690f59@sentry.lavita.io/11"
-            },
-            "django": true,
-            "justMyCode": false
-        },
-        {
-            "name": "Python: Django Shell",
-            "type": "python",
-            "request": "launch",
-            "program": "${workspaceFolder}\\manage.py",
-            "args": [
-                "apply_scopes"
+                "apply_access"
             ],
             "env": {
                 "DEBUG": "true",

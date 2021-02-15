@@ -68,9 +68,14 @@ class Command(BaseCommand):
             scope_objs = []
             for scope in role.get('scopes', []):
                 service, resource, action, selector = (scope.get('code').split('.') + [None])[:4]
-                scope_obj = Scope.objects.get(service=service, resource=resource, action=action, selector=selector)
-                _logger.info("Apply Scope %s to Role %s", scope_obj, role_obj)
-                scope_objs.append(scope_obj)
+                try:
+                    scope_obj = Scope.objects.get(service=service, resource=resource, action=action, selector=selector)
+                    _logger.info("Apply Scope %s to Role %s", scope_obj, role_obj)
+                    scope_objs.append(scope_obj)
+
+                except Scope.DoesNotExist as error:
+                    _logger.error("Scope %s does not exist", scope.get('code'))
+                    raise error
 
             role_obj.scopes.set(scope_objs)
 
