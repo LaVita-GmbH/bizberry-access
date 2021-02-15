@@ -6,7 +6,7 @@ from ..models import User, UserAccessToken, UserRoleRelation
 
 class UserAccessTokenInline(StackedInline):
     model = UserAccessToken
-    fields = ('token', 'last_used', 'create_date', 'scopes',)
+    fields = ('token', 'tenant', 'last_used', 'create_date', 'scopes',)
     readonly_fields = ('token', 'last_used', 'create_date',)
     filter_horizontal = ('scopes',)
     extra = 0
