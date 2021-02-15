@@ -219,7 +219,7 @@ class UserAccessToken(models.Model):
     tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE, related_name='user_access_tokens')
     last_used = models.DateTimeField(null=True, blank=True)
     create_date = models.DateTimeField(auto_now_add=True)
-    scopes = models.ManyToManyField(Scope, related_name='user_access_tokens', limit_choices_to={'is_active': True, 'is_internal': False})
+    scopes = models.ManyToManyField(Scope, related_name='user_access_tokens', limit_choices_to={'is_active': True, 'is_internal': False}, blank=True)
 
     def get_scopes(self, include_critical: bool = True) -> Set[Scope]:
         filters = models.Q()
@@ -229,7 +229,7 @@ class UserAccessToken(models.Model):
         return set(self.scopes.filter(filters))
 
     def create_transaction_token(self, include_critical: bool = False) -> str:
-        scopes: Set[Scope] = self.user.get_scopes()
+        scopes: Set[Scope] = self.user.get_scopes(tenant=self.tenant)
         if self.scopes.count():
             scopes = scopes.intersection(self.get_scopes(include_critical=include_critical))
 
