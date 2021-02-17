@@ -11,8 +11,9 @@ import os
 from django.core.asgi import get_asgi_application
 from fastapi import FastAPI
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.utils import IntegrityError
 from jose.exceptions import JOSEError
-from olympus.handlers.error import generic_exception_handler, object_does_not_exist_handler, jose_error_handler, http_exception_handler
+from olympus.handlers.error import generic_exception_handler, object_does_not_exist_handler, jose_error_handler, http_exception_handler, integrity_error_handler
 from olympus.middleware.sentry import SentryAsgiMiddleware
 from starlette.exceptions import HTTPException
 
@@ -45,4 +46,5 @@ app.add_middleware(SentryAsgiMiddleware)
 app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(Exception, generic_exception_handler)
 app.add_exception_handler(ObjectDoesNotExist, object_does_not_exist_handler)
+app.add_exception_handler(IntegrityError, integrity_error_handler)
 app.add_exception_handler(JOSEError, jose_error_handler)
