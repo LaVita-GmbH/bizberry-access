@@ -137,6 +137,7 @@ class User(AbstractUser):
         validity: timedelta,
         tenant: Union[Tenant, str],
         audiences: List[str] = [],
+        include_critical: bool = False,
         store_in_db: bool = False,
         token_type: Optional['UserToken.Types'] = None,
     ) -> Tuple[str, str]:
@@ -155,6 +156,7 @@ class User(AbstractUser):
             'exp': time_expire,
             'sub': self.id,
             'ten': tenant.id,
+            'crt': include_critical,
             'aud': audiences,
             'jti': token_id,
         }
@@ -177,6 +179,7 @@ class User(AbstractUser):
             validity=timedelta(minutes=5),
             tenant=tenant,
             audiences=audiences,
+            include_critical=include_critical,
         )
 
         return token

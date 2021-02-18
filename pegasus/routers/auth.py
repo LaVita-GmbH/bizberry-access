@@ -42,7 +42,7 @@ def _get_token_from_access_token(access_token, include_critical: bool = False) -
 
 
 @sync_to_async
-def _get_token_for_user(user, tenant_id, include_critical: bool = False):
+def _get_token_for_user(user: User, tenant_id, include_critical: bool = False):
     return user.create_transaction_token(tenant_id, include_critical=include_critical)
 
 
