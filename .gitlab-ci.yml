@@ -45,3 +45,16 @@ build:
 
 include:
   - template: Jobs/Deploy.latest.gitlab-ci.yml
+
+sentry_release:
+  stage: staging
+  image: getsentry/sentry-cli:latest
+  allow_failure: true
+  only:
+    - master
+  script:
+    - export VERSION=${CI_COMMIT_REF_NAME}
+    - export REF=`sentry-cli releases propose-version`
+    - sentry-cli releases --org $SENTRY_ORG new --project pegasus $REF
+    - sentry-cli releases --org $SENTRY_ORG set-commits --auto $REF
+    - sentry-cli releases --org $SENTRY_ORG deploys $REF new --env production --name $VERSION
