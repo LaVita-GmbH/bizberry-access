@@ -9,7 +9,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import AbstractUser, UserManager as BaseUserManager
 from django.utils import timezone
 from djutils.crypt import random_string_generator
-from .. import exchanges
 from . import Scope, Role, Tenant
 
 
