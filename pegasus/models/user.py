@@ -3,11 +3,13 @@ from datetime import datetime, timedelta
 from jose import jwt
 from django.db import models
 from django.db.models import Q
+from django.db.transaction import atomic
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import AbstractUser, UserManager as BaseUserManager
 from django.utils import timezone
+from dirtyfields import DirtyFieldsMixin
 from djutils.crypt import random_string_generator
 from . import Scope, Role, Tenant
 
@@ -58,7 +60,7 @@ class UserManager(BaseUserManager):
         return self._create_user(email, password, **extra_fields)
 
 
-class User(AbstractUser):
+class User(DirtyFieldsMixin, AbstractUser):
     class Status(models.TextChoices):
         ACTIVE = 'ACTIVE', _("Active")
         TERMINATED = 'TERMINATED', _("Terminated")
@@ -170,6 +172,10 @@ class User(AbstractUser):
         )
 
         return token
+
+    @atomic
+    def save(self, *args, **kwargs):
+        return super().save(*args, **kwargs)
 
     class Meta:
         constraints = [

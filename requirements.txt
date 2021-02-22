@@ -4,6 +4,7 @@ kombu
 fastapi
 python-multipart
 django-hashers-passlib
+dirtyfields
 email-validator
 pyyaml
 sentry-sdk
