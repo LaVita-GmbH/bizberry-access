@@ -26,7 +26,7 @@ def _check_access_for_obj(access: Access, user: models.User, action: Optional[st
     if access.tenant_id != user.tenant_id:
         raise AccessError
 
-    if access.scope.selector != 'all':
+    if access.scope.selector != 'any':
         if user != access.user:
             raise AccessError
 

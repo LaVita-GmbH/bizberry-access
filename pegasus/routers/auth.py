@@ -46,9 +46,15 @@ def _get_token_for_user(user: User, include_critical: bool = False):
     return user.create_transaction_token(include_critical=include_critical)
 
 
+@sync_to_async
+def _get_user(**filters):
+    return User.objects.get(**filters)
+
+
 @router.post('/user', response_model=response.AuthUser)
 async def get_user_token(credentials: request.AuthUser = Body(...)):
-    user: User = await authenticate(email=credentials.email, tenant_id=credentials.tenant.id, password=credentials.password)
+    user = await _get_user(email=credentials.email, tenant_id=credentials.tenant.id)
+    user: User = await authenticate(id=user.id, password=credentials.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -84,7 +90,7 @@ async def get_transaction_token(
                 code='token_too_old_for_include_critical',
             ))
 
-        transaction_token = await _get_token_for_user(access.user, access.tenant_id)
+        transaction_token = await _get_token_for_user(access.user, include_critical=include_critical)
 
     else:
         raise AuthError

@@ -41,7 +41,7 @@ class Role(models.Model):
             return list(self.included_roles.exclude(id__in=exclude_roles))
 
         for role in get_roles():
-            scopes.update(role.get_scopes(exclude_roles=exclude_roles))
+            scopes.update(role.get_scopes(include_critical=include_critical, exclude_roles=exclude_roles))
 
         return scopes
 
