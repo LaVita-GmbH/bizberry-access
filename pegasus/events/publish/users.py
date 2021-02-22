@@ -27,10 +27,11 @@ def post_save_user(sender, instance: models.User, created: bool, **kwargs):
         data=data,
         data_type='access.user',
         data_op=getattr(DataChangeEvent.DataOperation, action.upper()),
+        tenant_id=instance.tenant_id,
     )
     connection.ensure(users, users.publish)(
         message=body.json(),
-        routing_key=f'v1.data.{action}',
+        routing_key=f'v1.data.{action}.{instance.tenant_id}',
     )
 
 
@@ -42,8 +43,9 @@ def post_delete_user(sender, instance: models.User, **kwargs):
         },
         data_type='access.user',
         data_op=DataChangeEvent.DataOperation.DELETE,
+        tenant_id=instance.tenant_id,
     )
     connection.ensure(users, users.publish)(
         message=body.json(),
-        routing_key='v1.data.delete',
+        routing_key=f'v1.data.delete.{instance.tenant_id}',
     )

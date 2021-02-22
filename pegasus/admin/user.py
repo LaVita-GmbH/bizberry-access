@@ -1,30 +1,24 @@
 from django.utils.translation import gettext, gettext_lazy as _
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django.contrib.admin import register, StackedInline, TabularInline
-from ..models import User, UserAccessToken, UserRoleRelation
+from django.contrib.admin import register, StackedInline
+from ..models import User, UserAccessToken
 
 
 class UserAccessTokenInline(StackedInline):
     model = UserAccessToken
-    fields = ('token', 'tenant', 'last_used', 'create_date', 'scopes',)
+    fields = ('token', 'last_used', 'create_date', 'scopes',)
     readonly_fields = ('token', 'last_used', 'create_date',)
     filter_horizontal = ('scopes',)
-    extra = 0
-
-
-class UserRoleRelationInline(TabularInline):
-    model = UserRoleRelation
-    fields = ('role', 'tenant',)
     extra = 0
 
 
 @register(User)
 class UserAdmin(BaseUserAdmin):
     fieldsets = (
-        (None, {'fields': ('id', 'password')}),
+        (None, {'fields': ('id', 'tenant', 'password')}),
         (_('Personal info'), {'fields': ('email',)}),
         (_('Permissions'), {
-            'fields': ('status', 'is_superuser',),
+            'fields': ('status', 'is_superuser', 'role',),
         }),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
     )
@@ -35,14 +29,12 @@ class UserAdmin(BaseUserAdmin):
         }),
     )
     readonly_fields = ('id',)
-    filter_horizontal = ('roles',)
 
-    list_display = ('id', 'email', 'is_active')
-    list_filter = ('is_superuser', 'status', 'groups')
+    list_display = ('id', 'tenant', 'email', 'is_active', 'role',)
+    list_filter = ('is_superuser', 'status', 'tenant', 'groups', 'role')
     search_fields = ('email',)
     ordering = ('email',)
 
     inlines = [
         UserAccessTokenInline,
-        UserRoleRelationInline,
     ]

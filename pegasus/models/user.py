@@ -68,19 +68,20 @@ class User(AbstractUser):
         SERVICE = 'SERVICE', _("Service")
 
     id = models.CharField(max_length=64, primary_key=True, default=_default_user_id, editable=False)
-    email = models.CharField(max_length=320, unique=True)
+    tenant: Tenant = models.ForeignKey(Tenant, on_delete=models.RESTRICT, related_name='users')
+    email = models.CharField(max_length=320, unique=False)
     password = models.CharField(_('password'), max_length=144)
     status = models.CharField(max_length=16, choices=Status.choices, default=Status.ACTIVE)
     type = models.CharField(max_length=16, choices=Type.choices, default=Type.USER)
-    roles = models.ManyToManyField(Role, related_name='users', blank=True, through='UserRoleRelation', through_fields=('user', 'role'),)
+    role = models.ForeignKey(Role, on_delete=models.SET_NULL, related_name='users', null=True, blank=True)
 
     first_name = None
     last_name = None
 
     objects = UserManager()
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
+    USERNAME_FIELD = 'id'
+    REQUIRED_FIELDS = ['email', 'tenant_id']
 
     @property
     def username(self) -> str:
@@ -105,36 +106,15 @@ class User(AbstractUser):
     def clean(self):
         pass
 
-    def get_roles(self, tenant: Optional[Union[Tenant, str]] = None) -> Set[Tuple[Role, Tenant]]:
-        if tenant is not None and isinstance(tenant, str):
-            tenant: Tenant = Tenant.objects.get(id=tenant)
-
-        roles_rel = self.roles_rel.all()
-        if tenant:
-            roles_rel = roles_rel.filter(tenant=tenant)
-
-        roles = set([(rel.role, rel.tenant) for rel in roles_rel])
-        if not roles and self.type == self.Type.USER:
-            try:
-                roles = {(Role.objects.get(is_default=True), None)}
-
-            except ObjectDoesNotExist:
-                pass
-
-        return roles
-
-    def get_scopes(self, tenant: Union[Tenant, str], include_critical: bool = True) -> Set[Scope]:
-        scopes = set()
-        for role, tenant in self.get_roles(tenant=tenant):
-            scopes.update(role.get_scopes(include_critical=include_critical))
-
-        return scopes
+    def get_scopes(self, include_critical: bool = True) -> Set[Scope]:
+        role = self.role or Role.objects.get(is_default=True)
+        
+        return role.get_scopes(include_critical=include_critical)
 
     def _create_token(
         self,
         *,
         validity: timedelta,
-        tenant: Union[Tenant, str],
         audiences: List[str] = [],
         include_critical: bool = False,
         store_in_db: bool = False,
@@ -145,16 +125,13 @@ class User(AbstractUser):
 
         token_id = random_string_generator(size=128)
 
-        if isinstance(tenant, str):
-            tenant: Tenant = Tenant.objects.get(id=tenant)
-
         claims = {
             'iss': settings.JWT_ISSUER,
             'iat': time_now,
             'nbf': time_now,
             'exp': time_expire,
             'sub': self.id,
-            'ten': tenant.id,
+            'ten': self.tenant.id,
             'crt': include_critical,
             'aud': audiences,
             'jti': token_id,
@@ -167,26 +144,24 @@ class User(AbstractUser):
         )
 
         if store_in_db:
-            self.tokens.create(id=token_id, tenant=tenant, type=token_type)
+            self.tokens.create(id=token_id, type=token_type)
 
         return token, token_id
 
-    def create_transaction_token(self, tenant: Union[Tenant, str], include_critical: bool = False) -> str:
-        audiences: List[str] = [scope.code for scope in self.get_scopes(tenant=tenant, include_critical=include_critical)]
+    def create_transaction_token(self, include_critical: bool = False) -> str:
+        audiences: List[str] = [scope.code for scope in self.get_scopes(include_critical=include_critical)]
 
         token, _ = self._create_token(
             validity=timedelta(minutes=5),
-            tenant=tenant,
             audiences=audiences,
             include_critical=include_critical,
         )
 
         return token
 
-    def create_user_token(self, tenant: Union[Tenant, str]) -> str:
+    def create_user_token(self) -> str:
         token, token_id = self._create_token(
             validity=timedelta(days=365),
-            tenant=tenant,
             audiences=[
                 'access.users.request_transaction_token'
             ],
@@ -196,11 +171,13 @@ class User(AbstractUser):
 
         return token
 
-
-class UserRoleRelation(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='roles_rel')
-    role = models.ForeignKey(Role, on_delete=models.CASCADE, related_name='users_rel')
-    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE)
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=('tenant', 'email',),
+                name='tenant_email_unique',
+            ),
+        ]
 
 
 class UserToken(models.Model):
@@ -209,7 +186,6 @@ class UserToken(models.Model):
 
     id = models.CharField(max_length=128, primary_key=True, default=_default_user_token_id, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tokens')
-    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE, related_name='user_tokens')
     type = models.CharField(max_length=16, choices=Types.choices)
     create_date = models.DateTimeField(auto_now_add=True)
 
@@ -218,7 +194,6 @@ class UserAccessToken(models.Model):
     id = models.CharField(max_length=64, primary_key=True, default=_default_user_accesstoken_id, editable=False)
     token = models.CharField(max_length=128, unique=True, db_index=True, default=_default_user_accesstoken_token, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='access_tokens')
-    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE, related_name='user_access_tokens')
     last_used = models.DateTimeField(null=True, blank=True)
     create_date = models.DateTimeField(auto_now_add=True)
     scopes = models.ManyToManyField(Scope, related_name='user_access_tokens', limit_choices_to={'is_active': True, 'is_internal': False}, blank=True)
@@ -231,7 +206,7 @@ class UserAccessToken(models.Model):
         return set(self.scopes.filter(filters))
 
     def create_transaction_token(self, include_critical: bool = False) -> str:
-        scopes: Set[Scope] = self.user.get_scopes(tenant=self.tenant)
+        scopes: Set[Scope] = self.user.get_scopes()
         if self.scopes.count():
             scopes = scopes.intersection(self.get_scopes(include_critical=include_critical))
 
@@ -240,7 +215,6 @@ class UserAccessToken(models.Model):
         token, _ = self.user._create_token(
             validity=timedelta(minutes=5),
             audiences=audiences,
-            tenant=self.tenant,
         )
 
         return token

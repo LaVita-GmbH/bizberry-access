@@ -31,8 +31,8 @@ def access_user(access: Optional[Access] = Security(user_token)) -> Access:
 
 
 @sync_to_async
-def _create_token(user, tenant):
-    return user.create_user_token(tenant=tenant.id)
+def _create_token(user):
+    return user.create_user_token()
 
 
 @sync_to_async
@@ -48,13 +48,13 @@ def _get_token_for_user(user: User, tenant_id, include_critical: bool = False):
 
 @router.post('/user', response_model=response.AuthUser)
 async def get_user_token(credentials: request.AuthUser = Body(...)):
-    user: User = await authenticate(email=credentials.email, password=credentials.password)
+    user: User = await authenticate(email=credentials.email, tenant_id=credentials.tenant.id, password=credentials.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
         )
 
-    token = await _create_token(user, tenant=credentials.tenant)
+    token = await _create_token(user)
 
     return response.AuthUser(
         token=response.AuthUserToken(
