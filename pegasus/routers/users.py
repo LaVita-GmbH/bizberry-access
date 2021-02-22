@@ -121,7 +121,7 @@ async def patch_user(
 ):
     user = await _get_user_by_id(access, user_id)
 
-    transfer_to_orm(body, user)
+    transfer_to_orm(body, user, exclude_unset=True, access=access)
     await sync_to_async(user.save)()
 
     return await response.User.from_orm(user)
