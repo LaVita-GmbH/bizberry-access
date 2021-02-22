@@ -1,7 +1,6 @@
 from typing import List, Optional
 from datetime import datetime
 from pydantic import BaseModel, Field
-from olympus.utils.pydantic_django import DjangoORMBaseModel
 from ... import models
 from .. import base
 
