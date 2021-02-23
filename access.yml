@@ -73,6 +73,28 @@ scopes:
                 - key: norelact
                 - key: own
                 - key: any
+        - key: contacts
+          actions:
+            - key: create
+              selectors:
+                - key: norelact
+                - key: own
+                - key: any
+            - key: read
+              selectors:
+                - key: norelact
+                - key: own
+                - key: any
+            - key: update
+              selectors:
+                - key: norelact
+                - key: own
+                - key: any
+            - key: delete
+              selectors:
+                - key: norelact
+                - key: own
+                - key: any
 
     - key: catalogue
       resources:
@@ -230,6 +252,8 @@ roles:
       - code: access.tenants.read
       - code: customer.clients.read.own
       - code: customer.clients.update.own
+      - code: customer.contacts.read.own
+      - code: customer.contacts.update.own
       - code: customer.addresses.create.own
       - code: customer.addresses.read.own
       - code: customer.addresses.update.own
@@ -261,6 +285,10 @@ roles:
       - code: customer.clients.read.any
       - code: customer.clients.update.any
       - code: customer.clients.delete.any
+      - code: customer.contacts.create.any
+      - code: customer.contacts.read.any
+      - code: customer.contacts.update.any
+      - code: customer.contacts.delete.any
       - code: customer.addresses.create.any
       - code: customer.addresses.read.any
       - code: customer.addresses.update.any
@@ -311,6 +339,10 @@ roles:
       - code: customer.addresses.read.norelact
       - code: customer.addresses.update.norelact
       - code: customer.addresses.delete.norelact
+      - code: customer.contacts.create.norelact
+      - code: customer.contacts.read.norelact
+      - code: customer.contacts.update.norelact
+      - code: customer.contacts.delete.norelact
       - code: catalogue.pricelists.read.default
       - code: catalogue.categories.read.active
       - code: catalogue.products.read.active
