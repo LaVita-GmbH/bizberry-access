@@ -75,6 +75,7 @@ class User(DirtyFieldsMixin, AbstractUser):
     password = models.CharField(_('password'), max_length=144)
     status = models.CharField(max_length=16, choices=Status.choices, default=Status.ACTIVE)
     type = models.CharField(max_length=16, choices=Type.choices, default=Type.USER)
+    language = models.CharField(max_length=8)
     role = models.ForeignKey(Role, on_delete=models.SET_NULL, related_name='users', null=True, blank=True)
 
     first_name = None
@@ -83,7 +84,11 @@ class User(DirtyFieldsMixin, AbstractUser):
     objects = UserManager()
 
     USERNAME_FIELD = 'id'
-    REQUIRED_FIELDS = ['email', 'tenant_id']
+    REQUIRED_FIELDS = [
+        'email',
+        'tenant_id',
+        'language',
+    ]
 
     @property
     def username(self) -> str:
