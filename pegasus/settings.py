@@ -168,6 +168,7 @@ BROKER_URL = os.getenv('BROKER_URL')
 # Sentry Integration
 
 sentry_sdk.init(
+    environment='development' if DEBUG else os.getenv('SENTRY_ENVIRONMENT', 'production'),
     dsn=os.getenv('SENTRY_DSN'),
     integrations=[DjangoIntegration()],
     traces_sample_rate=1.0,
