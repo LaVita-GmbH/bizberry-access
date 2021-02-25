@@ -243,6 +243,46 @@ scopes:
               selectors:
                 - key: any
 
+    - key: notification
+      resources:
+        - key: categories
+          actions:
+            - key: create
+            - key: read
+              selectors:
+                - key: any
+                - key: active
+            - key: delete
+              selectors:
+                - key: any
+        - key: templates
+          actions:
+            - key: create
+            - key: read
+              selectors:
+                - key: any
+            - key: update
+              selectors:
+                - key: any
+            - key: delete
+              selectors:
+                - key: any
+        - key: messages
+          actions:
+            - key: create
+            - key: read
+              selectors:
+                - key: any
+                - key: own
+            - key: update
+              selectors:
+                - key: any
+                - key: own
+            - key: delete
+              selectors:
+                - key: any
+                - key: own
+
 roles:
   - key: default
     is_default: true
@@ -273,6 +313,10 @@ roles:
       - code: finance.accounts.delete.own
       - code: checkout.transactions.read.act
       - code: checkout.transactions.update.act
+      - code: notification.categories.read.active
+      - code: notification.messages.read.own
+      - code: notification.messages.update.own
+      - code: notification.messages.delete.own
 
   - key: admin
     scopes:
@@ -328,6 +372,17 @@ roles:
       - code: shipping.carriers.read.any
       - code: shipping.carriers.update.any
       - code: shipping.carriers.delete.any
+      - code: notification.categories.create
+      - code: notification.categories.read.any
+      - code: notification.categories.delete.any
+      - code: notification.templates.create
+      - code: notification.templates.read.any
+      - code: notification.templates.update.any
+      - code: notification.templates.delete.any
+      - code: notification.messages.create
+      - code: notification.messages.read.any
+      - code: notification.messages.update.any
+      - code: notification.messages.delete.any
     included_roles:
       - key: default
 
