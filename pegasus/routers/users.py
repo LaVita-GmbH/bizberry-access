@@ -49,10 +49,11 @@ def _get_user_by_id(access: Access, user_id: str) -> models.User:
 
 
 @sync_to_async
-def _create_user(body: request.UserCreate) -> models.User:
+def _create_user(access: Access, body: request.UserCreate) -> models.User:
     new_user = models.User.objects.create_user(
         email=str(body.email),
         password=str(body.password.get_secret_value()),
+        tenant_id=access.tenant_id,
     )
 
     return new_user
@@ -73,7 +74,7 @@ async def post_user(
     """
     Scopes: `access.users.create`
     """
-    new_user = await _create_user(body)
+    new_user = await _create_user(access, body)
 
     response_user = await response.User.from_orm(new_user)
     return response_user
