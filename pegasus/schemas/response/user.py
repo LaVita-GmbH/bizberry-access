@@ -8,9 +8,11 @@ from .. import base
 class User(base.User):
     class TenantReference(BaseModel):
         id: str = Field(orm_field=models.User.tenant)
+        Srel: str = Field('olymp/access/tenants', orm_field=None, alias='$rel', const=True)
 
     class RoleReference(BaseModel):
         id: str = Field(orm_field=models.User.role)
+        Srel: str = Field('olymp/access/roles', orm_field=None, alias='$rel', const=True)
 
     id: str = Field(orm_field=models.User.id)
     tenant: TenantReference
