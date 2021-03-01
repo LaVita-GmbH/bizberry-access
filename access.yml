@@ -292,6 +292,7 @@ roles:
       - code: access.tenants.read
       - code: customer.clients.read.own
       - code: customer.clients.update.own
+      - code: customer.contacts.create.own
       - code: customer.contacts.read.own
       - code: customer.contacts.update.own
       - code: customer.addresses.create.own
