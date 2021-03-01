@@ -24,7 +24,7 @@ users.declare()
 @receiver(post_save, sender=models.User)
 def post_save_user(sender, instance: models.User, created: bool, **kwargs):
     action = 'create' if created else 'update'
-    data = async_to_sync(response.User.from_orm)(instance).dict()
+    data = async_to_sync(response.User.from_orm)(instance).dict(by_alias=True)
 
     modified = instance.get_dirty_fields(check_relationship=True)
     data['_changed'] = [
@@ -34,7 +34,7 @@ def post_save_user(sender, instance: models.User, created: bool, **kwargs):
     ]
 
     body = DataChangeEvent(
-        data=data.dict(by_alias=True),
+        data=data,
         data_type='access.user',
         data_op=getattr(DataChangeEvent.DataOperation, action.upper()),
         tenant_id=instance.tenant_id,
