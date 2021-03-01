@@ -24,7 +24,7 @@ def post_save_tenant(sender, instance: models.Tenant, created: bool, **kwargs):
     action = 'create' if created else 'update'
     data = async_to_sync(response.Tenant.from_orm)(instance)
     body = DataChangeEvent(
-        data=data,
+        data=data.dict(by_alias=True),
         data_type='access.tenant',
         data_op=getattr(DataChangeEvent.DataOperation, action.upper()),
     )
