@@ -1,11 +1,8 @@
-import json
-from typing import List
 from kombu import Exchange
-from asgiref.sync import async_to_sync
-from pydantic import BaseModel, Field
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from olympus.schemas import DataChangeEvent
+from olympus.utils.pydantic_django import transfer_from_orm
 from ... import models
 from ...schemas import response
 from . import connection
@@ -24,7 +21,7 @@ users.declare()
 @receiver(post_save, sender=models.User)
 def post_save_user(sender, instance: models.User, created: bool, **kwargs):
     action = 'create' if created else 'update'
-    data = async_to_sync(response.User.from_orm)(instance).dict(by_alias=True)
+    data = transfer_from_orm(response.User.from_orm, instance).dict(by_alias=True)
 
     modified = instance.get_dirty_fields(check_relationship=True)
     data['_changed'] = [

@@ -1,9 +1,9 @@
 import json
 from kombu import Exchange
-from asgiref.sync import async_to_sync
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from olympus.schemas import DataChangeEvent
+from olympus.utils.pydantic_django import transfer_from_orm
 from ... import models
 from ...schemas import response
 from . import connection
@@ -22,7 +22,7 @@ tenants.declare()
 @receiver(post_save, sender=models.Tenant)
 def post_save_tenant(sender, instance: models.Tenant, created: bool, **kwargs):
     action = 'create' if created else 'update'
-    data = async_to_sync(response.Tenant.from_orm)(instance)
+    data = transfer_from_orm(response.Tenant.from_orm, instance)
     body = DataChangeEvent(
         data=data.dict(by_alias=True),
         data_type='access.tenant',
