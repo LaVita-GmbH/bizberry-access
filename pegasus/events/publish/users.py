@@ -21,7 +21,7 @@ users.declare()
 @receiver(post_save, sender=models.User)
 def post_save_user(sender, instance: models.User, created: bool, **kwargs):
     action = 'create' if created else 'update'
-    data = transfer_from_orm(response.User.from_orm, instance).dict(by_alias=True)
+    data = transfer_from_orm(response.User, instance).dict(by_alias=True)
 
     modified = instance.get_dirty_fields(check_relationship=True)
     data['_changed'] = [

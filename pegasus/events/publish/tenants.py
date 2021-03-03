@@ -22,7 +22,7 @@ tenants.declare()
 @receiver(post_save, sender=models.Tenant)
 def post_save_tenant(sender, instance: models.Tenant, created: bool, **kwargs):
     action = 'create' if created else 'update'
-    data = transfer_from_orm(response.Tenant.from_orm, instance)
+    data = transfer_from_orm(response.Tenant, instance)
     body = DataChangeEvent(
         data=data.dict(by_alias=True),
         data_type='access.tenant',
