@@ -15,7 +15,7 @@ class UserCreate(BaseModel):
 
 
 class UserUpdate(base.User):
-    email: Optional[EmailStr] = Field(orm_field=models.User.email)
-    password: Optional[SecretStr] = Field(orm_method=models.User.set_password)
+    email: Optional[EmailStr] = Field(orm_field=models.User.email, is_critical=True)
+    password: Optional[SecretStr] = Field(orm_method=models.User.set_password, is_critical=True)
     language: Optional[str] = Field(orm_field=models.User.language)
     role: Optional[base.User.RoleReference]

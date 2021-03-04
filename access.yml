@@ -20,7 +20,6 @@ scopes:
                 - key: own
                 - key: any
             - key: update
-              critical: true
               selectors:
                 - key: own
                 - key: any

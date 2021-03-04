@@ -7,9 +7,9 @@ from ... import models
 
 class User(DjangoORMBaseModel):
     class RoleReference(BaseModel):
-        id: str = Field(orm_field=models.User.role, scopes=['access.users.update.any'])
+        id: str = Field(orm_field=models.User.role, scopes=['access.users.update.any'], is_critical=True)
 
-    email: EmailStr = Field(orm_field=models.User.email)
+    email: EmailStr = Field(orm_field=models.User.email, is_critical=True)
     language: str = Field(orm_field=models.User.language)
 
     @validator('language')
@@ -19,4 +19,4 @@ class User(DjangoORMBaseModel):
         if not lang.is_valid():
             raise ValueError('language_invalid')
 
-        return str(lang)
+        return lang.simplify_script().to_tag()
