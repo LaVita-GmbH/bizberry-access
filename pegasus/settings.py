@@ -83,6 +83,7 @@ TEMPLATES = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
+        'OPTIONS': {'sslmode': os.getenv('DATABASE_SSLMODE', 'require')},
         'NAME': os.getenv('DATABASE_NAME', 'pegasus'),
         'USER': os.getenv('DATABASE_USER', 'pegasus'),
         'PASSWORD': os.getenv('DATABASE_PASSWORD', 'pegasus'),
