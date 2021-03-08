@@ -6,6 +6,7 @@ stages:
   - review
   - dast
   - staging
+  - staging_finish
   - canary
   - production
   - incremental rollout 10%
@@ -74,7 +75,7 @@ sentry_release_new:
 
 sentry_release_finish_staging:
   <<: *sentry_release_finish
-  stage: staging
+  stage: staging_finish
   variables:
     CI_ENVIRONMENT_SLUG: staging
 
