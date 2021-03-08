@@ -406,6 +406,7 @@ roles:
       - code: checkout.carts.update.act
       - code: checkout.carts.delete.act
       - code: shipping.carriers.read.active
+      - code: finance.taxes.read.active
       - code: finance.providers.read.active
       - code: finance.accounts.create.norelact
       - code: finance.accounts.read.norelact
@@ -413,3 +414,7 @@ roles:
       - code: finance.accounts.delete.norelact
       - code: checkout.transactions.read.act
       - code: checkout.transactions.update.act
+      - code: checkout.carts.create
+      - code: checkout.carts.read.act
+      - code: checkout.carts.update.act
+      - code: checkout.carts.delete.act
