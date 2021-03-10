@@ -5,9 +5,9 @@ from fastapi import APIRouter, HTTPException, status, Body, Security
 from django.contrib.auth import authenticate as sync_authenticate
 from asgiref.sync import sync_to_async
 from olympus.schemas import Access, Error
-from olympus.exceptions import AuthError
+from olympus.exceptions import AuthError, ValidationError
 from ..utils import JWTToken
-from ..models import User, UserAccessToken
+from ..models import User, UserAccessToken, UserOTP
 from ..schemas import request, response
 
 
@@ -36,19 +36,37 @@ def _create_token(user):
 
 
 @sync_to_async
-def _get_token_from_access_token(access_token, include_critical: bool = False) -> UserAccessToken:
-    user_accesstoken: UserAccessToken = UserAccessToken.objects.get(token=access_token)
+def _get_token_from_access_token(access_token, include_critical: bool = False) -> str:
+    user_accesstoken: UserAccessToken = UserAccessToken.objects.get(token=access_token, is_active=True)
     return user_accesstoken.create_transaction_token(include_critical=include_critical)
 
 
 @sync_to_async
-def _get_token_for_user(user: User, include_critical: bool = False):
-    return user.create_transaction_token(include_critical=include_critical)
+def _get_token_for_user(access: Access, user: User, include_critical: bool = False) -> str:
+    return user.create_transaction_token(include_critical=include_critical, used_token=access)
 
 
 @sync_to_async
 def _get_user(**filters):
     return User.objects.get(**filters)
+
+
+@sync_to_async
+def _reset_password(tenant_id: str, *, user: Optional[User] = None, otp_id: Optional[str] = None, value: str):
+    if not user and not otp_id:
+        raise ValidationError(detail=Error(code='user_or_id_required'))
+
+    otp: UserOTP
+    if otp_id:
+        otp = UserOTP.objects.get(id=otp_id, user__tenant_id=tenant_id, used_at__isnull=True, type=UserOTP.UserOTPType.TOKEN)
+
+    elif user:
+        otp = user.otps.get(used_at__isnull=True, type=UserOTP.UserOTPType.TOKEN)
+
+    else:
+        raise NotImplementedError
+
+    otp.validate(value)
 
 
 @router.post('/user', response_model=response.AuthUser)
@@ -90,7 +108,7 @@ async def get_transaction_token(
                 code='token_too_old_for_include_critical',
             ))
 
-        transaction_token = await _get_token_for_user(access.user, include_critical=include_critical)
+        transaction_token = await _get_token_for_user(access, access.user, include_critical=include_critical)
 
     else:
         raise AuthError
@@ -100,3 +118,39 @@ async def get_transaction_token(
             transaction=transaction_token,
         )
     )
+
+
+@router.post('/reset', status_code=204)
+async def post_reset(
+    body: request.AuthUserReset = Body(...),
+):
+    """
+    Request a password reset
+    """
+    user: User = await _get_user(email=body.email, tenant_id=body.tenant.id)
+    await sync_to_async(user.request_otp)(type=UserOTP.UserOTPType.TOKEN)
+
+
+@router.patch('/reset', response_model=response.AuthUser)
+async def patch_reset(
+    body: request.AuthReset = Body(...),
+):
+    """
+    Reset the password and set a new one
+    """
+    user: Optional[User] = None
+    if body.email:
+        user = await _get_user(email=body.email, tenant_id=body.tenant.id)
+
+    await _reset_password(tenant_id=body.tenant.id, user=user, otp_id=body.id, value=body.value)
+
+
+@router.post('/pin', status_code=204)
+async def post_pin(
+    body: request.AuthUserReset = Body(...),
+):
+    """
+    Request a login PIN
+    """
+    user: User = await _get_user(email=body.email, tenant_id=body.tenant.id)
+    await sync_to_async(user.request_otp)(type=UserOTP.UserOTPType.PIN)

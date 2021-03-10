@@ -118,6 +118,16 @@ PASSWORD_HASHERS = [
     'hashers_passlib.pbkdf2_sha512',
 ]
 
+AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.ModelBackend', 'pegasus.auth.backends.UserOTPBackend']
+
+AUTH_TOKEN_LENGTH = os.getenv('AUTH_TOKEN_LENGTH', 64)
+AUTH_TOKEN_VALIDITY = os.getenv('AUTH_TOKEN_VALIDITY', 3600)
+AUTH_TOKEN_CREATE_NEW_THRESHOLD = os.getenv('AUTH_TOKEN_CREATE_NEW_THRESHOLD', 300)
+
+AUTH_PIN_LENGTH = os.getenv('AUTH_PIN_LENGTH', 8)
+AUTH_PIN_VALIDITY = os.getenv('AUTH_PIN_VALIDITY', 600)
+AUTH_PIN_CREATE_NEW_THRESHOLD = os.getenv('AUTH_PIN_CREATE_NEW_THRESHOLD', 300)
+
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 

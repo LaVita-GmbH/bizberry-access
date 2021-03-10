@@ -1,16 +1,19 @@
-from typing import List, Set, Tuple, Optional, Union
-from datetime import datetime, timedelta
+import string
+from typing import List, Set, Tuple, Optional
+from datetime import timedelta
 from jose import jwt
 from django.db import models
 from django.db.models import Q
 from django.db.transaction import atomic
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth.models import AbstractUser, UserManager as BaseUserManager
 from django.utils import timezone
 from dirtyfields import DirtyFieldsMixin
 from djutils.crypt import random_string_generator
+from olympus.schemas import Access, Error
+from olympus.exceptions import AuthError, ConstraintError, ValidationError
 from . import Scope, Role, Tenant
 
 
@@ -28,6 +31,10 @@ def _default_user_accesstoken_id():
 
 def _default_user_accesstoken_token():
     return random_string_generator(size=128)
+
+
+def _default_user_otp_id():
+    return random_string_generator(size=64)
 
 
 class UserManager(BaseUserManager):
@@ -155,8 +162,17 @@ class User(DirtyFieldsMixin, AbstractUser):
 
         return token, token_id
 
-    def create_transaction_token(self, include_critical: bool = False) -> str:
+    def create_transaction_token(self, include_critical: bool = False, used_token: Optional[Access] = None) -> str:
         audiences: List[str] = [scope.code for scope in self.get_scopes(include_critical=include_critical)]
+
+        if used_token:
+            try:
+                user_token = self.tokens.get(id=used_token.token.jti, type=UserToken.Types.USER,)
+                if not user_token.is_active:
+                    raise AuthError(detail=Error(code='invalid_user_token'))
+
+            except UserToken.DoesNotExist as error:
+                raise AuthError(detail=Error(code='invalid_user_token')) from error
 
         token, _ = self._create_token(
             validity=timedelta(minutes=5),
@@ -177,6 +193,51 @@ class User(DirtyFieldsMixin, AbstractUser):
         )
 
         return token
+
+    def _invalidate_old_otps(self, *, type, create_new_threshold: Optional[int] = None):
+        old_otps = self.otps.filter(type=type, used_at__isnull=True)
+        for old_otp in old_otps:
+            if create_new_threshold and old_otp.created_at > timezone.now() - timedelta(seconds=create_new_threshold):
+                raise ConstraintError(detail=Error(code='create_new_otp_threshold_not_reached'))
+
+            old_otp.used_at = timezone.now()
+            old_otp.save()
+
+    def request_otp(
+        self,
+        *,
+        type: 'UserOTP.UserOTPType',
+        length: Optional[int] = None,
+        validity: Optional[int] = None,
+        chars: Optional[str] = None,
+        create_new_threshold: Optional[int] = None,
+    ) -> 'UserOTP':
+        if length is None:
+            length = getattr(settings, f'AUTH_{type}_LENGTH')
+
+        if validity is None:
+            validity = getattr(settings, f'AUTH_{type}_VALIDITY')
+
+        if create_new_threshold is None:
+            create_new_threshold = getattr(settings, f'AUTH_{type}_CREATE_NEW_THRESHOLD')
+
+        self._invalidate_old_otps(type=type, create_new_threshold=create_new_threshold)
+
+        kwargs = {}
+        if chars:
+            kwargs['chars'] = chars
+
+        elif type == UserOTP.UserOTPType.PIN:
+            kwargs['chars'] = string.digits
+
+        otp = UserOTP(
+            user=self,
+            type=type,
+            expire_at=timezone.now() + timedelta(seconds=validity),
+        )
+        otp.set_value(random_string_generator(size=length, **kwargs))
+        otp.save()
+        return otp
 
     @atomic
     def save(self, *args, **kwargs):
@@ -199,6 +260,7 @@ class UserToken(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tokens')
     type = models.CharField(max_length=16, choices=Types.choices)
     create_date = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
 
 
 class UserAccessToken(models.Model):
@@ -208,6 +270,7 @@ class UserAccessToken(models.Model):
     last_used = models.DateTimeField(null=True, blank=True)
     create_date = models.DateTimeField(auto_now_add=True)
     scopes = models.ManyToManyField(Scope, related_name='user_access_tokens', limit_choices_to={'is_active': True, 'is_internal': False}, blank=True)
+    is_active = models.BooleanField(default=True)
 
     def get_scopes(self, include_critical: bool = True) -> Set[Scope]:
         filters = models.Q()
@@ -229,3 +292,39 @@ class UserAccessToken(models.Model):
         )
 
         return token
+
+
+class UserOTP(models.Model):
+    _value = None
+
+    class UserOTPType(models.TextChoices):
+        PIN = 'PIN', "PIN"
+        TOKEN = 'TOKEN', "Token"
+
+    id = models.CharField(max_length=64, primary_key=True, default=_default_user_otp_id)
+    user: User = models.ForeignKey(User, on_delete=models.CASCADE, related_name='otps')
+    type = models.CharField(max_length=16, choices=UserOTPType.choices, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expire_at = models.DateTimeField()
+    used_at = models.DateTimeField(null=True, blank=True)
+    value = models.CharField(max_length=128)
+    is_internal = models.BooleanField(default=False)
+
+    def set_value(self, value: str):
+        self.value = make_password(value)
+        self._value = value
+
+    def validate(self, value):
+        return check_password(value, self.value)
+
+    @atomic
+    def save(self, *args, **kwargs):
+        return super().save(*args, **kwargs)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=('user', 'type', 'used_at',),
+                name='user_type_used_at_unique',
+            ),
+        ]

@@ -1,12 +1,16 @@
 from typing import Optional
 from pydantic import BaseModel, Field
-from ...models import User
 from . import TenantReference
 
 
 class AuthUser(BaseModel):
-    email: Optional[str]
+    email: str
     password: str
+    tenant: TenantReference
+
+
+class AuthUserReset(BaseModel):
+    email: str
     tenant: TenantReference
 
 
@@ -21,3 +25,10 @@ class AuthTransaction(BaseModel):
                 'access_token': None,
             },
         }
+
+
+class AuthReset(BaseModel):
+    id: Optional[str]
+    email: Optional[str]
+    value: str
+    tenant: TenantReference

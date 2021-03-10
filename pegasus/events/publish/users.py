@@ -56,3 +56,32 @@ def post_delete_user(sender, instance: models.User, **kwargs):
         message=body.json(),
         routing_key=f'v1.data.delete.{instance.tenant_id}',
     )
+
+
+@receiver(post_save, sender=models.UserOTP)
+def post_save_user_otp(sender, instance: models.UserOTP, created: bool, **kwargs):
+    if not created:
+        return
+
+    if instance.is_internal:
+        return
+
+    body = DataChangeEvent(
+        data={
+            'id': instance.id,
+            'user': {
+                'id': instance.user_id,
+                '$rel': 'olymp/access/users',
+            },
+            'value': instance._value,
+            'expire_at': instance.expire_at.isoformat(),
+        },
+        data_type='access.user.otp',
+        data_op=DataChangeEvent.DataOperation.CREATE,
+        tenant_id=instance.user.tenant_id,
+    )
+
+    connection.ensure(users, users.publish)(
+        message=body.json(),
+        routing_key=f'v1.action.otp_{str(instance.type).lower()}.{instance.user.tenant_id}',
+    )
