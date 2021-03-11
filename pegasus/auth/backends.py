@@ -25,6 +25,6 @@ class UserOTPBackend(BaseBackend):
                     return otp.user
 
                 elif otp.type == UserOTP.UserOTPType.TOKEN and check_password(password, otp.value):
-                    raise ValidationError(detail=Error(code='cannot_login_using_otp_type_token'))
+                    raise ValidationError(detail=Error(code='cannot_login_using_otp_type_token', detail={'id': otp.id}))
 
             return None

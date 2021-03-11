@@ -1,11 +1,11 @@
 from typing import Optional
 from datetime import timedelta
 from django.utils import timezone
-from fastapi import APIRouter, HTTPException, status, Body, Security
+from fastapi import APIRouter, HTTPException, status, Body, Security, Path
 from django.contrib.auth import authenticate as sync_authenticate
 from asgiref.sync import sync_to_async
 from olympus.schemas import Access, Error
-from olympus.exceptions import AuthError, ValidationError
+from olympus.exceptions import AccessError, AuthError, ValidationError
 from ..utils import JWTToken
 from ..models import User, UserAccessToken, UserOTP
 from ..schemas import request, response
@@ -52,13 +52,14 @@ def _get_user(**filters):
 
 
 @sync_to_async
-def _reset_password(tenant_id: str, *, user: Optional[User] = None, otp_id: Optional[str] = None, value: str):
+def _reset_password(tenant_id: str, *, user: Optional[User] = None, otp_id: Optional[str] = None, value: str, password: str) -> Optional[User]:
     if not user and not otp_id:
         raise ValidationError(detail=Error(code='user_or_id_required'))
 
     otp: UserOTP
     if otp_id:
         otp = UserOTP.objects.get(id=otp_id, user__tenant_id=tenant_id, used_at__isnull=True, type=UserOTP.UserOTPType.TOKEN)
+        user = otp.user
 
     elif user:
         otp = user.otps.get(used_at__isnull=True, type=UserOTP.UserOTPType.TOKEN)
@@ -66,13 +67,30 @@ def _reset_password(tenant_id: str, *, user: Optional[User] = None, otp_id: Opti
     else:
         raise NotImplementedError
 
-    otp.validate(value)
+    if not otp.validate(value):
+        return None
+
+    user.set_password(password)
+    return user
 
 
 @router.post('/user', response_model=response.AuthUser)
 async def get_user_token(credentials: request.AuthUser = Body(...)):
-    user = await _get_user(email=credentials.email, tenant_id=credentials.tenant.id)
-    user: User = await authenticate(id=user.id, password=credentials.password)
+    if credentials.email:
+        user = await _get_user(email=credentials.email, tenant_id=credentials.tenant.id)
+        user: User = await authenticate(id=user.id, password=credentials.password)
+
+    elif credentials.otp:
+        user: User = await _reset_password(
+            tenant_id=credentials.tenant.id,
+            otp_id=credentials.otp.id,
+            value=credentials.otp.value,
+            password=credentials.password,
+        )
+
+    else:
+        raise NotImplementedError
+
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -120,37 +138,13 @@ async def get_transaction_token(
     )
 
 
-@router.post('/reset', status_code=204)
-async def post_reset(
+@router.post('/otp', response_model=response.AuthOTP)
+async def post_otp(
     body: request.AuthUserReset = Body(...),
 ):
     """
-    Request a password reset
+    Request a one time password (used as PIN or TOKEN)
     """
     user: User = await _get_user(email=body.email, tenant_id=body.tenant.id)
-    await sync_to_async(user.request_otp)(type=UserOTP.UserOTPType.TOKEN)
-
-
-@router.patch('/reset', response_model=response.AuthUser)
-async def patch_reset(
-    body: request.AuthReset = Body(...),
-):
-    """
-    Reset the password and set a new one
-    """
-    user: Optional[User] = None
-    if body.email:
-        user = await _get_user(email=body.email, tenant_id=body.tenant.id)
-
-    await _reset_password(tenant_id=body.tenant.id, user=user, otp_id=body.id, value=body.value)
-
-
-@router.post('/pin', status_code=204)
-async def post_pin(
-    body: request.AuthUserReset = Body(...),
-):
-    """
-    Request a login PIN
-    """
-    user: User = await _get_user(email=body.email, tenant_id=body.tenant.id)
-    await sync_to_async(user.request_otp)(type=UserOTP.UserOTPType.PIN)
+    otp: UserOTP = await sync_to_async(user.request_otp)(type=body.type)
+    return await response.AuthOTP.from_orm(otp)

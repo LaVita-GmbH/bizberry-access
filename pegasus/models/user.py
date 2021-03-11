@@ -306,6 +306,7 @@ class UserOTP(models.Model):
     type = models.CharField(max_length=16, choices=UserOTPType.choices, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     expire_at = models.DateTimeField()
+    length = models.IntegerField()
     used_at = models.DateTimeField(null=True, blank=True)
     value = models.CharField(max_length=128)
     is_internal = models.BooleanField(default=False)
@@ -313,6 +314,7 @@ class UserOTP(models.Model):
     def set_value(self, value: str):
         self.value = make_password(value)
         self._value = value
+        self.length = len(value)
 
     def validate(self, value):
         return check_password(value, self.value)

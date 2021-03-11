@@ -1,17 +1,34 @@
 from typing import Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, root_validator
 from . import TenantReference
+from ... import models
 
 
 class AuthUser(BaseModel):
-    email: str
+    class OTP(BaseModel):
+        id: str = Field(min_length=64, max_length=64)
+        value: str
+
+    email: Optional[str]
+    otp: Optional[OTP]
     password: str
     tenant: TenantReference
+
+    @root_validator
+    def validate(cls, values):
+        if values.get('email') and values.get('otp'):
+            raise ValueError('multiple_values_set:email|otp')
+
+        if not values.get('email') and not values.get('otp'):
+            raise ValueError('no_values_set:email|otp')
+
+        return values
 
 
 class AuthUserReset(BaseModel):
     email: str
     tenant: TenantReference
+    type: models.UserOTP.UserOTPType
 
 
 class AuthTransaction(BaseModel):
@@ -25,10 +42,3 @@ class AuthTransaction(BaseModel):
                 'access_token': None,
             },
         }
-
-
-class AuthReset(BaseModel):
-    id: Optional[str]
-    email: Optional[str]
-    value: str
-    tenant: TenantReference
