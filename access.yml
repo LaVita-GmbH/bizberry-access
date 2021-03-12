@@ -429,6 +429,18 @@ roles:
       - code: notification.messages.read.any
       - code: notification.messages.update.any
       - code: notification.messages.delete.any
+      - code: activity.categories.create
+      - code: activity.categories.read.any
+      - code: activity.categories.update.any
+      - code: activity.categories.delete.any
+      - code: activity.events.create
+      - code: activity.events.read.any
+      - code: activity.events.update.any
+      - code: activity.events.delete.any
+      - code: activity.attendances.create
+      - code: activity.attendances.read.any
+      - code: activity.attendances.update.any
+      - code: activity.attendances.delete.any
     included_roles:
       - key: default
 
