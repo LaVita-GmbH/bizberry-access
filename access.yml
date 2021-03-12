@@ -437,7 +437,7 @@ roles:
       - code: activity.events.read.any
       - code: activity.events.update.any
       - code: activity.events.delete.any
-      - code: activity.attendances.create
+      - code: activity.attendances.create.any
       - code: activity.attendances.read.any
       - code: activity.attendances.update.any
       - code: activity.attendances.delete.any
