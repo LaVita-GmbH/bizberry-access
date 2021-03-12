@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel, Field, root_validator
+from pydantic import BaseModel, Field, validator
 from . import TenantReference
 from ... import models
 
@@ -14,15 +14,15 @@ class AuthUser(BaseModel):
     password: str
     tenant: TenantReference
 
-    @root_validator
-    def validate(cls, values):
+    @validator('otp')
+    def check_email_or_otp(cls, value, values):
         if values.get('email') and values.get('otp'):
             raise ValueError('multiple_values_set:email|otp')
 
         if not values.get('email') and not values.get('otp'):
             raise ValueError('no_values_set:email|otp')
 
-        return values
+        return value
 
 
 class AuthUserReset(BaseModel):
