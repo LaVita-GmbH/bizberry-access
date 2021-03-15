@@ -4,8 +4,8 @@ from asgiref.sync import sync_to_async
 from fastapi import APIRouter, Security, Body, Depends, Path, Query
 from django.db.models import Q
 from olympus.exceptions import AccessError
-from olympus.schemas import Access, LimitOffset
-from olympus.utils import depends_limit_offset, dict_remove_none
+from olympus.schemas import Access, Pagination
+from olympus.utils import depends_pagination, dict_remove_none
 from ..utils import JWTToken
 from .. import models
 from ..schemas import response, request
@@ -35,9 +35,9 @@ def _check_access_for_obj(access: Access, user: models.User, action: Optional[st
 
 
 @sync_to_async
-def _get_users_filtered(access: Access, limitoffset: LimitOffset, **filters) -> List[models.User]:
+def _get_users_filtered(access: Access, pagination: Pagination, **filters) -> List[models.User]:
     q_filters = Q(tenant_id=access.tenant_id, **dict_remove_none(filters))
-    return list(models.User.objects.filter(q_filters)[limitoffset.offset:limitoffset.limit])
+    return list(models.User.objects.filter(q_filters)[pagination.offset:pagination.limit])
 
 
 @sync_to_async
@@ -84,10 +84,10 @@ async def post_user(
 @router.get('', response_model=response.UsersList)
 async def get_users(
     access: Access = Security(access_user, scopes=['access.users.read.any']),
-    limitoffset: LimitOffset = Depends(depends_limit_offset()),
+    pagination: Pagination = Depends(depends_pagination()),
     status: Optional[models.User.Status] = Query(models.User.Status.ACTIVE),
 ):
-    users: List[models.User] = await _get_users_filtered(access, limitoffset, status=status)
+    users: List[models.User] = await _get_users_filtered(access, pagination, status=status)
 
     return response.UsersList(
         users=[await response.User.from_orm(user) for user in users],

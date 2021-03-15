@@ -2,8 +2,8 @@ from olympus.utils.pydantic_django import transfer_to_orm
 from typing import List
 from asgiref.sync import sync_to_async
 from fastapi import APIRouter, Security, Body, Depends
-from olympus.schemas import Access, LimitOffset
-from olympus.utils import depends_limit_offset
+from olympus.schemas import Access, Pagination
+from olympus.utils import depends_pagination
 from ..utils import JWTToken
 from ..models import Tenant, TenantCountry
 from ..schemas import response, request
@@ -15,8 +15,8 @@ transaction_token = JWTToken(scheme_name="Transaction Token")
 
 
 @sync_to_async
-def _get_tenants_filtered(limitoffset: LimitOffset) -> List[Tenant]:
-    return list(Tenant.objects.all()[limitoffset.offset:limitoffset.limit])
+def _get_tenants_filtered(pagination: Pagination) -> List[Tenant]:
+    return list(Tenant.objects.all()[pagination.offset:pagination.limit])
 
 
 @sync_to_async
@@ -25,8 +25,8 @@ def _get_tenant_by_id(tenant_id: str) -> Tenant:
 
 
 @sync_to_async
-def _get_tenant_countries_filtered(tenant: Tenant, limitoffset: LimitOffset) -> List[TenantCountry]:
-    return list(tenant.countries.all()[limitoffset.offset:limitoffset.limit])
+def _get_tenant_countries_filtered(tenant: Tenant, pagination: Pagination) -> List[TenantCountry]:
+    return list(tenant.countries.all()[pagination.offset:pagination.limit])
 
 
 @sync_to_async
@@ -44,9 +44,9 @@ def _tenant_update(tenant: Tenant, body: request.TenantUpdate) -> Tenant:
 
 @router.get('', response_model=response.TenantsList)
 async def get_tenants(
-    limitoffset: LimitOffset = Depends(depends_limit_offset()),
+    pagination: Pagination = Depends(depends_pagination()),
 ):
-    tenants = await _get_tenants_filtered(limitoffset)
+    tenants = await _get_tenants_filtered(pagination)
     return response.TenantsList(
         tenants=[
             await response.Tenant.from_orm(tenant)
@@ -95,10 +95,10 @@ async def create_tenant_country(
 @router.get('/{tenant_id}/countries', response_model=response.TenantCountriesList)
 async def get_tenant_countries(
     tenant_id: str,
-    limitoffset: LimitOffset = Depends(depends_limit_offset()),
+    pagination: Pagination = Depends(depends_pagination()),
 ):
     tenant = await _get_tenant_by_id(tenant_id)
-    countries = await _get_tenant_countries_filtered(tenant, limitoffset)
+    countries = await _get_tenant_countries_filtered(tenant, pagination)
 
     return response.TenantCountriesList(
         countries=[
