@@ -24,6 +24,11 @@ variables:
   CI_APPLICATION_REPOSITORY: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME
   CI_APPLICATION_TAG: $CI_COMMIT_SHA
   K8S_SECRET_SENTRY_ENVIRONMENT: $CI_ENVIRONMENT_SLUG
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+cache:
+  paths:
+    - .cache/pip
 
 .docker_preset: &docker_preset
   services:
