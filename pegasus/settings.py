@@ -83,7 +83,10 @@ TEMPLATES = [
 DATABASES = {
     'default': {
         'ENGINE': 'olympus.db.backends.postgresql',
-        'OPTIONS': {'sslmode': os.getenv('DATABASE_SSLMODE', 'require')},
+        'CONN_MAX_AGE': None,
+        'OPTIONS': {
+            'sslmode': os.getenv('DATABASE_SSLMODE', 'require'),
+        },
         'NAME': os.getenv('DATABASE_NAME', 'pegasus'),
         'USER': os.getenv('DATABASE_USER', 'pegasus'),
         'PASSWORD': os.getenv('DATABASE_PASSWORD', 'pegasus'),
