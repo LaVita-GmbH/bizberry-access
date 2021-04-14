@@ -36,7 +36,7 @@ def post_save_user(sender, instance: models.User, created: bool, **kwargs):
         data_op=getattr(DataChangeEvent.DataOperation, action.upper()),
         tenant_id=instance.tenant_id,
     )
-    connection.ensure(users, users.publish)(
+    connection.ensure(users, users.publish, max_retries=3)(
         message=body.json(),
         routing_key=f'v1.data.{action}.{instance.tenant_id}',
     )
@@ -52,7 +52,7 @@ def post_delete_user(sender, instance: models.User, **kwargs):
         data_op=DataChangeEvent.DataOperation.DELETE,
         tenant_id=instance.tenant_id,
     )
-    connection.ensure(users, users.publish)(
+    connection.ensure(users, users.publish, max_retries=3)(
         message=body.json(),
         routing_key=f'v1.data.delete.{instance.tenant_id}',
     )
@@ -81,7 +81,7 @@ def post_save_user_otp(sender, instance: models.UserOTP, created: bool, **kwargs
         tenant_id=instance.user.tenant_id,
     )
 
-    connection.ensure(users, users.publish)(
+    connection.ensure(users, users.publish, max_retries=3)(
         message=body.json(),
         routing_key=f'v1.action.otp_{str(instance.type).lower()}.{instance.user.tenant_id}',
     )

@@ -28,7 +28,7 @@ def post_save_tenant(sender, instance: models.Tenant, created: bool, **kwargs):
         data_type='access.tenant',
         data_op=getattr(DataChangeEvent.DataOperation, action.upper()),
     )
-    connection.ensure(tenants, tenants.publish)(
+    connection.ensure(tenants, tenants.publish, max_retries=3)(
         message=body.json(),
         routing_key=f'v1.data.{action}',
     )
@@ -49,7 +49,7 @@ def post_delete_tenant(sender, instance: models.Tenant, **kwargs):
         data_type='access.tenant',
         data_op=DataChangeEvent.DataOperation.DELETE,
     )
-    connection.ensure(tenants, tenants.publish)(
+    connection.ensure(tenants, tenants.publish, max_retries=3)(
         message=body.json(),
         routing_key='v1.data.delete',
     )
