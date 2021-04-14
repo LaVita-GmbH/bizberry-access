@@ -352,6 +352,7 @@ roles:
       - code: checkout.carts.update.act
       - code: checkout.carts.delete.act
       - code: shipping.carriers.read.active
+      - code: finance.taxes.read.active
       - code: finance.providers.read.active
       - code: finance.accounts.create.own
       - code: finance.accounts.read.own
