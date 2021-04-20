@@ -328,6 +328,95 @@ scopes:
                 - key: any
                 - key: own
 
+    - key: commission
+      resources:
+        - key: schemas
+          actions:
+            - key: create
+            - key: read
+              selectors:
+                - key: any
+                - key: active
+            - key: update
+              selectors:
+                - key: any
+            - key: delete
+              selectors:
+                - key: any
+        - key: structures
+          actions:
+            - key: create
+            - key: read
+              selectors:
+                - key: any
+                - key: active
+            - key: update
+              selectors:
+                - key: any
+            - key: delete
+              selectors:
+                - key: any
+        - key: partners
+          actions:
+            - key: create
+            - key: read
+              selectors:
+                - key: any
+                - key: own
+            - key: update
+              selectors:
+                - key: any
+                - key: own
+            - key: delete
+              selectors:
+                - key: any
+                - key: own
+        - key: rules
+          actions:
+            - key: create
+            - key: read
+              selectors:
+                - key: any
+                - key: own
+            - key: update
+              selectors:
+                - key: any
+                - key: own
+            - key: delete
+              selectors:
+                - key: any
+                - key: own
+        - key: bookings
+          actions:
+            - key: create
+            - key: read
+              selectors:
+                - key: any
+                - key: own
+            - key: update
+              selectors:
+                - key: any
+                - key: own
+            - key: delete
+              selectors:
+                - key: any
+                - key: own
+        - key: statements
+          actions:
+            - key: create
+            - key: read
+              selectors:
+                - key: any
+                - key: own
+            - key: update
+              selectors:
+                - key: any
+                - key: own
+            - key: delete
+              selectors:
+                - key: any
+                - key: own
+
 roles:
   - key: default
     is_default: true
@@ -364,6 +453,17 @@ roles:
       - code: notification.messages.read.own
       - code: notification.messages.update.own
       - code: notification.messages.delete.own
+
+  - key: partner
+    included_roles:
+      - key: default
+    scopes:
+      - code: commission.schemas.read.active
+      - code: commission.structures.read.active
+      - code: commission.partners.read.own
+      - code: commission.rules.read.own
+      - code: commission.bookings.read.own
+      - code: commission.statements.read.own
 
   - key: admin
     scopes:
@@ -442,8 +542,33 @@ roles:
       - code: activity.attendances.read.any
       - code: activity.attendances.update.any
       - code: activity.attendances.delete.any
+      - code: commission.schemas.create
+      - code: commission.schemas.read.any
+      - code: commission.schemas.update.any
+      - code: commission.schemas.delete.any
+      - code: commission.structures.create
+      - code: commission.structures.read.any
+      - code: commission.structures.update.any
+      - code: commission.structures.delete.any
+      - code: commission.partners.create
+      - code: commission.partners.read.any
+      - code: commission.partners.update.any
+      - code: commission.partners.delete.any
+      - code: commission.rules.create
+      - code: commission.rules.read.any
+      - code: commission.rules.update.any
+      - code: commission.rules.delete.any
+      - code: commission.bookings.create
+      - code: commission.bookings.read.any
+      - code: commission.bookings.update.any
+      - code: commission.bookings.delete.any
+      - code: commission.statements.create
+      - code: commission.statements.read.any
+      - code: commission.statements.update.any
+      - code: commission.statements.delete.any
     included_roles:
       - key: default
+      - key: partner
 
   - key: consumer
     scopes:
