@@ -335,7 +335,7 @@ scopes:
             - key: read
               selectors:
                 - key: any
-                - key: active
+                - key: assigned
             - key: update
               selectors:
                 - key: any
@@ -348,7 +348,7 @@ scopes:
             - key: read
               selectors:
                 - key: any
-                - key: active
+                - key: assigned
             - key: update
               selectors:
                 - key: any
@@ -457,8 +457,8 @@ roles:
     included_roles:
       - key: default
     scopes:
-      - code: commission.schemas.read.active
-      - code: commission.structures.read.active
+      - code: commission.schemas.read.assigned
+      - code: commission.structures.read.assigned
       - code: commission.partners.read.own
       - code: commission.rules.read.own
       - code: commission.bookings.read.own
