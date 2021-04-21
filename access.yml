@@ -38,17 +38,16 @@ scopes:
                 - key: any
             - key: read
               selectors:
-                - key: norelact
                 - key: own
                 - key: any
             - key: update
               selectors:
-                - key: norelact
                 - key: own
                 - key: any
             - key: delete
               selectors:
                 - key: any
+                - key: own
         - key: addresses
           actions:
             - key: create
