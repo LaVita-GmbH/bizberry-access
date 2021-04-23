@@ -415,6 +415,24 @@ scopes:
               selectors:
                 - key: any
                 - key: own
+        - key: researches
+          actions:
+            - key: create
+              selectors:
+                - key: any
+                - key: own
+            - key: read
+              selectors:
+                - key: any
+                - key: own
+            - key: update
+              selectors:
+                - key: any
+                - key: own
+            - key: delete
+              selectors:
+                - key: any
+                - key: own
 
 roles:
   - key: default
@@ -463,6 +481,8 @@ roles:
       - code: commission.rules.read.own
       - code: commission.bookings.read.own
       - code: commission.statements.read.own
+      - code: commission.researches.create.own
+      - code: commission.researches.read.own
 
   - key: admin
     scopes:
@@ -565,6 +585,10 @@ roles:
       - code: commission.statements.read.any
       - code: commission.statements.update.any
       - code: commission.statements.delete.any
+      - code: commission.researches.create.any
+      - code: commission.researches.read.any
+      - code: commission.researches.update.any
+      - code: commission.researches.delete.any
     included_roles:
       - key: default
       - key: partner
