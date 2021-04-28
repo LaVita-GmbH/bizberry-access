@@ -92,6 +92,18 @@ scopes:
                 - key: norelact
                 - key: own
                 - key: any
+        - key: contact-categories
+          actions:
+            - key: create
+            - key: read
+              selectors:
+                - key: any
+            - key: update
+              selectors:
+                - key: any
+            - key: delete
+              selectors:
+                - key: any
 
     - key: catalogue
       resources:
@@ -443,6 +455,7 @@ roles:
       - code: access.tenants.read
       - code: customer.clients.read.own
       - code: customer.clients.update.own
+      - code: customer.contact-categories.read.any
       - code: customer.contacts.create.own
       - code: customer.contacts.read.own
       - code: customer.contacts.update.own
@@ -495,6 +508,9 @@ roles:
       - code: customer.clients.read.any
       - code: customer.clients.update.any
       - code: customer.clients.delete.any
+      - code: customer.contact-categories.create
+      - code: customer.contact-categories.update.any
+      - code: customer.contact-categories.delete.any
       - code: customer.contacts.create.any
       - code: customer.contacts.read.any
       - code: customer.contacts.update.any
@@ -601,6 +617,7 @@ roles:
       - code: customer.addresses.read.norelact
       - code: customer.addresses.update.norelact
       - code: customer.addresses.delete.norelact
+      - code: customer.contact-categories.read.any
       - code: customer.contacts.create.norelact
       - code: customer.contacts.read.norelact
       - code: customer.contacts.update.norelact
