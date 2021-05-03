@@ -40,6 +40,9 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
 
 INSTALLED_APPS = [
     'pegasus',
+    'health_check',
+    'health_check.db',
+    'health_check.contrib.rabbitmq',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
