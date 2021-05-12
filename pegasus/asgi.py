@@ -16,6 +16,7 @@ from django.db.utils import IntegrityError
 from jose.exceptions import JOSEError
 from olympus.handlers.error import generic_exception_handler, object_does_not_exist_handler, jose_error_handler, http_exception_handler, integrity_error_handler
 from olympus.middleware.sentry import SentryAsgiMiddleware
+from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 from olympus.utils.health_check import get_health, Health
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'pegasus.settings')
@@ -42,6 +43,7 @@ app.include_router(routers.tenants.router, prefix='/access/tenants', tags=['tena
 app.mount('', django_asgi)
 
 app.add_middleware(SentryAsgiMiddleware)
+app.add_middleware(ProxyHeadersMiddleware, trusted_hosts='*')
 
 app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(Exception, generic_exception_handler)
