@@ -489,7 +489,7 @@ roles:
     included_roles:
       - key: default
     scopes:
-      - code: customer.client.read.partnerclients
+      - code: customer.clients.read.partnerclients
       - code: commission.schemas.read.assigned
       - code: commission.structures.read.assigned
       - code: commission.partners.read.own
