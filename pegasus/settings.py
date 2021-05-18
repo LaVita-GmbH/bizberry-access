@@ -117,6 +117,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
+
 AUTH_USER_MODEL = 'pegasus.User'
 
 PASSWORD_HASHERS = [
