@@ -202,6 +202,21 @@ scopes:
             - key: delete
               selectors:
                 - key: any
+        - key: invoices
+          actions:
+            - key: create
+            - key: read
+              selectors:
+                - key: any
+                - key: own
+            - key: update
+              selectors:
+                - key: any
+                - key: own
+            - key: delete
+              selectors:
+                - key: any
+                - key: own
 
     - key: checkout
       resources:
@@ -478,6 +493,7 @@ roles:
       - code: finance.accounts.read.own
       - code: finance.accounts.update.own
       - code: finance.accounts.delete.own
+      - code: finance.invoices.read.own
       - code: checkout.transactions.read.act
       - code: checkout.transactions.update.act
       - code: notification.categories.read.active
@@ -545,6 +561,10 @@ roles:
       - code: finance.accounts.read.any
       - code: finance.accounts.update.any
       - code: finance.accounts.delete.any
+      - code: finance.invoices.create
+      - code: finance.invoices.read.any
+      - code: finance.invoices.update.any
+      - code: finance.invoices.delete.any
       - code: checkout.transactions.create
       - code: checkout.transactions.read.any
       - code: checkout.transactions.update.any
