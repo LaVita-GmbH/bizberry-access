@@ -209,14 +209,17 @@ scopes:
               selectors:
                 - key: any
                 - key: own
+                - key: act
             - key: update
               selectors:
                 - key: any
                 - key: own
+                - key: act
             - key: delete
               selectors:
                 - key: any
                 - key: own
+                - key: act
 
     - key: checkout
       resources:
@@ -267,6 +270,20 @@ scopes:
             - key: delete
               selectors:
                 - key: any
+        - key: shipments
+          actions:
+            - key: create
+            - key: read
+              selectors:
+                - key: any
+                - key: own
+                - key: act
+            - key: update
+              selectors:
+                - key: any
+            - key: delete
+              selectors:
+                - key: any
 
     - key: notification
       resources:
@@ -307,6 +324,25 @@ scopes:
               selectors:
                 - key: any
                 - key: own
+
+    - key: sale
+      resources:
+        - key: orders
+          actions:
+            - key: create
+            - key: read
+              selectors:
+                - key: any
+                - key: own
+                - key: norelact
+            - key: update
+              selectors:
+                - key: any
+                - key: own
+                - key: norelact
+            - key: delete
+              selectors:
+                - key: any
 
     - key: activity
       resources:
@@ -494,12 +530,15 @@ roles:
       - code: finance.accounts.update.own
       - code: finance.accounts.delete.own
       - code: finance.invoices.read.own
+      - code: shipping.shipments.read.own
       - code: checkout.transactions.read.act
       - code: checkout.transactions.update.act
       - code: notification.categories.read.active
       - code: notification.messages.read.own
       - code: notification.messages.update.own
       - code: notification.messages.delete.own
+      - code: sale.orders.read.own
+      - code: sale.orders.update.own
 
   - key: partner
     included_roles:
@@ -627,6 +666,14 @@ roles:
       - code: commission.researches.read.any
       - code: commission.researches.update.any
       - code: commission.researches.delete.any
+      - code: shipping.shipments.create
+      - code: shipping.shipments.read.any
+      - code: shipping.shipments.update.any
+      - code: shipping.shipments.delete.any
+      - code: sale.orders.create
+      - code: sale.orders.read.any
+      - code: sale.orders.update.any
+      - code: sale.orders.delete.any
     included_roles:
       - key: default
       - key: partner
@@ -660,7 +707,7 @@ roles:
       - code: finance.accounts.delete.norelact
       - code: checkout.transactions.read.act
       - code: checkout.transactions.update.act
-      - code: checkout.carts.create
-      - code: checkout.carts.read.act
-      - code: checkout.carts.update.act
-      - code: checkout.carts.delete.act
+      - code: sale.orders.read.norelact
+      - code: sale.orders.update.norelact
+      - code: finance.invoices.read.act
+      - code: shipping.shipments.read.act
