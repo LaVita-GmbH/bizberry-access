@@ -33,6 +33,7 @@ def post_save_tenant(sender, instance: models.Tenant, created: bool, **kwargs):
         retry=True,
         retry_policy={'max_retries': 3},
         body=body.json(),
+        content_type='application/json',
         routing_key=f'v1.data.{action}',
     )
 
@@ -56,5 +57,6 @@ def post_delete_tenant(sender, instance: models.Tenant, **kwargs):
         retry=True,
         retry_policy={'max_retries': 3},
         body=body.json(),
+        content_type='application/json',
         routing_key='v1.data.delete',
     )

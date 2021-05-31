@@ -41,6 +41,7 @@ def post_save_user(sender, instance: models.User, created: bool, **kwargs):
         retry=True,
         retry_policy={'max_retries': 3},
         body=body.json(),
+        content_type='application/json',
         routing_key=f'v1.data.{action}.{instance.tenant_id}',
     )
 
@@ -59,6 +60,7 @@ def post_delete_user(sender, instance: models.User, **kwargs):
         retry=True,
         retry_policy={'max_retries': 3},
         body=body.json(),
+        content_type='application/json',
         routing_key=f'v1.data.delete.{instance.tenant_id}',
     )
 
@@ -90,5 +92,6 @@ def post_save_user_otp(sender, instance: models.UserOTP, created: bool, **kwargs
         retry=True,
         retry_policy={'max_retries': 3},
         body=body.json(),
+        content_type='application/json',
         routing_key=f'v1.action.otp_{str(instance.type).lower()}.{instance.user.tenant_id}',
     )
