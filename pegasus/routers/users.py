@@ -37,7 +37,7 @@ def _check_access_for_obj(access: Access, user: models.User, action: Optional[st
 @sync_to_async
 def _get_users_filtered(access: Access, pagination: Pagination, **filters) -> List[models.User]:
     q_filters = Q(tenant_id=access.tenant_id, **dict_remove_none(filters))
-    return list(models.User.objects.filter(q_filters)[pagination.offset:pagination.limit])
+    return list(pagination.query(models.User.objects, q_filters))
 
 
 @sync_to_async
