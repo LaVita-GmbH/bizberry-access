@@ -61,6 +61,11 @@ def _create_user(access: Access, body: request.UserCreate) -> models.User:
 
 
 @sync_to_async
+def _create_user_access_token(access: Access, user: models.User) -> models.UserAccessToken:
+    return user.access_tokens.create()
+
+
+@sync_to_async
 def _delete_user(access: Access, user: models.User):
     _check_access_for_obj(access, user, action='delete')
     user.status = models.User.Status.TERMINATED
@@ -137,3 +142,14 @@ async def delete_user(
     user = await _get_user_by_id(access, user_id)
 
     await _delete_user(user)
+
+
+@router.post('/{user_id}/access-token', response_model=response.UserAccessToken)
+async def post_user_access_token(
+    access: Access = Security(access_user, scopes=['access.users.create_access_token.any', 'access.users.create_access_token.own']),
+    user_id: str = Path(...),
+):
+    user = await _get_user_by_id(access, user_id)
+    access_token = await _create_user_access_token(access, user)
+
+    return await response.UserAccessToken.from_orm(access_token)

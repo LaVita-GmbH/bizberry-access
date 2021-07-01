@@ -1,6 +1,7 @@
 from typing import List, Optional
 from datetime import datetime
 from pydantic import BaseModel, Field
+from olympus.utils.pydantic_django import DjangoORMBaseModel
 from ... import models
 from .. import base
 
@@ -23,3 +24,7 @@ class User(base.User):
 
 class UsersList(BaseModel):
     users: List[User]
+
+
+class UserAccessToken(DjangoORMBaseModel):
+    token: str = Field(orm_field=models.UserAccessToken.token)

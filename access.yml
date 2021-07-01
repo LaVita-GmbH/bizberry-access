@@ -14,6 +14,11 @@ scopes:
               internal: true
               selectors:
                 - key: restricted
+            - key: create_access_token
+              critical: true
+              selectors:
+                - key: own
+                - key: any
             - key: create
             - key: read
               selectors:
@@ -559,6 +564,7 @@ roles:
       - code: access.users.create
       - code: access.users.read.any
       - code: access.users.update.any
+      - code: access.users.create_access_token.any
       - code: access.tenants.create
       - code: access.tenants.update
       - code: customer.clients.create.any
