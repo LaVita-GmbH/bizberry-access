@@ -502,6 +502,12 @@ scopes:
               selectors:
                 - key: any
                 - key: own
+        - key: promotional
+          actions:
+            - key: read
+              selectors:
+                - key: any
+                - key: own
 
 roles:
   - key: default
@@ -672,6 +678,7 @@ roles:
       - code: commission.researches.read.any
       - code: commission.researches.update.any
       - code: commission.researches.delete.any
+      - code: commission.promotional.read.any
       - code: shipping.shipments.create
       - code: shipping.shipments.read.any
       - code: shipping.shipments.update.any
