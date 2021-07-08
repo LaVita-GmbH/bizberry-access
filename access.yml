@@ -509,6 +509,24 @@ scopes:
                 - key: any
                 - key: own
 
+    - key: contract
+      resources:
+        - key: subscriptions
+          actions:
+            - key: create
+            - key: read
+              selectors:
+                - key: any
+                - key: own
+            - key: update
+              selectors:
+                - key: any
+                - key: own
+            - key: delete
+              selectors:
+                - key: any
+                - key: own
+
 roles:
   - key: default
     is_default: true
@@ -550,6 +568,8 @@ roles:
       - code: notification.messages.delete.own
       - code: sale.orders.read.own
       - code: sale.orders.update.own
+      - code: contract.subscriptions.read.own
+      - code: contract.subscriptions.update.own
 
   - key: partner
     included_roles:
@@ -687,6 +707,10 @@ roles:
       - code: sale.orders.read.any
       - code: sale.orders.update.any
       - code: sale.orders.delete.any
+      - code: contract.subscriptions.create
+      - code: contract.subscriptions.read.any
+      - code: contract.subscriptions.update.any
+      - code: contract.subscriptions.delete.any
     included_roles:
       - key: default
       - key: partner
