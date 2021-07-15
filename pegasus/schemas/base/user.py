@@ -2,6 +2,7 @@ from typing import Optional
 from pydantic import BaseModel, Field, EmailStr, validator
 from olympus.utils import DjangoORMBaseModel
 from olympus.utils.language import format_language
+from olympus.utils.pydantic import Reference
 from ... import models
 
 
