@@ -7,11 +7,12 @@ from ... import models
 
 
 class User(DjangoORMBaseModel):
-    class RoleReference(BaseModel):
-        id: str = Field(orm_field=models.User.role, scopes=['access.users.update.any'], is_critical=True)
+    class RoleReference(Reference, rel='olymp/access/roles'):
+        id: str = Field(orm_field=models.User.role)
 
     email: EmailStr = Field(orm_field=models.User.email, is_critical=True)
     language: str = Field(orm_field=models.User.language)
+    role: Optional[RoleReference] = Field(scopes=['access.users.update.any'], is_critical=True)
 
     @validator('language')
     def format_language(cls, value: Optional[str]):

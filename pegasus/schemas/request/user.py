@@ -1,5 +1,6 @@
 from typing import List, Optional
 from pydantic import BaseModel, EmailStr, SecretStr, Field, validator
+from olympus.utils.pydantic import to_optional
 from ... import models
 from .. import base
 
@@ -14,8 +15,6 @@ class UserCreate(BaseModel):
         return base.User.format_language(value)
 
 
+@to_optional()
 class UserUpdate(base.User):
-    email: Optional[EmailStr] = Field(orm_field=models.User.email, is_critical=True)
     password: Optional[SecretStr] = Field(orm_method=models.User.set_password, is_critical=True)
-    language: Optional[str] = Field(orm_field=models.User.language)
-    role: Optional[base.User.RoleReference]

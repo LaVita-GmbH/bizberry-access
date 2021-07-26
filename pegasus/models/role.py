@@ -1,4 +1,4 @@
-from typing import Optional, Set
+from typing import List, Optional, Set
 from asgiref.sync import sync_to_async, async_to_sync
 from django.db import models
 from django.db.models import constraints
@@ -44,6 +44,9 @@ class Role(models.Model):
             scopes.update(role.get_scopes(include_critical=include_critical, exclude_roles=exclude_roles))
 
         return scopes
+
+    def get_included_roles(self) -> List['Role']:
+        return list(self.included_roles.all())
 
     class Meta:
         constraints = [

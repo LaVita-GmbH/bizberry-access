@@ -1,24 +1,21 @@
 from typing import List, Optional
 from datetime import datetime
+from olympus.utils.pydantic import Reference, include_reference
 from pydantic import BaseModel, Field
 from olympus.utils.pydantic_django import DjangoORMBaseModel
 from ... import models
 from .. import base
 
 
+@include_reference()
 class User(base.User):
-    class TenantReference(BaseModel):
+    class TenantReference(Reference, rel='olymp/access/tenants'):
         id: str = Field(orm_field=models.User.tenant)
-        Srel: str = Field('olymp/access/tenants', orm_field=None, alias='$rel', const=True)
-
-    class RoleReference(BaseModel):
-        id: str = Field(orm_field=models.User.role)
 
     id: str = Field(orm_field=models.User.id)
     tenant: TenantReference
     email: str = Field(orm_field=models.User.email)
     status: models.User.Status = Field(orm_field=models.User.status)
-    role: Optional[RoleReference]
     created_at: datetime = Field(orm_field=models.User.date_joined)
 
 

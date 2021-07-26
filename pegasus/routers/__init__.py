@@ -1,1 +1,1 @@
-from . import auth, users, tenants
+from . import auth, users, roles, tenants

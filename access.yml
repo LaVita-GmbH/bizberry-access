@@ -28,6 +28,11 @@ scopes:
               selectors:
                 - key: own
                 - key: any
+        - key: roles
+          actions:
+            - key: read
+              selectors:
+                - key: any
         - key: tenants
           actions:
             - key: create
@@ -531,6 +536,7 @@ roles:
   - key: default
     is_default: true
     scopes:
+      - code: access.roles.read.any
       - code: access.users.read.own
       - code: access.users.update.own
       - code: access.tenants.read
