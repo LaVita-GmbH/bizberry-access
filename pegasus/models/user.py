@@ -1,5 +1,5 @@
 import string
-from typing import List, Set, Tuple, Optional
+from typing import Dict, List, Set, Tuple, Optional
 from datetime import timedelta
 from jose import jwt
 from django.db import models
@@ -121,9 +121,24 @@ class User(DirtyFieldsMixin, AbstractUser):
         pass
 
     def get_scopes(self, include_critical: bool = True) -> Set[Scope]:
-        role = self.role or Role.objects.get(is_default=True)
+        role: Role = self.role or Role.objects.get(is_default=True)
         
         return role.get_scopes(include_critical=include_critical)
+
+    def get_roles(self) -> List[Role]:
+        def _get_roles(role: Role, _excluded_role_ids: Optional[Set[id]] = None) -> Dict[Role, None]:
+            roles = {role: None}
+            if not _excluded_role_ids:
+                _excluded_role_ids = set()
+            _excluded_role_ids.add(role.id)
+
+            for included_role in role.included_roles.exclude(id__in=_excluded_role_ids):
+                _excluded_role_ids.add(included_role.id)
+                roles.update(_get_roles(included_role, _excluded_role_ids=_excluded_role_ids))
+
+            return roles
+
+        return list(_get_roles(self.role).keys())
 
     def _create_token(
         self,
@@ -148,6 +163,7 @@ class User(DirtyFieldsMixin, AbstractUser):
             'ten': self.tenant.id,
             'crt': include_critical,
             'aud': audiences,
+            'rls': [role.name for role in self.get_roles()],
             'jti': token_id,
         }
 

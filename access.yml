@@ -718,8 +718,8 @@ roles:
       - code: contract.subscriptions.update.any
       - code: contract.subscriptions.delete.any
     included_roles:
-      - key: default
       - key: partner
+      - key: default
 
   - key: consumer
     scopes:
