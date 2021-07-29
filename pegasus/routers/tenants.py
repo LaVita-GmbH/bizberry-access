@@ -38,8 +38,7 @@ def _create_tenant_country(tenant: Tenant, body: request.TenantCountryCreate) ->
 
 @sync_to_async
 def _tenant_update(tenant: Tenant, body: request.TenantUpdate) -> Tenant:
-    transfer_to_orm(body, tenant)
-    tenant.save()
+    transfer_to_orm(body, tenant, action=TransferAction.CREATE)
 
 
 @router.get('', response_model=response.TenantsList)

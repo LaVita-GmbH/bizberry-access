@@ -1,4 +1,3 @@
-from olympus.utils.pydantic_django import transfer_to_orm
 from typing import Dict, List, Optional, Tuple
 from asgiref.sync import sync_to_async
 from fastapi import APIRouter, Security, Body, Depends, Path, Query
@@ -6,6 +5,7 @@ from django.db.models import Q
 from olympus.exceptions import AccessError
 from olympus.schemas import Access, Pagination
 from olympus.utils import depends_pagination, dict_remove_none
+from olympus.utils.pydantic_django import transfer_to_orm, TransferAction
 from ..utils import JWTToken
 from .. import models
 from ..schemas import response, request
@@ -128,8 +128,7 @@ async def patch_user(
 ):
     user = await _get_user_by_id(access, user_id)
 
-    transfer_to_orm(body, user, exclude_unset=True, access=access)
-    await sync_to_async(user.save)()
+    await transfer_to_orm(body, user, exclude_unset=True, access=access, action=TransferAction.NO_SUBOBJECTS)
 
     return await response.User.from_orm(user)
 
