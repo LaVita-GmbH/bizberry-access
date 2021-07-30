@@ -120,12 +120,16 @@ class User(DirtyFieldsMixin, AbstractUser):
     def clean(self):
         pass
 
+    def get_role(self):
+        return self.role or Role.objects.get(is_default=True)
+
     def get_scopes(self, include_critical: bool = True) -> Set[Scope]:
-        role: Role = self.role or Role.objects.get(is_default=True)
+        role = self.get_role()
         
         return role.get_scopes(include_critical=include_critical)
 
     def get_roles(self) -> List[Role]:
+        role = self.get_role()
         def _get_roles(role: Role, _excluded_role_ids: Optional[Set[id]] = None) -> Dict[Role, None]:
             roles = {role: None}
             if not _excluded_role_ids:
@@ -138,7 +142,7 @@ class User(DirtyFieldsMixin, AbstractUser):
 
             return roles
 
-        return list(_get_roles(self.role).keys())
+        return list(_get_roles(role).keys())
 
     def _create_token(
         self,
