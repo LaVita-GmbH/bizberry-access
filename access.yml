@@ -532,6 +532,12 @@ scopes:
                 - key: any
                 - key: own
 
+    - key: erpconnector
+      resources:
+        - key: sync
+          actions:
+            - key: skip
+
 roles:
   - key: default
     is_default: true
@@ -754,3 +760,7 @@ roles:
       - code: sale.orders.update.norelact
       - code: finance.invoices.read.act
       - code: shipping.shipments.read.act
+
+  - key: erpsync
+    scopes:
+      - code: erpconnector.sync.skip
