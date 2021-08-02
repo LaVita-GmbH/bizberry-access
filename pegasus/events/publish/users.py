@@ -1,8 +1,8 @@
 from kombu import Exchange
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 from olympus.schemas import DataChangeEvent
-from olympus.utils.pydantic_django import transfer_from_orm
+from olympus.events.publish import EventPublisher, DataChangePublisher
 from ... import models
 from ...schemas import response
 from . import connection
@@ -19,50 +19,17 @@ users.declare()
 producer = connection.Producer(exchange=users)
 
 
-@receiver(post_save, sender=models.User)
-def post_save_user(sender, instance: models.User, created: bool, **kwargs):
-    action = 'create' if created else 'update'
-    data = transfer_from_orm(response.User, instance).dict(by_alias=True)
-
-    modified = instance.get_dirty_fields(check_relationship=True)
-    data['_changed'] = [
-        {
-            'name': field,
-        } for field, _value in modified.items()
-    ]
-
-    body = DataChangeEvent(
-        data=data,
-        data_type='access.user',
-        data_op=getattr(DataChangeEvent.DataOperation, action.upper()),
-        tenant_id=instance.tenant_id,
-    )
-    producer.publish(
-        retry=True,
-        retry_policy={'max_retries': 3},
-        body=body.json(),
-        content_type='application/json',
-        routing_key=f'v1.data.{action}.{instance.tenant_id}',
-    )
-
-
-@receiver(post_delete, sender=models.User)
-def post_delete_user(sender, instance: models.User, **kwargs):
-    body = DataChangeEvent(
-        data={
-            'id': instance.id,
-        },
-        data_type='access.user',
-        data_op=DataChangeEvent.DataOperation.DELETE,
-        tenant_id=instance.tenant_id,
-    )
-    producer.publish(
-        retry=True,
-        retry_policy={'max_retries': 3},
-        body=body.json(),
-        content_type='application/json',
-        routing_key=f'v1.data.delete.{instance.tenant_id}',
-    )
+class UserPublisher(
+    DataChangePublisher,
+    EventPublisher,
+    orm_model=models.User,
+    event_schema=response.User,
+    connection=connection,
+    exchange=users,
+    data_type='access.user',
+    is_changed_included=True,
+):
+    pass
 
 
 @receiver(post_save, sender=models.UserOTP)
