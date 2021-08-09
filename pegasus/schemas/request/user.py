@@ -7,7 +7,7 @@ from .. import base
 
 class UserCreate(BaseModel):
     email: EmailStr
-    password: SecretStr
+    password: Optional[SecretStr] = ...
     language: str = Field(max_length=8)
 
     @validator('language')

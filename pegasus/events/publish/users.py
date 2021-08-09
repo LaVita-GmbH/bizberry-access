@@ -32,6 +32,32 @@ class UserPublisher(
     pass
 
 
+class UserSetPasswordPublisher(
+    DataChangePublisher,
+    EventPublisher,
+    orm_model=models.User,
+    event_schema=response.User,
+    connection=connection,
+    exchange=users,
+    data_type='access.user',
+    type='action',
+):
+    instance: models.User
+
+    def __init__(self, sender, instance: models.User, signal, **kwargs):
+        super().__init__(sender, instance, signal, **kwargs)
+        self.action = 'set_password'
+
+    def get_data_op(self):
+        return DataChangeEvent.DataOperation.CREATE if self.kwargs.get('created') else DataChangeEvent.DataOperation.UPDATE
+
+    def process(self):
+        if self.instance.has_usable_password():
+            return
+
+        return super().process()
+
+
 @receiver(post_save, sender=models.UserOTP)
 def post_save_user_otp(sender, instance: models.UserOTP, created: bool, **kwargs):
     if not created:

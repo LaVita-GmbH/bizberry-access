@@ -52,7 +52,7 @@ def _get_user_by_id(access: Access, user_id: str) -> models.User:
 def _create_user(access: Access, body: request.UserCreate) -> models.User:
     new_user = models.User.objects.create_user(
         email=str(body.email),
-        password=str(body.password.get_secret_value()),
+        password=body.password and str(body.password.get_secret_value()),
         tenant_id=access.tenant_id,
         language=body.language,
     )
