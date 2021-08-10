@@ -88,3 +88,5 @@ settings_local.py
 
 .env
 db.sqlite3
+
+/.vscode/
