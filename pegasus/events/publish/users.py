@@ -20,11 +20,6 @@ users.declare()
 producer = connection.Producer(exchange=users)
 
 
-@receiver(post_save, sender=models.User)
-def post_save_user(sender, instance: models.User, created: bool, **kwargs):
-    logging.debug("post_save %s from %s", instance, sender)
-
-
 class UserPublisher(
     DataChangePublisher,
     EventPublisher,
