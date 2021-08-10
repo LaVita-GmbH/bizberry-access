@@ -169,7 +169,7 @@ LOGGING = {
     },
     'root': {
         'handlers': ['console'],
-        'level': 'INFO',
+        'level': os.getenv('LOGLEVEL', 'INFO'),
     },
 }
 
