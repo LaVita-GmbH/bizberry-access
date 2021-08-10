@@ -38,6 +38,21 @@
             },
             "django": true,
             "justMyCode": false
+        },
+        {
+            "name": "Pegasus: Remote Attach",
+            "type": "python",
+            "request": "attach",
+            "connect": {
+                "host": "xxx",
+                "port": 5678
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}",
+                    "remoteRoot": "."
+                }
+            ]
         }
     ]
 }

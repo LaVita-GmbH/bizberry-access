@@ -11,3 +11,4 @@ sentry-sdk
 djutils
 langcodes
 git+https://github.com/LaVita-GmbH/olympus
+ptvsd
