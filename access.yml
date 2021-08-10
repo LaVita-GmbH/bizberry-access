@@ -769,3 +769,5 @@ roles:
   - key: erpsync
     scopes:
       - code: erpconnector.sync.skip
+    included_roles:
+      - key: admin
