@@ -1,3 +1,4 @@
+import logging
 from kombu import Exchange
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -17,6 +18,11 @@ users = Exchange(
 )
 users.declare()
 producer = connection.Producer(exchange=users)
+
+
+@receiver(post_save, sender=models.User)
+def post_save_user(sender, instance: models.User, created: bool, **kwargs):
+    logging.debug("post_save %s from %s", instance, sender)
 
 
 class UserPublisher(
