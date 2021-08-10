@@ -28,6 +28,10 @@ scopes:
               selectors:
                 - key: own
                 - key: any
+            - key: delete
+              selectors:
+                - key: own
+                - key: any
         - key: roles
           actions:
             - key: read
