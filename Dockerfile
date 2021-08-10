@@ -1,6 +1,7 @@
 FROM python:3.7
 
 EXPOSE 5000
+EXPOSE 5678
 
 COPY ./ /
 
