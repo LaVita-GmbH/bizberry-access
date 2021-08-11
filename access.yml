@@ -75,6 +75,7 @@ scopes:
                 - key: norelact
                 - key: own
                 - key: any
+                - key: myseller
             - key: update
               selectors:
                 - key: norelact
@@ -97,6 +98,7 @@ scopes:
                 - key: norelact
                 - key: own
                 - key: any
+                - key: myseller
             - key: update
               selectors:
                 - key: norelact
@@ -360,6 +362,32 @@ scopes:
             - key: delete
               selectors:
                 - key: any
+        - key: sellers
+          actions:
+            - key: create
+            - key: read
+              selectors:
+                - key: any
+                - key: own
+                - key: myseller
+            - key: update
+              selectors:
+                - key: any
+            - key: delete
+              selectors:
+                - key: any
+        - key: regions
+          actions:
+            - key: create
+            - key: read
+              selectors:
+                - key: any
+            - key: update
+              selectors:
+                - key: any
+            - key: delete
+              selectors:
+                - key: any
 
     - key: activity
       resources:
@@ -603,6 +631,10 @@ roles:
       - code: commission.statements.read.own
       - code: commission.researches.create.own
       - code: commission.researches.read.own
+      - code: sale.sellers.read.myseller
+      - code: sale.regions.read.any
+      - code: customer.addresses.read.myseller
+      - code: customer.contacts.read.myseller
 
   - key: admin
     scopes:
@@ -727,6 +759,14 @@ roles:
       - code: sale.orders.read.any
       - code: sale.orders.update.any
       - code: sale.orders.delete.any
+      - code: sale.seller.create
+      - code: sale.seller.read.any
+      - code: sale.seller.update.any
+      - code: sale.seller.delete.any
+      - code: sale.regions.create
+      - code: sale.regions.read.any
+      - code: sale.regions.update.any
+      - code: sale.regions.delete.any
       - code: contract.subscriptions.create
       - code: contract.subscriptions.read.any
       - code: contract.subscriptions.update.any
