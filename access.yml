@@ -636,7 +636,7 @@ roles:
       - code: customer.addresses.read.myseller
       - code: customer.contacts.read.myseller
       - code: activity.categories.read.active
-      - code: activity.events.read.active
+      - code: activity.events.read.public
       - code: activity.attendances.read.own
 
   - key: admin
