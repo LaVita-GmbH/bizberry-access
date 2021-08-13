@@ -635,6 +635,9 @@ roles:
       - code: sale.regions.read.any
       - code: customer.addresses.read.myseller
       - code: customer.contacts.read.myseller
+      - code: activity.categories.read.active
+      - code: activity.events.read.active
+      - code: activity.attendances.read.own
 
   - key: admin
     scopes:
