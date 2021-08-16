@@ -17,6 +17,7 @@ class User(base.User):
     email: str = Field(orm_field=models.User.email)
     status: models.User.Status = Field(orm_field=models.User.status)
     created_at: datetime = Field(orm_field=models.User.date_joined)
+    is_password_usable: bool = Field(orm_method=models.User.has_usable_password)
 
 
 class UsersList(BaseModel):

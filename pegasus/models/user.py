@@ -261,7 +261,14 @@ class User(DirtyFieldsMixin, AbstractUser):
 
     @atomic
     def save(self, *args, **kwargs):
-        return super().save(*args, **kwargs)
+        is_new = not self.date_joined
+        result = super().save(*args, **kwargs)
+        if is_new and not self.has_usable_password():
+            self.request_otp(
+                type=UserOTP.UserOTPType.TOKEN,
+            )
+
+        return result
 
     class Meta:
         constraints = [
