@@ -140,7 +140,7 @@ async def delete_user(
 ):
     user = await _get_user_by_id(access, user_id)
 
-    await _delete_user(user)
+    await _delete_user(access, user)
 
 
 @router.post('/{user_id}/access-token', response_model=response.UserAccessToken)
