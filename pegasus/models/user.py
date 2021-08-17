@@ -120,6 +120,16 @@ class User(DirtyFieldsMixin, AbstractUser):
     def clean(self):
         pass
 
+    @atomic
+    def set_password(self, raw_password: Optional[str]) -> None:
+        res = super().set_password(raw_password)
+        token: UserToken
+        for token in self.tokens.filter(is_active=True):
+            token.is_active = False
+            token.save()
+
+        return res
+
     def get_role(self):
         return self.role or Role.objects.get(is_default=True)
 
@@ -187,9 +197,7 @@ class User(DirtyFieldsMixin, AbstractUser):
 
         if used_token:
             try:
-                user_token = self.tokens.get(id=used_token.token.jti, type=UserToken.Types.USER,)
-                if not user_token.is_active:
-                    raise AuthError(detail=Error(code='invalid_user_token'))
+                user_token = self.tokens.get(id=used_token.token.jti, type=UserToken.Types.USER, is_active=True)
 
             except UserToken.DoesNotExist as error:
                 raise AuthError(detail=Error(code='invalid_user_token')) from error
