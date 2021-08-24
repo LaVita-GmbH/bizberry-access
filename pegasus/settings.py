@@ -186,10 +186,16 @@ BROKER_URL = os.getenv('BROKER_URL')
 
 # Sentry Integration
 
+def sentry_traces_sampler(context):
+    if 'asgi_scope' in context and context['asgi_scope']['path'] == '/':
+        return 0
+
+    return os.getenv('SENTRY_TRACES_SAMPLE_RATE', 1.0)
+
 sentry_sdk.init(
     environment='development' if DEBUG else os.getenv('SENTRY_ENVIRONMENT', 'production'),
     dsn=os.getenv('SENTRY_DSN'),
     integrations=[DjangoIntegration()],
-    traces_sample_rate=os.getenv('SENTRY_TRACES_SAMPLE_RATE', 1.0),
+    traces_sampler=sentry_traces_sampler,
     send_default_pii=True,
 )
