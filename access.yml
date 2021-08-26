@@ -246,6 +246,7 @@ scopes:
               selectors:
                 - key: any
                 - key: act
+                - key: own
             - key: update
               selectors:
                 - key: any
@@ -596,6 +597,7 @@ roles:
       - code: catalogue.products.read.active
       - code: checkout.carts.create
       - code: checkout.carts.read.act
+      - code: checkout.carts.read.own
       - code: checkout.carts.update.act
       - code: checkout.carts.delete.act
       - code: shipping.carriers.read.active
