@@ -1,5 +1,5 @@
 from typing import List, Optional, Set
-from asgiref.sync import sync_to_async, async_to_sync
+from olympus.utils.sync import sync_to_async, async_to_sync
 from django.db import models
 from django.db.models import constraints
 from djutils.crypt import random_string_generator

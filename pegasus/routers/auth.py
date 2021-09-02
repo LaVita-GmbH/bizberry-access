@@ -3,7 +3,7 @@ from datetime import timedelta
 from django.utils import timezone
 from fastapi import APIRouter, HTTPException, status, Body, Security, Path
 from django.contrib.auth import authenticate as sync_authenticate
-from asgiref.sync import sync_to_async
+from olympus.utils.sync import sync_to_async
 from olympus.schemas import Access, Error
 from olympus.exceptions import AccessError, AuthError, ValidationError
 from ..utils import JWTToken

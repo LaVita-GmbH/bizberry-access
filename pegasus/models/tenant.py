@@ -1,6 +1,6 @@
 from typing import List
 from django.db import models
-from asgiref.sync import sync_to_async
+from olympus.utils.sync import sync_to_async
 from djutils.crypt import random_string_generator
 from olympus.models import ModelAtomicSave
 

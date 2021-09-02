@@ -1,5 +1,5 @@
 from typing import Dict, List, Optional, Tuple
-from asgiref.sync import sync_to_async
+from olympus.utils.sync import sync_to_async
 from fastapi import APIRouter, Security, Body, Depends, Path, Query
 from django.db.models import Q
 from olympus.exceptions import AccessError

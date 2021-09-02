@@ -1,6 +1,6 @@
 from olympus.utils.pydantic_django import transfer_to_orm
 from typing import List
-from asgiref.sync import sync_to_async
+from olympus.utils.sync import sync_to_async
 from fastapi import APIRouter, Security, Body, Depends
 from olympus.schemas import Access, Pagination
 from olympus.utils import depends_pagination
