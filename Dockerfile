@@ -1,9 +1,8 @@
 FROM python:3.7
-
 EXPOSE 5000
-EXPOSE 5678
 
-COPY ./ /
+COPY ./ /app
+WORKDIR /app
 
 RUN pip install fastapi uvicorn
 RUN pip install -r requirements.txt
