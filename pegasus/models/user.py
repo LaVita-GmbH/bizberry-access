@@ -269,6 +269,10 @@ class User(DirtyFieldsMixin, AbstractUser):
 
     @atomic
     def save(self, *args, **kwargs):
+        modified = self.get_dirty_fields(check_relationship=True)
+        if 'email' in modified:
+            self.email = self.email.lower()
+
         is_new = not self.date_joined
         result = super().save(*args, **kwargs)
         if is_new and not self.has_usable_password():
