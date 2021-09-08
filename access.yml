@@ -640,6 +640,8 @@ roles:
       - code: activity.categories.read.active
       - code: activity.events.read.public
       - code: activity.attendances.read.own
+      - code: activity.attendances.create.own
+      - code: activity.attendances.update.own
 
   - key: admin
     scopes:
