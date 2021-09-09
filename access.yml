@@ -633,6 +633,7 @@ roles:
       - code: commission.statements.read.own
       - code: commission.researches.create.own
       - code: commission.researches.read.own
+      - code: commission.promotional.read.own
       - code: sale.sellers.read.myseller
       - code: sale.regions.read.any
       - code: customer.addresses.read.myseller
