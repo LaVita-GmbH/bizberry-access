@@ -197,10 +197,13 @@ class User(DirtyFieldsMixin, AbstractUser):
 
         if used_token:
             try:
-                user_token = self.tokens.get(id=used_token.token.jti, type=UserToken.Types.USER, is_active=True)
+                user_token = self.tokens.get(id=used_token.token.jti, type=UserToken.Types.USER)
 
             except UserToken.DoesNotExist as error:
                 raise AuthError(detail=Error(code='invalid_user_token')) from error
+
+            if not user_token.is_active:
+                raise AuthError(detail=Error(code='invalid_user_token:not_active'))
 
         token, _ = self._create_token(
             validity=timedelta(minutes=5),

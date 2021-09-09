@@ -49,6 +49,14 @@ def _get_user_by_id(access: Access, user_id: str) -> models.User:
 
 
 @sync_to_async
+def _get_user_token_by_id(access: Access, user_id: str, token_id: str) -> models.UserToken:
+    token = models.UserToken.objects.get(user_id=user_id, id=token_id)
+    _check_access_for_obj(access, token.user)
+
+    return token
+
+
+@sync_to_async
 def _create_user(access: Access, body: request.UserCreate) -> models.User:
     new_user = models.User.objects.create_user(
         email=str(body.email),
@@ -70,6 +78,12 @@ def _delete_user(access: Access, user: models.User):
     _check_access_for_obj(access, user, action='delete')
     user.status = models.User.Status.TERMINATED
     user.save()
+
+
+@sync_to_async
+def _delete_user_token(access: Access, token: models.UserToken):
+    token.is_active = False
+    token.save()
 
 
 @router.post('', response_model=response.User)
@@ -110,7 +124,7 @@ async def get_self(access: Access = Security(access_user, scopes=['access.users.
 @router.get('/{user_id}', response_model=response.User)
 async def get_user(
     access: Access = Security(access_user, scopes=['access.users.read.any', 'access.users.read.own']),
-    user_id: str = Path(...),
+    user_id: str = Path(..., min_length=64, max_length=64),
 ):
     """
     Scopes: `access.users.read.any`, `access.users.read.own`
@@ -123,7 +137,7 @@ async def get_user(
 @router.patch('/{user_id}', response_model=response.User)
 async def patch_user(
     access: Access = Security(access_user, scopes=['access.users.update.any', 'access.users.update.own']),
-    user_id: str = Path(...),
+    user_id: str = Path(..., min_length=64, max_length=64),
     body: request.UserUpdate = Body(...),
 ):
     user = await _get_user_by_id(access, user_id)
@@ -136,17 +150,28 @@ async def patch_user(
 @router.delete('/{user_id}', status_code=204)
 async def delete_user(
     access: Access = Security(access_user, scopes=['access.users.delete.any', 'access.users.delete.own']),
-    user_id: str = Path(...),
+    user_id: str = Path(..., min_length=64, max_length=64),
 ):
     user = await _get_user_by_id(access, user_id)
 
     await _delete_user(access, user)
 
 
+@router.delete('/{user_id}/tokens/{token_id}', status_code=204)
+async def delete_user_token(
+    access: Access = Security(access_user, scopes=['access.users.update.any', 'access.users.read.own']),
+    user_id: str = Path(..., min_length=64, max_length=64),
+    token_id: str = Path(..., min_length=128, max_length=128),
+):
+    token = await _get_user_token_by_id(access, user_id, token_id)
+
+    await _delete_user_token(access, token)
+
+
 @router.post('/{user_id}/access-token', response_model=response.UserAccessToken)
 async def post_user_access_token(
     access: Access = Security(access_user, scopes=['access.users.create_access_token.any', 'access.users.create_access_token.own']),
-    user_id: str = Path(...),
+    user_id: str = Path(..., min_length=64, max_length=64),
 ):
     user = await _get_user_by_id(access, user_id)
     access_token = await _create_user_access_token(access, user)
