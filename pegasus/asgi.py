@@ -41,7 +41,6 @@ app.include_router(routers.auth.router, prefix='/access/auth', tags=['auth'])
 app.include_router(routers.users.router, prefix='/access/users', tags=['users'])
 app.include_router(routers.roles.router, prefix='/access/roles', tags=['roles'])
 app.include_router(routers.tenants.router, prefix='/access/tenants', tags=['tenants'])
-app.mount('', django_asgi)
 
 app.add_middleware(SentryAsgiMiddleware)
 app.add_middleware(ProxyHeadersMiddleware, trusted_hosts='*')
