@@ -643,6 +643,7 @@ roles:
       - code: activity.attendances.read.own
       - code: activity.attendances.create.own
       - code: activity.attendances.update.own
+      - code: activity.attendances.delete.own
 
   - key: admin
     scopes:
