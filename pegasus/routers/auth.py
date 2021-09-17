@@ -76,17 +76,17 @@ def _reset_password(tenant_id: str, *, user: Optional[User] = None, otp_id: Opti
 
 @router.post('/user', response_model=response.AuthUser)
 async def get_user_token(credentials: request.AuthUser = Body(...)):
-    if credentials.email:
-        user = await _get_user(email=credentials.email, tenant_id=credentials.tenant.id)
-        user: User = await authenticate(id=user.id, password=credentials.password)
-
-    elif credentials.otp:
+    if credentials.otp:
         user: User = await _reset_password(
             tenant_id=credentials.tenant.id,
             otp_id=credentials.otp.id,
             value=credentials.otp.value,
             password=credentials.password,
         )
+
+    elif credentials.email:
+        user = await _get_user(email=credentials.email, tenant_id=credentials.tenant.id)
+        user: User = await authenticate(id=user.id, password=credentials.password)
 
     else:
         raise NotImplementedError
