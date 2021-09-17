@@ -290,6 +290,9 @@ class User(DirtyFieldsMixin, AbstractUser):
             models.UniqueConstraint(
                 fields=('tenant', 'email',),
                 name='tenant_email_unique',
+                condition=(
+                    ~models.Q(status='TERMINATED')
+                ),
             ),
         ]
 
