@@ -1,5 +1,6 @@
 from typing import Optional
 from datetime import timedelta
+from django.db.transaction import atomic
 from django.utils import timezone
 from fastapi import APIRouter, HTTPException, status, Body, Security, Path
 from django.contrib.auth import authenticate as sync_authenticate
@@ -52,6 +53,7 @@ def _get_user(**filters):
 
 
 @sync_to_async
+@atomic
 def _reset_password(tenant_id: str, *, user: Optional[User] = None, otp_id: Optional[str] = None, value: str, password: str) -> Optional[User]:
     if not user and not otp_id:
         raise ValidationError(detail=Error(code='user_or_id_required'))
@@ -70,6 +72,8 @@ def _reset_password(tenant_id: str, *, user: Optional[User] = None, otp_id: Opti
     if not otp.validate(value):
         return None
 
+    otp.used_at = timezone.now()
+    otp.save(update_fields=['used_at',])
     user.set_password(password)
     return user
 
