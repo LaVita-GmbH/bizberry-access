@@ -105,8 +105,14 @@ async def get_users(
     access: Access = Security(access_user, scopes=['access.users.read.any']),
     pagination: Pagination = Depends(depends_pagination()),
     status: Optional[models.User.Status] = Query(models.User.Status.ACTIVE),
+    email: Optional[str] = Query(None),
 ):
-    users: List[models.User] = await _get_users_filtered(access, pagination, status=status)
+    users: List[models.User] = await _get_users_filtered(
+        access,
+        pagination,
+        status=status,
+        email=email,
+    )
 
     return response.UsersList(
         users=[await response.User.from_orm(user) for user in users],
