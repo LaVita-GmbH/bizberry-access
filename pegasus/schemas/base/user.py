@@ -13,6 +13,7 @@ class User(DjangoORMBaseModel):
     email: EmailStr = Field(orm_field=models.User.email, is_critical=True)
     language: str = Field(orm_field=models.User.language)
     role: Optional[RoleReference] = Field(scopes=['access.users.update.any'], is_critical=True)
+    number: Optional[str] = Field(orm_field=models.User.number, scopes=['access.users.update.any'])
 
     @validator('language')
     def format_language(cls, value: Optional[str]):
