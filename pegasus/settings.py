@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 import os
+import json
 from pathlib import Path
 from dotenv import load_dotenv
 import sentry_sdk
@@ -199,3 +200,6 @@ sentry_sdk.init(
     traces_sampler=sentry_traces_sampler,
     send_default_pii=True,
 )
+
+
+EXT_CLIENTS = json.loads(os.getenv('EXT_CLIENTS', '{}'))
