@@ -19,6 +19,11 @@ scopes:
               selectors:
                 - key: own
                 - key: any
+            - key: create_otp
+              critical: true
+              selectors:
+                - key: own
+                - key: any
             - key: create
             - key: read
               selectors:
@@ -651,6 +656,7 @@ roles:
       - code: access.users.read.any
       - code: access.users.update.any
       - code: access.users.create_access_token.any
+      - code: access.users.create_otp.any
       - code: access.users.delete.any
       - code: access.tenants.create
       - code: access.tenants.update

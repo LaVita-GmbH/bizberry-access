@@ -74,6 +74,16 @@ def _create_user_access_token(access: Access, user: models.User) -> models.UserA
 
 
 @sync_to_async
+def _create_user_otp(access: Access, user: models.User, body: request.UserOTPCreate) -> models.UserOTP:
+    return user.request_otp(
+        type=body.type,
+        length=body.length,
+        validity=body.validity,
+        is_internal=True,
+    )
+
+
+@sync_to_async
 def _delete_user(access: Access, user: models.User):
     _check_access_for_obj(access, user, action='delete')
     user.status = models.User.Status.TERMINATED
@@ -183,3 +193,15 @@ async def post_user_access_token(
     access_token = await _create_user_access_token(access, user)
 
     return await response.UserAccessToken.from_orm(access_token)
+
+
+@router.post('/{user_id}/otp', response_model=response.UserOTP)
+async def post_user_otp(
+    access: Access = Security(access_user, scopes=['access.users.create_otp.any',]),
+    user_id: str = Path(..., min_length=64, max_length=64),
+    body: request.UserOTPCreate = Body(...),
+):
+    user = await _get_user_by_id(access, user_id)
+    otp: models.UserOTP = await _create_user_otp(access, user, body)
+
+    return await response.UserOTP(token=otp._value)

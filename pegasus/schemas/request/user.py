@@ -18,3 +18,9 @@ class UserCreate(BaseModel):
 @to_optional()
 class UserUpdate(base.User):
     password: Optional[SecretStr] = Field(orm_method=models.User.set_password, is_critical=True)
+
+
+class UserOTPCreate(BaseModel):
+    type: models.UserOTP.UserOTPType
+    length: Optional[int] = None
+    validity: Optional[int] = None

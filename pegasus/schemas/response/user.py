@@ -26,3 +26,7 @@ class UsersList(BaseModel):
 
 class UserAccessToken(DjangoORMBaseModel):
     token: str = Field(orm_field=models.UserAccessToken.token)
+
+
+class UserOTP(BaseModel):
+    token: str

@@ -253,6 +253,7 @@ class User(DirtyFieldsMixin, AbstractUser):
         validity: Optional[int] = None,
         chars: Optional[str] = None,
         create_new_threshold: Optional[int] = None,
+        is_internal: bool = False,
     ) -> 'UserOTP':
         if length is None:
             length = getattr(settings, f'AUTH_{type}_LENGTH')
@@ -276,6 +277,7 @@ class User(DirtyFieldsMixin, AbstractUser):
             user=self,
             type=type,
             expire_at=timezone.now() + timedelta(seconds=validity),
+            is_internal=is_internal,
         )
         otp.set_value(random_string_generator(size=length, **kwargs))
         otp.save()
