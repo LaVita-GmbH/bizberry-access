@@ -5,14 +5,8 @@ from ... import models
 from .. import base
 
 
-class UserCreate(BaseModel):
-    email: EmailStr
+class UserCreate(base.User):
     password: Optional[SecretStr] = ...
-    language: str = Field(max_length=8)
-
-    @validator('language')
-    def format_language(cls, value: str):
-        return base.User.format_language(value)
 
 
 @to_optional()

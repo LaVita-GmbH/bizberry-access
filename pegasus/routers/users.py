@@ -63,6 +63,8 @@ def _create_user(access: Access, body: request.UserCreate) -> models.User:
         password=body.password and str(body.password.get_secret_value()),
         tenant_id=access.tenant_id,
         language=body.language,
+        number=body.number,
+        role_id=body.role and body.role.id,
     )
 
     return new_user
