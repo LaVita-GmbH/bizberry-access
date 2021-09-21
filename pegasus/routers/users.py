@@ -204,4 +204,4 @@ async def post_user_otp(
     user = await _get_user_by_id(access, user_id)
     otp: models.UserOTP = await _create_user_otp(access, user, body)
 
-    return await response.UserOTP(token=otp._value)
+    return response.UserOTP(token=otp._value)
