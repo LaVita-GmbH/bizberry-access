@@ -355,6 +355,7 @@ class UserAccessToken(models.Model):
         token, _ = self.user._create_token(
             validity=timedelta(minutes=5),
             audiences=audiences,
+            include_critical=include_critical,
         )
 
         return token
