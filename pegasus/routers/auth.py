@@ -49,7 +49,7 @@ def _get_token_for_user(access: Access, user: User, include_critical: bool = Fal
 
 @sync_to_async
 def _get_user(**filters):
-    return User.objects.get(**filters)
+    return User.objects.get(status=User.Status.ACTIVE, **filters)
 
 
 @sync_to_async
