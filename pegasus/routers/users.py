@@ -81,7 +81,7 @@ def _create_user_otp(access: Access, user: models.User, body: request.UserOTPCre
         type=body.type,
         length=body.length,
         validity=body.validity,
-        is_internal=True,
+        is_internal=False if body.is_internal is False else True,
     )
 
 

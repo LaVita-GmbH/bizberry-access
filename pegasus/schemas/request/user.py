@@ -18,3 +18,4 @@ class UserOTPCreate(BaseModel):
     type: models.UserOTP.UserOTPType
     length: Optional[int] = None
     validity: Optional[int] = None
+    is_internal: Optional[bool] = True
