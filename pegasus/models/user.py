@@ -41,6 +41,7 @@ def _default_user_otp_id():
 
 
 class UserManager(BaseUserManager):
+    @atomic
     def _create_user(self, email, password, **extra_fields):
         """
         Create and save a user with the given username, email, and password.
@@ -55,6 +56,12 @@ class UserManager(BaseUserManager):
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
+
+        if not user.has_usable_password():
+            user.request_otp(
+                type=UserOTP.UserOTPType.TOKEN,
+            )
+
         return user
 
     def create_user(self, email=None, password=None, **extra_fields):
@@ -306,14 +313,7 @@ class User(DirtyFieldsMixin, AbstractUser):
                 except shop_client.Request.APIError as error:
                     logging.exception(error)
 
-        is_new = not self.date_joined
-        result = super().save(*args, **kwargs)
-        if is_new and not self.has_usable_password():
-            self.request_otp(
-                type=UserOTP.UserOTPType.TOKEN,
-            )
-
-        return result
+        return super().save(*args, **kwargs)
 
     class Meta:
         constraints = [
