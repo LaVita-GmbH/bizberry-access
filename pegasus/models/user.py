@@ -13,8 +13,9 @@ from django.contrib.auth.models import AbstractUser, UserManager as BaseUserMana
 from django.utils import timezone
 from dirtyfields import DirtyFieldsMixin
 from djutils.crypt import random_string_generator
-from olympus.schemas import Access, Error
+from olympus.schemas import Access, Error, AccessScope
 from olympus.exceptions import AuthError, ConstraintError, ValidationError
+from olympus.security.jwt import access as access_ctx
 from . import Scope, Role, Tenant
 from ..utils import get_odoo_shop_client
 
@@ -238,6 +239,14 @@ class User(DirtyFieldsMixin, AbstractUser):
 
     def _invalidate_old_otps(self, *, type, create_new_threshold: Optional[int] = None):
         old_otps = self.otps.filter(type=type, used_at__isnull=True)
+        try:
+            scopes = access_ctx.get().token.get_scopes()
+            if AccessScope.from_str('access.users.create_otp.any') in scopes:
+                create_new_threshold = None
+
+        except LookupError:
+            pass
+
         for old_otp in old_otps:
             if create_new_threshold and old_otp.created_at > timezone.now() - timedelta(seconds=create_new_threshold):
                 raise ConstraintError(detail=Error(code='create_new_otp_threshold_not_reached'))
