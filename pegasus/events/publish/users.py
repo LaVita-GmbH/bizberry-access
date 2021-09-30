@@ -3,6 +3,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from olympus.schemas import DataChangeEvent
 from olympus.events.publish import EventPublisher, DataChangePublisher
+from olympus.utils.django import on_transaction_complete
 from ... import models
 from ...schemas import response
 from . import connection
@@ -33,6 +34,7 @@ class UserPublisher(
 
 
 @receiver(post_save, sender=models.UserOTP)
+@on_transaction_complete()
 def post_save_user_otp(sender, instance: models.UserOTP, created: bool, **kwargs):
     if not created:
         return
