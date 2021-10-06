@@ -7,7 +7,7 @@ from .. import base
 
 class UserCreate(base.User):
     password: Optional[SecretStr] = ...
-    flags: List['UserFlagCreate'] = Field(orm_field=models.User.flags)
+    flags: Optional[List['UserFlagCreate']] = Field(orm_field=models.User.flags, scopes=['access.users.update.any'])
 
 
 @to_optional()
