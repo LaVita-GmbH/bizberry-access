@@ -4,6 +4,8 @@ from django.dispatch import receiver
 from olympus.schemas import DataChangeEvent
 from olympus.events.publish import EventPublisher, DataChangePublisher
 from olympus.utils.django import on_transaction_complete
+from django.contrib.auth.signals import user_logged_in
+from olympus.utils.pydantic_django import transfer_from_orm
 from ... import models
 from ...schemas import response
 from . import connection
@@ -63,4 +65,26 @@ def post_save_user_otp(sender, instance: models.UserOTP, created: bool, **kwargs
         body=body.json(),
         content_type='application/json',
         routing_key=f'v1.action.otp_{str(instance.type).lower()}.{instance.user.tenant_id}',
+    )
+
+
+@receiver(user_logged_in)
+def on_user_logged_in(sender, instance: models.User, **kwargs):
+    data = transfer_from_orm(response.User, instance).dict(by_alias=True)
+    body = DataChangeEvent(
+        data={
+            'id': instance.id,
+            'user': data,
+        },
+        data_type='access.user.login',
+        data_op=DataChangeEvent.DataOperation.CREATE,
+        tenant_id=instance.tenant_id,
+    )
+
+    producer.publish(
+        retry=True,
+        retry_policy={'max_retries': 3},
+        body=body.json(),
+        content_type='application/json',
+        routing_key=f'v1.action.login.{instance.tenant_id}',
     )

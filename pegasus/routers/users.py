@@ -41,6 +41,12 @@ def _get_users_filtered(access: Access, pagination: Pagination, **filters) -> Li
 
 
 @sync_to_async
+def _get_user_flags_filtered(access: Access, user: models.User, pagination: Pagination, **filters) -> List[models.UserFlag]:
+    q_filters = Q(**dict_remove_none(filters))
+    return list(pagination.query(user.flags, q_filters))
+
+
+@sync_to_async
 def _get_user_by_id(access: Access, user_id: str) -> models.User:
     user = models.User.objects.get(id=user_id)
     _check_access_for_obj(access, user)
@@ -83,6 +89,14 @@ def _create_user_otp(access: Access, user: models.User, body: request.UserOTPCre
         validity=body.validity,
         is_internal=False if body.is_internal is False else True,
     )
+
+
+@sync_to_async
+def _create_user_flag(access: Access, user: models.User, body: request.UserFlagCreate) -> models.UserFlag:
+    user_flag = models.UserFlag(user=user)
+    transfer_to_orm(body, user_flag, action=TransferAction.CREATE)
+
+    return user_flag
 
 
 @sync_to_async
@@ -207,3 +221,33 @@ async def post_user_otp(
     otp: models.UserOTP = await _create_user_otp(access, user, body)
 
     return response.UserOTP(token=otp._value)
+
+
+@router.get('/{user_id}/flags', response_model=response.UserFlag)
+async def get_user_flags(
+    access: Access = Security(access_user, scopes=['access.users.read.any',]),
+    user_id: str = Path(..., min_length=64, max_length=64),
+    key: Optional[str] = Query(None, max_length=64),
+):
+    user = await _get_user_by_id(access, user_id)
+    flags: List[models.UserFlag] = await _get_user_flags_filtered(
+        access,
+        user,
+        key=key,
+    )
+
+    return response.UserFlagsList(
+        flags=[await response.UserFlag.from_orm(flag) for flag in flags],
+    )
+
+
+@router.post('/{user_id}/flags', response_model=response.UserFlag)
+async def post_user_flag(
+    access: Access = Security(access_user, scopes=['access.users.update.any',]),
+    user_id: str = Path(..., min_length=64, max_length=64),
+    body: request.UserFlagCreate = Body(...),
+):
+    user = await _get_user_by_id(access, user_id)
+    flag: models.UserFlag = await _create_user_flag(access, user, body)
+
+    return await response.UserFlag.from_orm(flag)

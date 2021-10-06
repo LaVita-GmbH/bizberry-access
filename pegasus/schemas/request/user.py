@@ -7,6 +7,7 @@ from .. import base
 
 class UserCreate(base.User):
     password: Optional[SecretStr] = ...
+    flags: List['UserFlagCreate'] = Field(orm_field=models.User.flags)
 
 
 @to_optional()
@@ -19,3 +20,10 @@ class UserOTPCreate(BaseModel):
     length: Optional[int] = None
     validity: Optional[int] = None
     is_internal: Optional[bool] = True
+
+
+class UserFlagCreate(base.UserFlag):
+    pass
+
+
+UserCreate.update_forward_refs()

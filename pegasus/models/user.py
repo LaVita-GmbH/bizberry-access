@@ -40,6 +40,10 @@ def _default_user_otp_id():
     return random_string_generator(size=64)
 
 
+def _default_user_flag_id():
+    return random_string_generator(size=72)
+
+
 class UserManager(BaseUserManager):
     @atomic
     def _create_user(self, email, password, **extra_fields):
@@ -78,6 +82,7 @@ class UserManager(BaseUserManager):
 
 
 class User(DirtyFieldsMixin, AbstractUser):
+    
     class Status(models.TextChoices):
         ACTIVE = 'ACTIVE', _("Active")
         TERMINATED = 'TERMINATED', _("Terminated")
@@ -404,5 +409,20 @@ class UserOTP(models.Model):
             models.UniqueConstraint(
                 fields=('user', 'type', 'used_at',),
                 name='user_type_used_at_unique',
+            ),
+        ]
+
+
+class UserFlag(models.Model):
+    id = models.CharField(max_length=72, primary_key=True, default=_default_user_flag_id)
+    user: User = models.ForeignKey(User, on_delete=models.CASCADE, related_name='flags')
+    key: str = models.CharField(max_length=64)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=('user', 'key',),
+                name='user_flag_key_unique',
             ),
         ]

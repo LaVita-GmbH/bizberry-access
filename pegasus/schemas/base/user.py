@@ -18,3 +18,7 @@ class User(DjangoORMBaseModel):
     @validator('language')
     def format_language(cls, value: Optional[str]):
         return format_language(value)
+
+
+class UserFlag(DjangoORMBaseModel):
+    key: str = Field(orm_field=models.UserFlag.key)

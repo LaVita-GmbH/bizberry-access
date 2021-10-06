@@ -4,6 +4,7 @@ from django.db.transaction import atomic
 from django.utils import timezone
 from fastapi import APIRouter, HTTPException, status, Body, Security, Path
 from django.contrib.auth import authenticate as sync_authenticate
+from django.contrib.auth.signals import user_logged_in
 from olympus.utils.sync import sync_to_async
 from olympus.schemas import Access, Error
 from olympus.exceptions import AccessError, AuthError, ValidationError
@@ -19,7 +20,13 @@ user_token = JWTToken(
     auto_error=False,
 )
 
-authenticate = sync_to_async(sync_authenticate, thread_sensitive=True)
+@sync_to_async(thread_sensitive=True)
+def authenticate(*args, **kwargs) -> Optional[User]:
+    user = sync_authenticate(*args, **kwargs)
+    if user:
+        user_logged_in.send(sender=user.__class__, instance=user, user=user, request=None)
+
+    return user
 
 
 def access_user(access: Optional[Access] = Security(user_token)) -> Access:

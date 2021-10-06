@@ -18,6 +18,7 @@ class User(base.User):
     status: models.User.Status = Field(orm_field=models.User.status)
     created_at: datetime = Field(orm_field=models.User.date_joined)
     is_password_usable: bool = Field(orm_method=models.User.has_usable_password)
+    flags: List['UserFlag'] = Field(orm_field=models.User.flags)
 
 
 class UsersList(BaseModel):
@@ -30,3 +31,14 @@ class UserAccessToken(DjangoORMBaseModel):
 
 class UserOTP(BaseModel):
     token: str
+
+
+class UserFlag(base.UserFlag):
+    created_at: datetime = Field(orm_field=models.UserFlag.created_at)
+
+
+class UserFlagsList(BaseModel):
+    flags: List[UserFlag]
+
+
+User.update_forward_refs()
