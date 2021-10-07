@@ -5,6 +5,7 @@ fastapi==0.65.3
 python-multipart
 django-hashers-passlib
 django-dirtyfields
+email-validate
 email-validator
 pyyaml
 sentry-sdk

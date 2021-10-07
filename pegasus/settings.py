@@ -203,3 +203,4 @@ sentry_sdk.init(
 
 
 EXT_CLIENTS = json.loads(os.getenv('EXT_CLIENTS', '{}'))
+EMAIL_CHECK_SMTP_HELO_HOST = os.getenv('EMAIL_CHECK_SMTP_HELO_HOST')

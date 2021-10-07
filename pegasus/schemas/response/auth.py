@@ -27,3 +27,11 @@ class AuthOTP(DjangoORMBaseModel):
     created_at: datetime = Field(orm_field=models.UserOTP.created_at)
     expire_at: datetime = Field(orm_field=models.UserOTP.expire_at)
     length: int = Field(orm_field=models.UserOTP.length)
+
+
+class AuthCheck(BaseModel):
+    class Email(BaseModel):
+        is_valid: bool
+        is_existing: bool
+
+    email: Optional[Email]

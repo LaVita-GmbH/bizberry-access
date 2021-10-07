@@ -93,7 +93,7 @@ class User(DirtyFieldsMixin, AbstractUser):
 
     id = models.CharField(max_length=64, primary_key=True, default=_default_user_id, editable=False)
     tenant: Tenant = models.ForeignKey(Tenant, on_delete=models.RESTRICT, related_name='users')
-    email = models.CharField(max_length=320, unique=False)
+    email = models.CharField(max_length=320, unique=False, db_index=True)
     number: Optional[str] = models.CharField(max_length=16, null=True, blank=True)
     password = models.CharField(_('password'), max_length=144)
     status = models.CharField(max_length=16, choices=Status.choices, default=Status.ACTIVE)

@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, validator, EmailStr
 from . import TenantReference
 from ... import models
 
@@ -42,3 +42,7 @@ class AuthTransaction(BaseModel):
                 'access_token': None,
             },
         }
+
+
+class AuthCheck(BaseModel):
+    email: Optional[EmailStr]

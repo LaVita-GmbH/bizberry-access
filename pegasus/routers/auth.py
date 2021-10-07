@@ -1,13 +1,16 @@
 from typing import Optional
 from datetime import timedelta
+from fastapi import APIRouter, HTTPException, status, Body, Security, Path
 from django.db.transaction import atomic
 from django.utils import timezone
-from fastapi import APIRouter, HTTPException, status, Body, Security, Path
+from django.conf import settings
 from django.contrib.auth import authenticate as sync_authenticate
 from django.contrib.auth.signals import user_logged_in
+from email_validate import validate as validate_email
 from olympus.utils.sync import sync_to_async
 from olympus.schemas import Access, Error
 from olympus.exceptions import AccessError, AuthError, ValidationError
+from olympus.utils import DjangoAllowAsyncUnsafe
 from ..utils import JWTToken
 from ..models import User, UserAccessToken, UserOTP
 from ..schemas import request, response
@@ -19,6 +22,8 @@ user_token = JWTToken(
     scheme_name='User Token',
     auto_error=False,
 )
+transaction_token = JWTToken(scheme_name="Transaction Token")
+
 
 @sync_to_async(thread_sensitive=True)
 def authenticate(*args, **kwargs) -> Optional[User]:
@@ -159,3 +164,28 @@ async def post_otp(
     user: User = await _get_user(email=body.email, tenant_id=body.tenant.id)
     otp: UserOTP = await sync_to_async(user.request_otp)(type=body.type)
     return await response.AuthOTP.from_orm(otp)
+
+
+@router.post('/check', response_model=response.AuthCheck)
+async def contact_check(
+    access: Access = Security(transaction_token, scopes=['access.users.create', 'access.users.read.own']),
+    body: request.AuthCheck = Body(...),
+):
+    res = response.AuthCheck()
+
+    if body.email:
+        with DjangoAllowAsyncUnsafe():
+            res.email = response.AuthCheck.Email(
+                is_valid=bool(validate_email(
+                    email_address=body.email,
+                    smtp_timeout=5,
+                    dns_timeout=5,
+                    check_blacklist=False,
+                    smtp_helo_host=settings.EMAIL_CHECK_SMTP_HELO_HOST,
+                )),
+                is_existing=bool(
+                    User.objects.filter(tenant_id=access.tenant_id, email=body.email.lower()).count()
+                ),
+            )
+
+    return res
