@@ -88,6 +88,8 @@ def _reset_password(tenant_id: str, *, user: Optional[User] = None, otp_id: Opti
     otp.save(update_fields=['used_at',])
     user.set_password(password)
     user.save()
+    user_logged_in.send(sender=user.__class__, instance=user, user=user, request=None)
+
     return user
 
 
