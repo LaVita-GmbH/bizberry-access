@@ -44,13 +44,11 @@ def post_save_user_otp(sender, instance: models.UserOTP, created: bool, **kwargs
     if instance.is_internal:
         return
 
+    data = transfer_from_orm(response.User, instance.user).dict(by_alias=True)
     body = DataChangeEvent(
         data={
             'id': instance.id,
-            'user': {
-                'id': instance.user_id,
-                '$rel': 'olymp/access/users',
-            },
+            'user': data,
             'value': instance._value,
             'expire_at': instance.expire_at.isoformat(),
         },
