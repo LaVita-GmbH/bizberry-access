@@ -92,6 +92,7 @@ def _reset_password(tenant_id: str, *, user: Optional[User] = None, otp_id: Opti
 
 @router.post('/user', response_model=response.AuthUser)
 async def get_user_token(credentials: request.AuthUser = Body(...)):
+    _user = None
     if credentials.otp:
         user: User = await _reset_password(
             tenant_id=credentials.tenant.id,
@@ -101,13 +102,16 @@ async def get_user_token(credentials: request.AuthUser = Body(...)):
         )
 
     elif credentials.email:
-        user = await _get_user(email=credentials.email, tenant_id=credentials.tenant.id)
-        user: User = await authenticate(id=user.id, password=credentials.password)
+        _user: User = await _get_user(email=credentials.email, tenant_id=credentials.tenant.id)
+        user: User = await authenticate(id=_user.id, password=credentials.password)
 
     else:
         raise NotImplementedError
 
     if not user:
+        if _user and not _user.has_usable_password():
+            raise AuthError(detail=Error(code='password_reset_required'))
+
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
         )
