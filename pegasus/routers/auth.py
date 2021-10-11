@@ -105,7 +105,12 @@ async def get_user_token(credentials: request.AuthUser = Body(...)):
         )
 
     elif credentials.email:
-        _user: User = await _get_user(email=credentials.email, tenant_id=credentials.tenant.id)
+        try:
+            _user: User = await _get_user(tenant_id=credentials.tenant.id, email=credentials.email)
+
+        except User.DoesNotExist:
+            _user: User = await _get_user(tenant_id=credentials.tenant.id, number=credentials.email)
+
         user: User = await authenticate(id=_user.id, password=credentials.password)
 
     else:
