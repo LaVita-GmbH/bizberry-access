@@ -87,6 +87,7 @@ def _reset_password(tenant_id: str, *, user: Optional[User] = None, otp_id: Opti
     otp.used_at = timezone.now()
     otp.save(update_fields=['used_at',])
     user.set_password(password)
+    user.save()
     return user
 
 
