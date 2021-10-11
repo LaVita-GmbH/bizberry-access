@@ -137,7 +137,7 @@ async def get_users(
         access,
         pagination,
         status=status,
-        email=email,
+        email=email and email.lower(),
     )
 
     return response.UsersList(
