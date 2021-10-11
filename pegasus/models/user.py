@@ -219,6 +219,9 @@ class User(DirtyFieldsMixin, AbstractUser):
     def create_transaction_token(self, include_critical: bool = False, used_token: Optional[Access] = None) -> str:
         audiences: List[str] = [scope.code for scope in self.get_scopes(include_critical=include_critical)]
 
+        if self.status == self.Status.TERMINATED:
+            raise AuthError(detail=Error(code='user_terminated'))
+
         if used_token:
             try:
                 user_token = self.tokens.get(id=used_token.token.jti, type=UserToken.Types.USER)
