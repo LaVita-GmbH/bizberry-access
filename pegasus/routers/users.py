@@ -63,6 +63,11 @@ def _get_user_token_by_id(access: Access, user_id: str, token_id: str) -> models
 
 
 @sync_to_async
+def _get_user_flag(access: Access, user: models.User, flag_key: str) -> models.UserFlag:
+    return user.flags.get(key=flag_key)
+
+
+@sync_to_async
 def _create_user(access: Access, body: request.UserCreate) -> models.User:
     new_user = models.User.objects.create_user(
         email=str(body.email),
@@ -110,6 +115,11 @@ def _delete_user(access: Access, user: models.User):
 def _delete_user_token(access: Access, token: models.UserToken):
     token.is_active = False
     token.save()
+
+
+@sync_to_async
+def _delete_user_flag(access: Access, user_flag: models.UserFlag):
+    user_flag.delete()
 
 
 @router.post('', response_model=response.User)
@@ -251,3 +261,26 @@ async def post_user_flag(
     flag: models.UserFlag = await _create_user_flag(access, user, body)
 
     return await response.UserFlag.from_orm(flag)
+
+
+@router.get('/{user_id}/flags/{flag_key}', response_model=response.UserFlag)
+async def get_user_flag_by_key(
+    access: Access = Security(access_user, scopes=['access.users.read.any',]),
+    user_id: str = Path(..., min_length=64, max_length=64),
+    flag_key: str = Path(..., max_length=64),
+):
+    user = await _get_user_by_id(access, user_id)
+    flag: models.UserFlag = await _get_user_flag(access, user, flag_key)
+
+    return await response.UserFlag.from_orm(flag)
+
+
+@router.delete('/{user_id}/flags/{flag_key}', status_code=204)
+async def delete_user_flag_by_key(
+    access: Access = Security(access_user, scopes=['access.users.update.any',]),
+    user_id: str = Path(..., min_length=64, max_length=64),
+    flag_key: str = Path(..., max_length=64),
+):
+    user = await _get_user_by_id(access, user_id)
+    flag: models.UserFlag = await _get_user_flag(access, user, flag_key)
+    await _delete_user_flag(flag)
