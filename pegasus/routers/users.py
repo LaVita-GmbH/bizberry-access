@@ -142,12 +142,14 @@ async def get_users(
     pagination: Pagination = Depends(depends_pagination()),
     status: Optional[models.User.Status] = Query(models.User.Status.ACTIVE),
     email: Optional[str] = Query(None),
+    number: Optional[str] = Query(None),
 ):
     users: List[models.User] = await _get_users_filtered(
         access,
         pagination,
         status=status,
         email=email and email.lower(),
+        number=number,
     )
 
     return response.UsersList(
