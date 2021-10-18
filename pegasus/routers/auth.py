@@ -106,7 +106,7 @@ async def get_user_token(credentials: request.AuthUser = Body(...)):
 
     elif credentials.email:
         try:
-            _user: User = await _get_user(tenant_id=credentials.tenant.id, email=credentials.email)
+            _user: User = await _get_user(tenant_id=credentials.tenant.id, email=credentials.email.lower())
 
         except User.DoesNotExist:
             _user: User = await _get_user(tenant_id=credentials.tenant.id, number=credentials.email)
@@ -173,7 +173,7 @@ async def post_otp(
     """
     Request a one time password (used as PIN or TOKEN)
     """
-    user: User = await _get_user(email=body.email, tenant_id=body.tenant.id)
+    user: User = await _get_user(email=body.email.lower(), tenant_id=body.tenant.id)
     otp: UserOTP = await sync_to_async(user.request_otp)(type=body.type)
     return await response.AuthOTP.from_orm(otp)
 
