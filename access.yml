@@ -827,6 +827,5 @@ roles:
   - key: erpsync
     scopes:
       - code: erpconnector.sync.skip
-      - code: notification.sendmessage.skip
     included_roles:
       - key: admin
