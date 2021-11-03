@@ -285,4 +285,4 @@ async def delete_user_flag_by_key(
 ):
     user = await _get_user_by_id(access, user_id)
     flag: models.UserFlag = await _get_user_flag(access, user, flag_key)
-    await _delete_user_flag(flag)
+    await _delete_user_flag(access, flag)
