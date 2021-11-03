@@ -191,7 +191,7 @@ def sentry_traces_sampler(context):
     if 'asgi_scope' in context and context['asgi_scope']['path'] == '/':
         return 0
 
-    return os.getenv('SENTRY_TRACES_SAMPLE_RATE', 1.0)
+    return float(os.getenv('SENTRY_TRACES_SAMPLE_RATE', 1.0))
 
 sentry_sdk.init(
     environment='development' if DEBUG else os.getenv('SENTRY_ENVIRONMENT', 'production'),
