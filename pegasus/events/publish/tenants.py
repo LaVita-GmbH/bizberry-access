@@ -5,6 +5,7 @@ from django.dispatch import receiver
 from olympus.schemas import DataChangeEvent
 from olympus.utils.pydantic_django import transfer_from_orm
 from olympus.utils.django import on_transaction_complete
+from olympus.utils.sentry import capture_exception
 from ... import models
 from ...schemas import response
 from . import connection
@@ -22,6 +23,7 @@ producer = connection.Producer(exchange=tenants)
 
 
 @receiver(post_save, sender=models.Tenant)
+@capture_exception
 @on_transaction_complete()
 def post_save_tenant(sender, instance: models.Tenant, created: bool, **kwargs):
     action = 'create' if created else 'update'
@@ -42,6 +44,7 @@ def post_save_tenant(sender, instance: models.Tenant, created: bool, **kwargs):
 
 @receiver(post_save, sender=models.TenantCountry)
 @receiver(post_delete, sender=models.TenantCountry)
+@capture_exception
 def post_save_delete_tenant_country(sender, instance: models.TenantCountry, **kwargs):
     post_save_tenant(sender, instance=instance.tenant, created=False)
 

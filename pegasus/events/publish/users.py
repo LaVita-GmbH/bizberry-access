@@ -6,6 +6,7 @@ from olympus.events.publish import EventPublisher, DataChangePublisher
 from olympus.utils.django import on_transaction_complete
 from django.contrib.auth.signals import user_logged_in
 from olympus.utils.pydantic_django import transfer_from_orm
+from olympus.utils.sentry import capture_exception
 from ... import models
 from ...schemas import response
 from . import connection
@@ -37,6 +38,7 @@ class UserPublisher(
 
 @receiver(post_save, sender=models.UserOTP)
 @on_transaction_complete()
+@capture_exception
 def post_save_user_otp(sender, instance: models.UserOTP, created: bool, **kwargs):
     if not created:
         return
@@ -67,6 +69,7 @@ def post_save_user_otp(sender, instance: models.UserOTP, created: bool, **kwargs
 
 
 @receiver(user_logged_in)
+@capture_exception
 def on_user_logged_in(sender, instance: models.User, **kwargs):
     data = transfer_from_orm(response.User, instance).dict(by_alias=True)
     body = DataChangeEvent(
