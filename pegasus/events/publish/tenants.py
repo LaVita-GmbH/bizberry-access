@@ -19,7 +19,6 @@ tenants = Exchange(
     delivery_mode=Exchange.PERSISTENT_DELIVERY_MODE,
 )
 tenants.declare()
-producer = connection.Producer(exchange=tenants)
 
 
 @receiver(post_save, sender=models.Tenant)
@@ -33,7 +32,7 @@ def post_save_tenant(sender, instance: models.Tenant, created: bool, **kwargs):
         data_type='access.tenant',
         data_op=getattr(DataChangeEvent.DataOperation, action.upper()),
     )
-    producer.publish(
+    connection.Producer(exchange=tenants).publish(
         retry=True,
         retry_policy={'max_retries': 3},
         body=body.json(),
@@ -59,7 +58,7 @@ def post_delete_tenant(sender, instance: models.Tenant, **kwargs):
         data_type='access.tenant',
         data_op=DataChangeEvent.DataOperation.DELETE,
     )
-    producer.publish(
+    connection.Producer(exchange=tenants).publish(
         retry=True,
         retry_policy={'max_retries': 3},
         body=body.json(),

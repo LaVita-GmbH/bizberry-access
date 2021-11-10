@@ -20,7 +20,6 @@ users = Exchange(
     delivery_mode=Exchange.PERSISTENT_DELIVERY_MODE,
 )
 users.declare()
-producer = connection.Producer(exchange=users)
 
 
 class UserPublisher(
@@ -59,7 +58,7 @@ def post_save_user_otp(sender, instance: models.UserOTP, created: bool, **kwargs
         tenant_id=instance.user.tenant_id,
     )
 
-    producer.publish(
+    connection.Producer(exchange=users).publish(
         retry=True,
         retry_policy={'max_retries': 3},
         body=body.json(),
@@ -82,7 +81,7 @@ def on_user_logged_in(sender, instance: models.User, **kwargs):
         tenant_id=instance.tenant_id,
     )
 
-    producer.publish(
+    connection.Producer(exchange=users).publish(
         retry=True,
         retry_policy={'max_retries': 3},
         body=body.json(),
