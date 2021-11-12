@@ -183,6 +183,7 @@ JWT_PUBLIC_KEY = os.getenv('JWT_PUBLIC_KEY')
 
 # Messaging
 BROKER_URL = os.getenv('BROKER_URL')
+BROKER_TRANSPORT_OPTIONS = {'confirm_publish': True}
 
 
 # Sentry Integration
