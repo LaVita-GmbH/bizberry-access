@@ -12,11 +12,13 @@ from ...schemas import response
 from . import connection
 
 
+channel = connection.channel()
+channel.confirm_select()
 users = Exchange(
     name='olymp.access.users',
     type='topic',
     durable=True,
-    channel=connection.channel(),
+    channel=channel,
     delivery_mode=Exchange.PERSISTENT_DELIVERY_MODE,
 )
 users.declare()
