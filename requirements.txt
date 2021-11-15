@@ -1,7 +1,6 @@
 python-dotenv
 psycopg2
-amqp
-kombu
+kombu[amqp]
 fastapi==0.65.3
 python-multipart
 django-hashers-passlib
