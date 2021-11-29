@@ -12,7 +12,7 @@ from . import connection
 
 
 channel = connection.channel()
-channel.confirm_select()
+getattr(channel, 'confirm_select', lambda: True)()
 tenants = Exchange(
     name='olymp.access.tenants',
     type='topic',
