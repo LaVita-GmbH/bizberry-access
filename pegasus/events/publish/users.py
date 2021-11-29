@@ -13,7 +13,6 @@ from . import connection
 
 
 channel = connection.channel()
-getattr(channel, 'confirm_select', lambda: True)()
 users = Exchange(
     name='olymp.access.users',
     type='topic',
