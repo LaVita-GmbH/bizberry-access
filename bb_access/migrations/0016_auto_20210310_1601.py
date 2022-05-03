@@ -3,13 +3,13 @@
 from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
-import pegasus.models.user
+import bb_access.models.user
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('pegasus', '0015_user_language'),
+        ('bb_access', '0015_user_language'),
     ]
 
     operations = [
@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='UserOTP',
             fields=[
-                ('id', models.CharField(default=pegasus.models.user._default_user_otp_id, max_length=64, primary_key=True, serialize=False)),
+                ('id', models.CharField(default=bb_access.models.user._default_user_otp_id, max_length=64, primary_key=True, serialize=False)),
                 ('type', models.CharField(choices=[('PIN', 'PIN'), ('TOKEN', 'Token')], db_index=True, max_length=16)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('expire_at', models.DateTimeField()),

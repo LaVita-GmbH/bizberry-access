@@ -2,22 +2,22 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import pegasus.models.tenant
+import bb_access.models.tenant
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('pegasus', '0002_auto_20201112_1552'),
+        ('bb_access', '0002_auto_20201112_1552'),
     ]
 
     operations = [
         migrations.CreateModel(
             name='TenantCountry',
             fields=[
-                ('id', models.CharField(default=pegasus.models.tenant._default_tenant_id, editable=False, max_length=16, primary_key=True, serialize=False)),
+                ('id', models.CharField(default=bb_access.models.tenant._default_tenant_id, editable=False, max_length=16, primary_key=True, serialize=False)),
                 ('code', models.CharField(help_text='ISO 3166 Alpha-2 Country Code', max_length=2)),
-                ('tenant', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='countries', to='pegasus.tenant')),
+                ('tenant', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='countries', to='bb_access.tenant')),
             ],
         ),
         migrations.AddConstraint(

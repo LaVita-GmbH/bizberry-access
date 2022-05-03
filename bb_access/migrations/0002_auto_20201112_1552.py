@@ -8,14 +8,14 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('pegasus', '0001_initial'),
+        ('bb_access', '0001_initial'),
     ]
 
     operations = [
         migrations.AlterField(
             model_name='userrolerelation',
             name='role',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='users_rel', to='pegasus.role'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='users_rel', to='bb_access.role'),
         ),
         migrations.AlterField(
             model_name='userrolerelation',

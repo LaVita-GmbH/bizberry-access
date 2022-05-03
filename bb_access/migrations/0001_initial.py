@@ -4,10 +4,10 @@ from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
 import django.utils.timezone
-import pegasus.models.role
-import pegasus.models.scope
-import pegasus.models.tenant
-import pegasus.models.user
+import bb_access.models.role
+import bb_access.models.scope
+import bb_access.models.tenant
+import bb_access.models.user
 
 
 class Migration(migrations.Migration):
@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
                 ('last_login', models.DateTimeField(blank=True, null=True, verbose_name='last login')),
                 ('is_superuser', models.BooleanField(default=False, help_text='Designates that this user has all permissions without explicitly assigning them.', verbose_name='superuser status')),
                 ('date_joined', models.DateTimeField(default=django.utils.timezone.now, verbose_name='date joined')),
-                ('id', models.CharField(default=pegasus.models.user._default_user_id, editable=False, max_length=64, primary_key=True, serialize=False)),
+                ('id', models.CharField(default=bb_access.models.user._default_user_id, editable=False, max_length=64, primary_key=True, serialize=False)),
                 ('email', models.CharField(max_length=320, unique=True)),
                 ('password', models.CharField(max_length=144, verbose_name='password')),
                 ('status', models.CharField(choices=[('active', 'Active'), ('terminated', 'Terminated')], default='active', max_length=16)),
@@ -36,13 +36,13 @@ class Migration(migrations.Migration):
                 'abstract': False,
             },
             managers=[
-                ('objects', pegasus.models.user.UserManager()),
+                ('objects', bb_access.models.user.UserManager()),
             ],
         ),
         migrations.CreateModel(
             name='Role',
             fields=[
-                ('id', models.CharField(default=pegasus.models.role._default_group_id, editable=False, max_length=32, primary_key=True, serialize=False)),
+                ('id', models.CharField(default=bb_access.models.role._default_group_id, editable=False, max_length=32, primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=56)),
                 ('is_default_role', models.BooleanField(default=False)),
             ],
@@ -50,7 +50,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Scope',
             fields=[
-                ('id', models.CharField(default=pegasus.models.scope._default_scope_id, editable=False, max_length=32, primary_key=True, serialize=False)),
+                ('id', models.CharField(default=bb_access.models.scope._default_scope_id, editable=False, max_length=32, primary_key=True, serialize=False)),
                 ('service', models.CharField(db_index=True, max_length=24)),
                 ('resource', models.CharField(max_length=24)),
                 ('action', models.CharField(max_length=48)),
@@ -61,17 +61,17 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Tenant',
             fields=[
-                ('id', models.CharField(default=pegasus.models.tenant._default_tenant_id, editable=False, max_length=16, primary_key=True, serialize=False)),
+                ('id', models.CharField(default=bb_access.models.tenant._default_tenant_id, editable=False, max_length=16, primary_key=True, serialize=False)),
                 ('name', models.CharField(blank=True, max_length=48, null=True)),
             ],
         ),
         migrations.CreateModel(
             name='UserToken',
             fields=[
-                ('id', models.CharField(default=pegasus.models.user._default_user_token_id, editable=False, max_length=128, primary_key=True, serialize=False)),
+                ('id', models.CharField(default=bb_access.models.user._default_user_token_id, editable=False, max_length=128, primary_key=True, serialize=False)),
                 ('type', models.CharField(choices=[('user', 'User Token')], max_length=16)),
                 ('create_date', models.DateTimeField(auto_now_add=True)),
-                ('tenant', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='user_tokens', to='pegasus.tenant')),
+                ('tenant', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='user_tokens', to='bb_access.tenant')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='tokens', to=settings.AUTH_USER_MODEL)),
             ],
         ),
@@ -79,30 +79,30 @@ class Migration(migrations.Migration):
             name='UserRoleRelation',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('role', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='pegasus.role')),
-                ('tenant', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='pegasus.tenant')),
+                ('role', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='bb_access.role')),
+                ('tenant', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='bb_access.tenant')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
         ),
         migrations.CreateModel(
             name='UserAccessToken',
             fields=[
-                ('id', models.CharField(default=pegasus.models.user._default_user_accesstoken_id, editable=False, max_length=64, primary_key=True, serialize=False)),
-                ('token', models.CharField(db_index=True, default=pegasus.models.user._default_user_accesstoken_token, editable=False, max_length=128, unique=True)),
+                ('id', models.CharField(default=bb_access.models.user._default_user_accesstoken_id, editable=False, max_length=64, primary_key=True, serialize=False)),
+                ('token', models.CharField(db_index=True, default=bb_access.models.user._default_user_accesstoken_token, editable=False, max_length=128, unique=True)),
                 ('last_used', models.DateTimeField(blank=True, null=True)),
                 ('create_date', models.DateTimeField(auto_now_add=True)),
-                ('scopes', models.ManyToManyField(related_name='user_access_tokens', to='pegasus.Scope')),
-                ('tenant', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='user_access_tokens', to='pegasus.tenant')),
+                ('scopes', models.ManyToManyField(related_name='user_access_tokens', to='bb_access.Scope')),
+                ('tenant', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='user_access_tokens', to='bb_access.tenant')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='access_tokens', to=settings.AUTH_USER_MODEL)),
             ],
         ),
         migrations.AddIndex(
             model_name='scope',
-            index=models.Index(fields=['service', 'resource', 'action'], name='pegasus_sco_service_f0db87_idx'),
+            index=models.Index(fields=['service', 'resource', 'action'], name='bb_access_sco_service_f0db87_idx'),
         ),
         migrations.AddIndex(
             model_name='scope',
-            index=models.Index(fields=['service', 'resource', 'action', 'selector'], name='pegasus_sco_service_b0b5d3_idx'),
+            index=models.Index(fields=['service', 'resource', 'action', 'selector'], name='bb_access_sco_service_b0b5d3_idx'),
         ),
         migrations.AddConstraint(
             model_name='scope',
@@ -111,12 +111,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='role',
             name='included_roles',
-            field=models.ManyToManyField(blank=True, related_name='_role_included_roles_+', to='pegasus.Role'),
+            field=models.ManyToManyField(blank=True, related_name='_role_included_roles_+', to='bb_access.Role'),
         ),
         migrations.AddField(
             model_name='role',
             name='scopes',
-            field=models.ManyToManyField(blank=True, related_name='roles', to='pegasus.Scope'),
+            field=models.ManyToManyField(blank=True, related_name='roles', to='bb_access.Scope'),
         ),
         migrations.AddField(
             model_name='user',
@@ -126,7 +126,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='user',
             name='roles',
-            field=models.ManyToManyField(blank=True, related_name='users', through='pegasus.UserRoleRelation', to='pegasus.Role'),
+            field=models.ManyToManyField(blank=True, related_name='users', through='bb_access.UserRoleRelation', to='bb_access.Role'),
         ),
         migrations.AddField(
             model_name='user',

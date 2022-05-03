@@ -3,20 +3,20 @@
 from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
-import pegasus.models.user
+import bb_access.models.user
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('pegasus', '0019_user_number'),
+        ('bb_access', '0019_user_number'),
     ]
 
     operations = [
         migrations.CreateModel(
             name='UserFlag',
             fields=[
-                ('id', models.CharField(default=pegasus.models.user._default_user_flag_id, max_length=72, primary_key=True, serialize=False)),
+                ('id', models.CharField(default=bb_access.models.user._default_user_flag_id, max_length=72, primary_key=True, serialize=False)),
                 ('key', models.CharField(max_length=64)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='flags', to=settings.AUTH_USER_MODEL)),

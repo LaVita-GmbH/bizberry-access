@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('pegasus', '0007_role_is_active'),
+        ('bb_access', '0007_role_is_active'),
     ]
 
     operations = [

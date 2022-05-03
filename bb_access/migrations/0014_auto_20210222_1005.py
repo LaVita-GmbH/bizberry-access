@@ -5,8 +5,8 @@ import django.db.models.deletion
 
 
 def set_tenant_on_users(apps, schema_editor):
-    User = apps.get_model('pegasus', 'User')
-    Tenant = apps.get_model('pegasus', 'Tenant')
+    User = apps.get_model('bb_access', 'User')
+    Tenant = apps.get_model('bb_access', 'Tenant')
 
     tenant = Tenant.objects.first()
 
@@ -19,7 +19,7 @@ def set_tenant_on_users(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('pegasus', '0013_auto_20210222_1003'),
+        ('bb_access', '0013_auto_20210222_1003'),
     ]
 
     operations = [
@@ -27,6 +27,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='user',
             name='tenant',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.RESTRICT, related_name='users', to='pegasus.tenant'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.RESTRICT, related_name='users', to='bb_access.tenant'),
         ),
     ]

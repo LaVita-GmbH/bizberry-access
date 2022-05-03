@@ -1,5 +1,5 @@
 """
-ASGI config for pegasus project.
+ASGI config for bb_access project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -19,7 +19,7 @@ from olympus.middleware.sentry import SentryAsgiMiddleware
 from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 from olympus.utils.health_check import get_health, Health
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'pegasus.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bb_access.settings')
 
 django_asgi = get_asgi_application()
 
@@ -28,7 +28,7 @@ from . import routers
 
 
 app = FastAPI(
-    title="PEGASUS",
+    title="bb_access",
     openapi_url='/access/openapi.json',
 )
 

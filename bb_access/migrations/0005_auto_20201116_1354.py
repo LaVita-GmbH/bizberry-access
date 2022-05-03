@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('pegasus', '0004_auto_20201116_1048'),
+        ('bb_access', '0004_auto_20201116_1048'),
     ]
 
     operations = [
@@ -18,11 +18,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='role',
             name='scopes',
-            field=models.ManyToManyField(blank=True, limit_choices_to={'is_active': True, 'is_internal': False}, related_name='roles', to='pegasus.Scope'),
+            field=models.ManyToManyField(blank=True, limit_choices_to={'is_active': True, 'is_internal': False}, related_name='roles', to='bb_access.Scope'),
         ),
         migrations.AlterField(
             model_name='useraccesstoken',
             name='scopes',
-            field=models.ManyToManyField(limit_choices_to={'is_active': True, 'is_internal': False}, related_name='user_access_tokens', to='pegasus.Scope'),
+            field=models.ManyToManyField(limit_choices_to={'is_active': True, 'is_internal': False}, related_name='user_access_tokens', to='bb_access.Scope'),
         ),
     ]

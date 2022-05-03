@@ -1,8 +1,8 @@
 from django.apps import AppConfig
 
 
-class PegasusAppConfig(AppConfig):
-    name = 'pegasus'
+class bb_accessAppConfig(AppConfig):
+    name = 'bb_access'
 
     def ready(self) -> None:
         from .events import publish

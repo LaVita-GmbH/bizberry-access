@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('pegasus', '0017_userotp_length'),
+        ('bb_access', '0017_userotp_length'),
     ]
 
     operations = [

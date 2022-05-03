@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('pegasus', '0010_auto_20210120_1550'),
+        ('bb_access', '0010_auto_20210120_1550'),
     ]
 
     operations = [
         migrations.AlterField(
             model_name='useraccesstoken',
             name='scopes',
-            field=models.ManyToManyField(blank=True, limit_choices_to={'is_active': True, 'is_internal': False}, related_name='user_access_tokens', to='pegasus.Scope'),
+            field=models.ManyToManyField(blank=True, limit_choices_to={'is_active': True, 'is_internal': False}, related_name='user_access_tokens', to='bb_access.Scope'),
         ),
     ]
