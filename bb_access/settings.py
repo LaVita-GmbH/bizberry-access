@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'bb_access',
     'health_check',
     'health_check.db',
-    'health_check.contrib.rabbitmq',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -86,7 +85,7 @@ TEMPLATES = [
 
 DATABASES = {
     'default': {
-        'ENGINE': 'olympus.db.backends.postgresql',
+        'ENGINE': 'djutils.db.backends.postgresql',
         'CONN_MAX_AGE': None,
         'OPTIONS': {
             'sslmode': os.getenv('DATABASE_SSLMODE', 'require'),

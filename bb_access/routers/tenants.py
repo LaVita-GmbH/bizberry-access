@@ -1,9 +1,9 @@
-from olympus.utils.pydantic_django import transfer_to_orm
+from djfapi.utils.pydantic_django import transfer_to_orm
 from typing import List
-from olympus.utils.sync import sync_to_async
+from djfapi.utils.sync import sync_to_async
 from fastapi import APIRouter, Security, Body, Depends
-from olympus.schemas import Access, Pagination
-from olympus.utils import depends_pagination
+from djfapi.schemas import Access, Pagination
+from djfapi.utils.fastapi import depends_pagination
 from ..utils import JWTToken
 from ..models import Tenant, TenantCountry
 from ..schemas import response, request

@@ -1,11 +1,12 @@
 from typing import Dict, List, Optional, Tuple
-from olympus.utils.sync import sync_to_async
+from djfapi.utils.sync import sync_to_async
 from fastapi import APIRouter, Security, Body, Depends, Path, Query
 from django.db.models import Q
-from olympus.exceptions import AccessError
-from olympus.schemas import Access, Pagination
-from olympus.utils import depends_pagination, dict_remove_none
-from olympus.utils.pydantic_django import transfer_to_orm, TransferAction
+from djfapi.exceptions import AccessError
+from djfapi.schemas import Access, Pagination
+from djfapi.utils.fastapi import depends_pagination
+from djfapi.utils.dict import remove_none
+from djfapi.utils.pydantic_django import transfer_to_orm, TransferAction
 from ..utils import JWTToken
 from .. import models
 from ..schemas import response, request
@@ -36,13 +37,13 @@ def _check_access_for_obj(access: Access, user: models.User, action: Optional[st
 
 @sync_to_async
 def _get_users_filtered(access: Access, pagination: Pagination, **filters) -> List[models.User]:
-    q_filters = Q(tenant_id=access.tenant_id, **dict_remove_none(filters))
+    q_filters = Q(tenant_id=access.tenant_id, **remove_none(filters))
     return list(pagination.query(models.User.objects, q_filters))
 
 
 @sync_to_async
 def _get_user_flags_filtered(access: Access, user: models.User, pagination: Pagination, **filters) -> List[models.UserFlag]:
-    q_filters = Q(**dict_remove_none(filters))
+    q_filters = Q(**remove_none(filters))
     return list(pagination.query(user.flags, q_filters))
 
 

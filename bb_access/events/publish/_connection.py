@@ -1,9 +1,8 @@
+from ensurepip import bootstrap
 from django.conf import settings
-from kombu import Connection
+from kafka import KafkaProducer
 
 
-connection = Connection(
-    settings.BROKER_URL,
-    heartbeat=60,
-    transport_options={'confirm_publish': True},
+connection = KafkaProducer(
+    bootstrap_servers=settings.BROKER_URL,
 )

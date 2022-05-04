@@ -1,8 +1,7 @@
 from typing import List
 from django.db import models
-from olympus.utils.sync import sync_to_async
 from djutils.crypt import random_string_generator
-from olympus.models import ModelAtomicSave
+from djutils.models import ModelAtomicSave
 
 
 def _default_tenant_id():

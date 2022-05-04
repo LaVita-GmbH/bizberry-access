@@ -1,9 +1,10 @@
 from typing import List, Optional
-from olympus.utils.sync import sync_to_async
+from djfapi.utils.sync import sync_to_async
 from django.db.models import Q
 from fastapi import APIRouter, Security, Depends, Path, Query
-from olympus.schemas import Access, Pagination
-from olympus.utils import depends_pagination, dict_remove_none
+from djfapi.schemas import Access, Pagination
+from djfapi.utils.fastapi import depends_pagination
+from djfapi.utils.dict import remove_none
 from ..utils import JWTToken
 from .. import models
 from ..schemas import response, request
@@ -16,7 +17,7 @@ transaction_token = JWTToken(scheme_name="Transaction Token")
 
 @sync_to_async
 def _get_roles_filtered(access: Access, pagination: Pagination, *queries, **filters) -> List[models.Role]:
-    q_filters = Q(*queries, **dict_remove_none(filters))
+    q_filters = Q(*queries, **remove_none(filters))
     return list(models.Role.objects.filter(q_filters)[pagination.offset:pagination.limit])
 
 

@@ -1,8 +1,8 @@
 from typing import Optional
-from pydantic import BaseModel, Field, EmailStr, validator
-from olympus.utils import DjangoORMBaseModel
-from olympus.utils.language import format_language
-from olympus.utils.pydantic import Reference
+from pydantic import Field, EmailStr, validator
+from djfapi.utils.pydantic_django import DjangoORMBaseModel
+from djfapi.validators.language import format_language
+from djfapi.utils.pydantic import Reference
 from ... import models
 
 

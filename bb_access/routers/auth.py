@@ -7,10 +7,9 @@ from django.conf import settings
 from django.contrib.auth import authenticate as sync_authenticate
 from django.contrib.auth.signals import user_logged_in
 from email_validate import validate as validate_email
-from olympus.utils.sync import sync_to_async
-from olympus.schemas import Access, Error
-from olympus.exceptions import AccessError, AuthError, ValidationError
-from olympus.utils import DjangoAllowAsyncUnsafe
+from djfapi.utils.sync import sync_to_async
+from djfapi.schemas import Access, Error
+from djfapi.exceptions import AccessError, AuthError, ValidationError
 from ..utils import JWTToken
 from ..models import User, UserAccessToken, UserOTP
 from ..schemas import request, response
@@ -179,25 +178,24 @@ async def post_otp(
 
 
 @router.post('/check', response_model=response.AuthCheck)
-async def contact_check(
+def contact_check(
     access: Access = Security(transaction_token, scopes=['access.users.create', 'access.users.read.own']),
     body: request.AuthCheck = Body(...),
 ):
     res = response.AuthCheck()
 
     if body.email:
-        with DjangoAllowAsyncUnsafe():
-            res.email = response.AuthCheck.Email(
-                is_valid=bool(validate_email(
-                    email_address=body.email,
-                    smtp_timeout=5,
-                    dns_timeout=5,
-                    check_blacklist=False,
-                    smtp_helo_host=settings.EMAIL_CHECK_SMTP_HELO_HOST,
-                )),
-                is_existing=bool(
-                    User.objects.filter(tenant_id=access.tenant_id, email=body.email.lower()).count()
-                ),
-            )
+        res.email = response.AuthCheck.Email(
+            is_valid=bool(validate_email(
+                email_address=body.email,
+                smtp_timeout=5,
+                dns_timeout=5,
+                check_blacklist=False,
+                smtp_helo_host=settings.EMAIL_CHECK_SMTP_HELO_HOST,
+            )),
+            is_existing=bool(
+                User.objects.filter(tenant_id=access.tenant_id, email=body.email.lower()).count()
+            ),
+        )
 
     return res

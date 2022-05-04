@@ -1,5 +1,5 @@
 from pydantic import Field
-from olympus.utils import DjangoORMBaseModel
+from djfapi.utils.pydantic_django import DjangoORMBaseModel
 from ... import models
 
 

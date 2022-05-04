@@ -2,8 +2,8 @@ from typing import Optional
 from django.utils import timezone
 from django.contrib.auth.backends import BaseBackend
 from django.contrib.auth.hashers import check_password
-from olympus.schemas import Error
-from olympus.exceptions import ValidationError
+from djfapi.schemas import Error
+from djfapi.exceptions import ValidationError
 from ..models import User, UserOTP
 
 

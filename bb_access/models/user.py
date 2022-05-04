@@ -4,7 +4,6 @@ from typing import Dict, List, Set, Tuple, Optional
 from datetime import timedelta
 from jose import jwt
 from django.db import models
-from django.db.models import Q
 from django.db.transaction import atomic
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
@@ -13,9 +12,9 @@ from django.contrib.auth.models import AbstractUser, UserManager as BaseUserMana
 from django.utils import timezone
 from dirtyfields import DirtyFieldsMixin
 from djutils.crypt import random_string_generator
-from olympus.schemas import Access, Error, AccessScope
-from olympus.exceptions import AuthError, ConstraintError, ValidationError
-from olympus.security.jwt import access as access_ctx
+from djfapi.schemas import Access, Error, AccessScope
+from djfapi.exceptions import AuthError, ConstraintError
+from djfapi.security.jwt import access as access_ctx
 from . import Scope, Role, Tenant
 from ..utils import get_odoo_shop_client
 

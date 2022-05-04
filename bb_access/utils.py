@@ -1,6 +1,6 @@
 from typing import Optional
 from django.conf import settings
-from olympus.security.jwt import JWTToken as BaseJWTToken
+from djfapi.security.jwt import JWTToken as BaseJWTToken
 from rest_client import Style2019ConsumerClient
 
 

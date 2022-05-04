@@ -1,6 +1,4 @@
 python-dotenv
-psycopg2
-kombu
 fastapi==0.65.3
 python-multipart
 django-hashers-passlib
@@ -10,5 +8,5 @@ email-validator
 pyyaml
 sentry-sdk
 djutils
+djfapi
 langcodes
-git+https://github.com/LaVita-GmbH/olympus

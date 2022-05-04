@@ -1,26 +1,10 @@
-from kombu import Exchange
-from django.db.models.signals import post_save
 from django.dispatch import receiver
-from olympus.schemas import DataChangeEvent
-from olympus.events.publish import EventPublisher, DataChangePublisher
-from olympus.utils.django import on_transaction_complete
 from django.contrib.auth.signals import user_logged_in
-from olympus.utils.pydantic_django import transfer_from_orm
-from olympus.utils.sentry import capture_exception
+from djfapi.utils.pydantic_django import transfer_from_orm
+from djpykafka.events.publish import EventPublisher, DataChangePublisher
 from ... import models
 from ...schemas import response
 from . import connection
-
-
-channel = connection.channel()
-users = Exchange(
-    name='olymp.access.users',
-    type='topic',
-    durable=True,
-    channel=channel,
-    delivery_mode=Exchange.PERSISTENT_DELIVERY_MODE,
-)
-users.declare()
 
 
 class UserPublisher(
@@ -29,63 +13,50 @@ class UserPublisher(
     orm_model=models.User,
     event_schema=response.User,
     connection=connection,
-    exchange=users,
+    topic='bizberry.access.users',
     data_type='access.user',
     is_changed_included=True,
 ):
     pass
 
 
-@receiver(post_save, sender=models.UserOTP)
-@on_transaction_complete()
-@capture_exception
-def post_save_user_otp(sender, instance: models.UserOTP, created: bool, **kwargs):
-    if not created:
-        return
+class UserOTPPublisher(
+    DataChangePublisher,
+    EventPublisher,
+    orm_model=models.UserOTP,
+    event_schema=response.UserOTP,
+    connection=connection,
+    topic='bizberry.access.users.otps',
+    data_type='access.user.otp',
+    is_changed_included=True,
+    is_post_delete_received=False,
+):
+    def get_body(self):
+        return {
+            'id': self.instance.id,
+            'user': transfer_from_orm(response.User, self.instance.user).dict(by_alias=True),
+            'value': self.instance._value,
+            'expire_at': self.instance.expire_at.isoformat(),
+        }
 
-    if instance.is_internal:
-        return
+    def process(self):
+        if not self.kwargs.get('created'):
+            return
 
-    data = transfer_from_orm(response.User, instance.user).dict(by_alias=True)
-    body = DataChangeEvent(
-        data={
-            'id': instance.id,
-            'user': data,
-            'value': instance._value,
-            'expire_at': instance.expire_at.isoformat(),
-        },
-        data_type='access.user.otp',
-        data_op=DataChangeEvent.DataOperation.CREATE,
-        tenant_id=instance.user.tenant_id,
-    )
+        if self.instance.is_internal:
+            return
 
-    connection.Producer(exchange=users).publish(
-        retry=True,
-        retry_policy={'max_retries': 3},
-        body=body.json(),
-        content_type='application/json',
-        routing_key=f'v1.action.otp_{str(instance.type).lower()}.{instance.user.tenant_id}',
-    )
+        return super().process()
 
 
-@receiver(user_logged_in)
-@capture_exception
-def on_user_logged_in(sender, instance: models.User, **kwargs):
-    data = transfer_from_orm(response.User, instance).dict(by_alias=True)
-    body = DataChangeEvent(
-        data={
-            'id': instance.id,
-            'user': data,
-        },
-        data_type='access.user.login',
-        data_op=DataChangeEvent.DataOperation.CREATE,
-        tenant_id=instance.tenant_id,
-    )
-
-    connection.Producer(exchange=users).publish(
-        retry=True,
-        retry_policy={'max_retries': 3},
-        body=body.json(),
-        content_type='application/json',
-        routing_key=f'v1.action.login.{instance.tenant_id}',
-    )
+class UserLoginPublisher(
+    EventPublisher,
+    orm_model=models.User,
+    event_schema=response.User,
+    connection=connection,
+    topic='bizberry.access.users.login',
+    data_type='access.user.login',
+):
+    @classmethod
+    def register(cls):
+        receiver(user_logged_in)(cls.handle)
