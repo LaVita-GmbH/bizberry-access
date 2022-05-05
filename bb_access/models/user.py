@@ -16,7 +16,6 @@ from djfapi.schemas import Access, Error, AccessScope
 from djfapi.exceptions import AuthError, ConstraintError
 from djfapi.security.jwt import access as access_ctx
 from . import Scope, Role, Tenant
-from ..utils import get_odoo_shop_client
 
 
 def _default_user_id():
@@ -142,14 +141,6 @@ class User(DirtyFieldsMixin, AbstractUser):
         for token in self.tokens.filter(is_active=True):
             token.is_active = False
             token.save()
-
-        shop_client = get_odoo_shop_client(self.tenant_id)
-        if shop_client:
-            try:
-                shop_client.account.password.patch(auth='user', json={'new_password': raw_password, 'email': self.email})
-
-            except shop_client.Request.APIError as error:
-                logging.exception(error)
 
         return res
 
@@ -311,14 +302,6 @@ class User(DirtyFieldsMixin, AbstractUser):
         modified = self.get_dirty_fields(check_relationship=True)
         if 'email' in modified:
             self.email = self.email.lower()
-
-            shop_client = get_odoo_shop_client(self.tenant_id)
-            if shop_client:
-                try:
-                    shop_client.account.email.patch(auth='user', json={'email': self.email, 'old_email': modified['email']})
-
-                except shop_client.Request.APIError as error:
-                    logging.exception(error)
 
         return super().save(*args, **kwargs)
 
