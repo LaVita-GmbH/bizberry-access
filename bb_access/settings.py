@@ -85,7 +85,7 @@ TEMPLATES = [
 
 DATABASES = {
     'default': {
-        'ENGINE': 'djutils.db.backends.postgresql',
+        'ENGINE': 'django.db.backends.postgresql',
         'CONN_MAX_AGE': None,
         'OPTIONS': {
             'sslmode': os.getenv('DATABASE_SSLMODE', 'require'),
