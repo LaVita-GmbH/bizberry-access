@@ -9,4 +9,5 @@ pyyaml
 sentry-sdk
 djutils
 djfapi
+djpykafka
 langcodes
