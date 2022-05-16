@@ -123,7 +123,6 @@ AUTH_USER_MODEL = 'bb_access.User'
 
 PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',
-    'hashers_passlib.pbkdf2_sha512',
 ]
 
 AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.ModelBackend', 'bb_access.auth.backends.UserOTPBackend']

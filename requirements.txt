@@ -1,7 +1,6 @@
 python-dotenv
 fastapi==0.65.3
 python-multipart
-django-hashers-passlib
 django-dirtyfields
 email-validate
 email-validator
