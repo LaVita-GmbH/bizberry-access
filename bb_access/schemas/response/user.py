@@ -9,7 +9,7 @@ from .. import base
 
 @include_reference()
 class User(base.User):
-    class TenantReference(Reference, rel='olymp/access/tenants'):
+    class TenantReference(Reference, rel='bizberry/access/tenants'):
         id: str = Field(orm_field=models.User.tenant)
 
     id: str = Field(orm_field=models.User.id)

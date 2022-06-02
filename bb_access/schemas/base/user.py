@@ -7,7 +7,7 @@ from ... import models
 
 
 class User(DjangoORMBaseModel):
-    class RoleReference(Reference, rel='olymp/access/roles'):
+    class RoleReference(Reference, rel='bizberry/access/roles'):
         id: str = Field(orm_field=models.User.role)
 
     email: EmailStr = Field(orm_field=models.User.email, is_critical=True)

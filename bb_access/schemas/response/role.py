@@ -10,7 +10,7 @@ from .scope import Scope
 @include_reference()
 class Role(base.Role):
     @include_reference()
-    class RoleReference(DjangoORMBaseModel, Reference, rel='olymp/access/roles'):
+    class RoleReference(DjangoORMBaseModel, Reference, rel='bizberry/access/roles'):
         id: str = Field(min_length=32, max_length=32, orm_field=models.Role.id)
 
     id: str = Field(min_length=32, max_length=32, orm_field=models.Role.id)
