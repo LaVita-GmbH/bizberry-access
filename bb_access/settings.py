@@ -181,6 +181,8 @@ JWT_PUBLIC_KEY = os.getenv('JWT_PUBLIC_KEY')
 
 # Messaging
 BROKER_URL = os.getenv('BROKER_URL')
+BROKER_ACKS = {'0': 0, '1': 1, 'all': 'all'}[os.getenv('BROKER_ACKS', 'all')]
+BROKER_REQUEST_TIMEOUT = os.getenv('BROKER_REQUEST_TIMEOUT', 10000)
 
 
 # Sentry Integration

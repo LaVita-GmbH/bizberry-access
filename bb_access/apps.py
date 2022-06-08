@@ -1,7 +1,7 @@
-from django.apps import AppConfig
+from django.apps import AppConfig as DjangoAppConfig
 
 
-class bb_accessAppConfig(AppConfig):
+class AppConfig(DjangoAppConfig):
     name = 'bb_access'
 
     def ready(self) -> None:
