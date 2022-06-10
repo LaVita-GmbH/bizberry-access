@@ -1,4 +1,4 @@
-from djfapi.utils.pydantic_django import transfer_to_orm, TransferAction
+from djfapi.utils.pydantic_django import transfer_to_orm
 from typing import List
 from djfapi.utils.sync import sync_to_async
 from fastapi import APIRouter, Security, Body, Depends
