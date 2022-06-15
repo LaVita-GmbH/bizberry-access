@@ -1,5 +1,5 @@
-import logging
 import string
+from datetime import datetime
 from typing import Dict, List, Set, Tuple, Optional
 from datetime import timedelta
 from jose import jwt
@@ -91,12 +91,12 @@ class User(DirtyFieldsMixin, AbstractUser):
 
     id = models.CharField(max_length=64, primary_key=True, default=_default_user_id, editable=False)
     tenant: Tenant = models.ForeignKey(Tenant, on_delete=models.RESTRICT, related_name='users')
-    email = models.CharField(max_length=320, unique=False, db_index=True)
+    email: str = models.CharField(max_length=320, unique=False, db_index=True)
     number: Optional[str] = models.CharField(max_length=16, null=True, blank=True)
-    password = models.CharField(_('password'), max_length=144)
-    status = models.CharField(max_length=16, choices=Status.choices, default=Status.ACTIVE)
-    type = models.CharField(max_length=16, choices=Type.choices, default=Type.USER)
-    language = models.CharField(max_length=8)
+    password: str = models.CharField(_('password'), max_length=144)
+    status: str = models.CharField(max_length=16, choices=Status.choices, default=Status.ACTIVE)
+    type: str = models.CharField(max_length=16, choices=Type.choices, default=Type.USER)
+    language: str = models.CharField(max_length=8)
     role = models.ForeignKey(Role, on_delete=models.SET_NULL, related_name='users', null=True, blank=True)
 
     first_name = None
@@ -154,6 +154,7 @@ class User(DirtyFieldsMixin, AbstractUser):
 
     def get_roles(self) -> List[Role]:
         role = self.get_role()
+
         def _get_roles(role: Role, _excluded_role_ids: Optional[Set[id]] = None) -> Dict[Role, None]:
             roles = {role: None}
             if not _excluded_role_ids:
@@ -322,20 +323,20 @@ class UserToken(models.Model):
         USER = 'USER', _('User Token')
 
     id = models.CharField(max_length=128, primary_key=True, default=_default_user_token_id, editable=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tokens')
-    type = models.CharField(max_length=16, choices=Types.choices)
-    create_date = models.DateTimeField(auto_now_add=True)
-    is_active = models.BooleanField(default=True)
+    user: User = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tokens')
+    type: str = models.CharField(max_length=16, choices=Types.choices)
+    create_date: datetime = models.DateTimeField(auto_now_add=True)
+    is_active: bool = models.BooleanField(default=True)
 
 
 class UserAccessToken(models.Model):
     id = models.CharField(max_length=64, primary_key=True, default=_default_user_accesstoken_id, editable=False)
-    token = models.CharField(max_length=128, unique=True, db_index=True, default=_default_user_accesstoken_token, editable=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='access_tokens')
-    last_used = models.DateTimeField(null=True, blank=True)
-    create_date = models.DateTimeField(auto_now_add=True)
+    token: str = models.CharField(max_length=128, unique=True, db_index=True, default=_default_user_accesstoken_token, editable=False)
+    user: User = models.ForeignKey(User, on_delete=models.CASCADE, related_name='access_tokens')
+    last_used: datetime = models.DateTimeField(null=True, blank=True)
+    create_date: datetime = models.DateTimeField(auto_now_add=True)
     scopes = models.ManyToManyField(Scope, related_name='user_access_tokens', limit_choices_to={'is_active': True, 'is_internal': False}, blank=True)
-    is_active = models.BooleanField(default=True)
+    is_active: bool = models.BooleanField(default=True)
 
     def get_scopes(self, include_critical: bool = True) -> Set[Scope]:
         filters = models.Q()
@@ -369,13 +370,13 @@ class UserOTP(models.Model):
 
     id = models.CharField(max_length=64, primary_key=True, default=_default_user_otp_id)
     user: User = models.ForeignKey(User, on_delete=models.CASCADE, related_name='otps')
-    type = models.CharField(max_length=16, choices=UserOTPType.choices, db_index=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    expire_at = models.DateTimeField()
-    length = models.IntegerField()
-    used_at = models.DateTimeField(null=True, blank=True)
-    value = models.CharField(max_length=128)
-    is_internal = models.BooleanField(default=False)
+    type: str = models.CharField(max_length=16, choices=UserOTPType.choices, db_index=True)
+    created_at: datetime = models.DateTimeField(auto_now_add=True)
+    expire_at: datetime = models.DateTimeField()
+    length: int = models.IntegerField()
+    used_at: datetime = models.DateTimeField(null=True, blank=True)
+    value: str = models.CharField(max_length=128)
+    is_internal: bool = models.BooleanField(default=False)
 
     def set_value(self, value: str):
         self.value = make_password(value)
@@ -402,7 +403,7 @@ class UserFlag(models.Model):
     id = models.CharField(max_length=72, primary_key=True, default=_default_user_flag_id)
     user: User = models.ForeignKey(User, on_delete=models.CASCADE, related_name='flags')
     key: str = models.CharField(max_length=64)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at: datetime = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         constraints = [

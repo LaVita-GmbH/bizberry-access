@@ -10,11 +10,11 @@ def _default_group_id():
 
 class Role(models.Model):
     id = models.CharField(max_length=32, primary_key=True, default=_default_group_id, editable=False)
-    name = models.CharField(max_length=56)
+    name: str = models.CharField(max_length=56)
     included_roles = models.ManyToManyField('self', blank=True, symmetrical=False, related_name='+')
     scopes = models.ManyToManyField(Scope, related_name='roles', blank=True, limit_choices_to={'is_active': True, 'is_internal': False})
-    is_default = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
+    is_default: bool = models.BooleanField(default=False)
+    is_active: bool = models.BooleanField(default=True)
 
     def __str__(self) -> str:
         return f'{self.name} ({self.id})'

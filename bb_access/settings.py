@@ -193,6 +193,7 @@ def sentry_traces_sampler(context):
 
     return float(os.getenv('SENTRY_TRACES_SAMPLE_RATE', 1.0))
 
+
 sentry_sdk.init(
     environment='development' if DEBUG else os.getenv('SENTRY_ENVIRONMENT', 'production'),
     dsn=os.getenv('SENTRY_DSN'),
