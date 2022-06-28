@@ -11,6 +11,7 @@ from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth.models import AbstractUser, UserManager as BaseUserManager
 from django.utils import timezone
 from dirtyfields import DirtyFieldsMixin
+from djpykafka.models import KafkaMixin
 from djutils.crypt import random_string_generator
 from djfapi.schemas import Access, Error, AccessScope
 from djfapi.exceptions import AuthError, ConstraintError
@@ -79,8 +80,7 @@ class UserManager(BaseUserManager):
         return self._create_user(email, password, **extra_fields)
 
 
-class User(DirtyFieldsMixin, AbstractUser):
-    
+class User(DirtyFieldsMixin, KafkaMixin, AbstractUser):
     class Status(models.TextChoices):
         ACTIVE = 'ACTIVE', _("Active")
         TERMINATED = 'TERMINATED', _("Terminated")
