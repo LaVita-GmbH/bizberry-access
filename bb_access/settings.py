@@ -10,8 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
+from base64 import b64decode
 import os
 import json
+from tempfile import NamedTemporaryFile
 from pathlib import Path
 from dotenv import load_dotenv
 import sentry_sdk
@@ -117,7 +119,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
+CSRF_TRUSTED_ORIGINS = [origin for origin in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',') if origin]
 
 AUTH_USER_MODEL = 'bb_access.User'
 
@@ -183,6 +185,14 @@ JWT_PUBLIC_KEY = os.getenv('JWT_PUBLIC_KEY')
 BROKER_URL = os.getenv('BROKER_URL')
 BROKER_ACKS = {'0': 0, '1': 1, 'all': 'all'}[os.getenv('BROKER_ACKS', 'all')]
 BROKER_REQUEST_TIMEOUT = os.getenv('BROKER_REQUEST_TIMEOUT', 10000)
+BROKER_SECURITY_PROTOCOL = os.getenv('BROKER_SECURITY_PROTOCOL', 'PLAINTEXT')
+BROKER_SASL_MECHANISM = os.getenv('BROKER_SASL_MECHANISM')
+BROKER_SASL_PLAIN_USERNAME = os.getenv('BROKER_SASL_PLAIN_USERNAME')
+BROKER_SASL_PLAIN_PASSWORD = os.getenv('BROKER_SASL_PLAIN_PASSWORD')
+with NamedTemporaryFile(delete=False) as _tempfile:
+    _tempfile.write(b64decode(os.getenv('BROKER_SSL_CERT')))
+
+BROKER_SSL_CERTFILE = _tempfile.name
 
 
 # Sentry Integration
