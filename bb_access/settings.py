@@ -10,9 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
-from base64 import b64decode
 import os
 import json
+from base64 import b64decode
 from tempfile import NamedTemporaryFile
 from pathlib import Path
 from dotenv import load_dotenv
@@ -190,7 +190,7 @@ BROKER_SASL_MECHANISM = os.getenv('BROKER_SASL_MECHANISM')
 BROKER_SASL_PLAIN_USERNAME = os.getenv('BROKER_SASL_PLAIN_USERNAME')
 BROKER_SASL_PLAIN_PASSWORD = os.getenv('BROKER_SASL_PLAIN_PASSWORD')
 with NamedTemporaryFile(delete=False) as _tempfile:
-    _tempfile.write(b64decode(os.getenv('BROKER_SSL_CERT')))
+    _tempfile.write(b64decode(os.getenv('BROKER_SSL_CERT', '')))
 
 BROKER_SSL_CERTFILE = _tempfile.name
 
