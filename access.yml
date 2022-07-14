@@ -579,6 +579,42 @@ scopes:
           actions:
             - key: skip
 
+    - key: business
+      resources:
+        - key: companies
+          actions:
+            - key: read
+              selectors:
+                - key: any
+                - key: own
+            - key: create
+            - key: update
+              selectors:
+                - key: any
+                - key: own
+            - key: delete
+              selectors:
+                - key: any
+                - key: own
+        - key: employees
+          actions:
+            - key: read
+              selectors:
+                - key: any
+                - key: own
+            - key: create
+              selectors:
+                - key: any
+                - key: own
+            - key: update
+              selectors:
+                - key: any
+                - key: own
+            - key: delete
+              selectors:
+                - key: any
+                - key: own
+
 roles:
   - key: default
     is_default: true
@@ -624,6 +660,12 @@ roles:
       - code: sale.orders.update.own
       - code: contract.subscriptions.read.own
       - code: contract.subscriptions.update.own
+      - code: business.companies.read.own
+      - code: business.companies.update.own
+      - code: business.employees.read.own
+      - code: business.employees.create.own
+      - code: business.employees.update.own
+      - code: business.employees.delete.own
 
   - key: partner
     included_roles:
@@ -786,6 +828,14 @@ roles:
       - code: contract.subscriptions.read.any
       - code: contract.subscriptions.update.any
       - code: contract.subscriptions.delete.any
+      - code: business.companies.create
+      - code: business.companies.read.any
+      - code: business.companies.update.any
+      - code: business.companies.delete.any
+      - code: business.employees.create.any
+      - code: business.employees.read.any
+      - code: business.employees.update.any
+      - code: business.employees.delete.any
     included_roles:
       - key: partner
       - key: default
