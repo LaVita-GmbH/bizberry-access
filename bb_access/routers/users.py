@@ -1,6 +1,6 @@
 from typing import Dict, List, Optional, Tuple
 from djfapi.utils.sync import sync_to_async
-from fastapi import APIRouter, Security, Body, Depends, Path, Query
+from fastapi import APIRouter, Security, Body, Depends, Path, Query, Response
 from django.db.models import Q
 from djfapi.exceptions import AccessError
 from djfapi.schemas import Access, Pagination
@@ -139,12 +139,14 @@ async def post_user(
 
 @router.get('', response_model=response.UsersList)
 async def get_users(
+    resp: Response,
     access: Access = Security(access_user, scopes=['access.users.read.any']),
     pagination: Pagination = Depends(depends_pagination()),
     status: Optional[models.User.Status] = Query(models.User.Status.ACTIVE),
     email: Optional[str] = Query(None),
     number: Optional[str] = Query(None),
 ):
+    resp.headers['Cache-Control'] = 'no-cache'
     users: List[models.User] = await _get_users_filtered(
         access,
         pagination,
@@ -159,21 +161,23 @@ async def get_users(
 
 
 @router.get('/self', response_model=response.User)
-async def get_self(access: Access = Security(access_user, scopes=['access.users.read.own',])):
+async def get_self(resp: Response, access: Access = Security(access_user, scopes=['access.users.read.own',])):
     """
     Scopes: `access.users.read.own`
     """
-    return await get_user(access=access, user_id=access.user_id)
+    return await get_user(resp=resp, access=access, user_id=access.user_id)
 
 
 @router.get('/{user_id}', response_model=response.User)
 async def get_user(
+    resp: Response,
     access: Access = Security(access_user, scopes=['access.users.read.any', 'access.users.read.own']),
     user_id: str = Path(..., min_length=64, max_length=64),
 ):
     """
     Scopes: `access.users.read.any`, `access.users.read.own`
     """
+    resp.headers['Cache-Control'] = 'no-cache'
     user = await _get_user_by_id(access, user_id)
 
     return await response.User.from_orm(user)
@@ -238,10 +242,12 @@ async def post_user_otp(
 
 @router.get('/{user_id}/flags', response_model=response.UserFlag)
 async def get_user_flags(
+    resp: Response,
     access: Access = Security(access_user, scopes=['access.users.read.any',]),
     user_id: str = Path(..., min_length=64, max_length=64),
     key: Optional[str] = Query(None, max_length=64),
 ):
+    resp.headers['Cache-Control'] = 'no-cache'
     user = await _get_user_by_id(access, user_id)
     flags: List[models.UserFlag] = await _get_user_flags_filtered(
         access,
@@ -268,10 +274,12 @@ async def post_user_flag(
 
 @router.get('/{user_id}/flags/{flag_key}', response_model=response.UserFlag)
 async def get_user_flag_by_key(
+    resp: Response,
     access: Access = Security(access_user, scopes=['access.users.read.any',]),
     user_id: str = Path(..., min_length=64, max_length=64),
     flag_key: str = Path(..., max_length=64),
 ):
+    resp.headers['Cache-Control'] = 'no-cache'
     user = await _get_user_by_id(access, user_id)
     flag: models.UserFlag = await _get_user_flag(access, user, flag_key)
 
