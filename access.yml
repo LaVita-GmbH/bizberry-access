@@ -615,6 +615,45 @@ scopes:
                 - key: any
                 - key: own
 
+    - key: taxfree-benefits
+      resources:
+        - key: campaigns
+          actions:
+            - key: read
+              selectors:
+                - key: any
+                - key: own
+            - key: create
+              selectors:
+                - key: any
+                - key: own
+            - key: update
+              selectors:
+                - key: any
+                - key: own
+            - key: delete
+              selectors:
+                - key: any
+                - key: own
+        - key: bills
+          actions:
+            - key: read
+              selectors:
+                - key: any
+                - key: own
+            - key: create
+              selectors:
+                - key: any
+                - key: own
+            - key: update
+              selectors:
+                - key: any
+                - key: own
+            - key: delete
+              selectors:
+                - key: any
+                - key: own
+
 roles:
   - key: default
     is_default: true
@@ -666,6 +705,9 @@ roles:
       - code: business.employees.create.own
       - code: business.employees.update.own
       - code: business.employees.delete.own
+      - code: taxfree-benefits.campaigns.read.own
+      - code: taxfree-benefits.campaigns.update.own
+      - code: taxfree-benefits.bills.read.own
 
   - key: partner
     included_roles:
