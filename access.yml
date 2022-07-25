@@ -624,9 +624,6 @@ scopes:
                 - key: any
                 - key: own
             - key: create
-              selectors:
-                - key: any
-                - key: own
             - key: update
               selectors:
                 - key: any
@@ -642,9 +639,6 @@ scopes:
                 - key: any
                 - key: own
             - key: create
-              selectors:
-                - key: any
-                - key: own
             - key: update
               selectors:
                 - key: any
@@ -878,6 +872,14 @@ roles:
       - code: business.employees.read.any
       - code: business.employees.update.any
       - code: business.employees.delete.any
+      - code: taxfree-benefits.campaigns.read.any
+      - code: taxfree-benefits.campaigns.create
+      - code: taxfree-benefits.campaigns.update.any
+      - code: taxfree-benefits.campaigns.delete.any
+      - code: taxfree-benefits.bills.read.any
+      - code: taxfree-benefits.bills.create
+      - code: taxfree-benefits.bills.update.any
+      - code: taxfree-benefits.bills.delete.any
     included_roles:
       - key: partner
       - key: default
