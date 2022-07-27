@@ -103,12 +103,19 @@ async def get_user_token(credentials: request.AuthUser = Body(...)):
             password=credentials.password,
         )
 
-    elif credentials.email:
-        try:
-            _user: User = await _get_user(tenant_id=credentials.tenant.id, email=credentials.email.lower())
+    elif credentials.email or credentials.id:
+        if credentials.email:
+            try:
+                _user: User = await _get_user(tenant_id=credentials.tenant.id, email=credentials.email.lower())
 
-        except User.DoesNotExist:
-            _user: User = await _get_user(tenant_id=credentials.tenant.id, number=credentials.email)
+            except User.DoesNotExist:
+                _user: User = await _get_user(tenant_id=credentials.tenant.id, number=credentials.email)
+
+        elif credentials.id:
+            _user: User = await _get_user(tenant_id=credentials.tenant_id, id=credentials.id)
+
+        else:
+            raise NotImplementedError
 
         user: User = await authenticate(id=_user.id, password=credentials.password)
 

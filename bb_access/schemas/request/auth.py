@@ -9,6 +9,7 @@ class AuthUser(BaseModel):
         id: str = Field(min_length=64, max_length=64)
         value: str
 
+    id: Optional[str]
     email: Optional[str]
     otp: Optional[OTP]
     password: str
