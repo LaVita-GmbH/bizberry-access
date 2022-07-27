@@ -154,7 +154,7 @@ async def get_transaction_token(
         transaction_token = await _get_token_from_access_token(credentials.access_token, include_critical=include_critical)
 
     elif access and access.user:
-        if include_critical and access.token.iat < timezone.now() - timedelta(hours=1):
+        if include_critical and access.token.iat < timezone.now() - timedelta(seconds=settings.AUTH_TOKEN_CRITICAL_THRESHOLD):
             raise AuthError(detail=Error(
                 type='AuthError',
                 code='token_too_old_for_include_critical',
