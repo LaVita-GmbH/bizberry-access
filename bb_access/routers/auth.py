@@ -112,7 +112,7 @@ async def get_user_token(credentials: request.AuthUser = Body(...)):
                 _user: User = await _get_user(tenant_id=credentials.tenant.id, number=credentials.email)
 
         elif credentials.id:
-            _user: User = await _get_user(tenant_id=credentials.tenant_id, id=credentials.id)
+            _user: User = await _get_user(tenant_id=credentials.tenant.id, id=credentials.id)
 
         else:
             raise NotImplementedError
