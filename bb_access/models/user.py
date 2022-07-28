@@ -98,9 +98,8 @@ class User(DirtyFieldsMixin, KafkaPublishMixin, AbstractUser):
     type: str = models.CharField(max_length=16, choices=Type.choices, default=Type.USER)
     language: str = models.CharField(max_length=8)
     role = models.ForeignKey(Role, on_delete=models.SET_NULL, related_name='users', null=True, blank=True)
-
-    first_name = None
-    last_name = None
+    first_name: Optional[str] = models.CharField(max_length=150, blank=True, null=True)
+    last_name: Optional[str] = models.CharField(max_length=150, blank=True, null=True)
 
     objects = UserManager()
 
@@ -303,6 +302,9 @@ class User(DirtyFieldsMixin, KafkaPublishMixin, AbstractUser):
         modified = self.get_dirty_fields(check_relationship=True)
         if 'email' in modified:
             self.email = self.email.lower()
+
+        if not all([self.first_name, self.last_name]):
+            self.first_name = self.last_name = None
 
         return super().save(*args, **kwargs)
 
