@@ -8,5 +8,5 @@ pyyaml
 sentry-sdk
 djutils>=1.0.17
 djfapi>=0.0.16
-djpykafka
+djpykafka>=0.0.9
 langcodes
