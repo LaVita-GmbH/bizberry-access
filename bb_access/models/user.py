@@ -94,10 +94,10 @@ class User(DirtyFieldsMixin, KafkaPublishMixin, AbstractUser):
     email: str = models.CharField(max_length=320, unique=False, db_index=True)
     number: Optional[str] = models.CharField(max_length=16, null=True, blank=True)
     password: str = models.CharField(_('password'), max_length=144)
-    status: str = models.CharField(max_length=16, choices=Status.choices, default=Status.ACTIVE)
-    type: str = models.CharField(max_length=16, choices=Type.choices, default=Type.USER)
+    status: Status = models.CharField(max_length=16, choices=Status.choices, default=Status.ACTIVE)
+    type: Type = models.CharField(max_length=16, choices=Type.choices, default=Type.USER)
     language: str = models.CharField(max_length=8)
-    role = models.ForeignKey(Role, on_delete=models.SET_NULL, related_name='users', null=True, blank=True)
+    role: Optional[Role] = models.ForeignKey(Role, on_delete=models.SET_NULL, related_name='users', null=True, blank=True)
     first_name: Optional[str] = models.CharField(max_length=150, blank=True, null=True)
     last_name: Optional[str] = models.CharField(max_length=150, blank=True, null=True)
 
