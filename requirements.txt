@@ -8,6 +8,6 @@ email-validator
 pyyaml
 sentry-sdk
 djutils>=1.0.17
-djfapi>=0.0.31
+djfapi>=0.0.33
 djpykafka>=0.0.9
 langcodes
