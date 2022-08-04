@@ -1,4 +1,4 @@
-django~=4.0.7
+django~=4.1.0
 python-dotenv
 fastapi==0.65.3
 python-multipart
@@ -8,6 +8,6 @@ email-validator
 pyyaml
 sentry-sdk
 djutils>=1.0.17
-djfapi>=0.0.33
+djfapi>=0.0.38
 djpykafka>=0.0.9
 langcodes
