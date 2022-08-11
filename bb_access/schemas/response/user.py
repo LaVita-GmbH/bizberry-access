@@ -1,8 +1,8 @@
 from typing import List, Optional
 from datetime import datetime
-from djfapi.utils.pydantic import Reference, include_reference
+from djdantic.utils.pydantic import Reference, include_reference
 from pydantic import BaseModel, Field
-from djfapi.utils.pydantic_django import DjangoORMBaseModel
+from djdantic.utils.pydantic_django import DjangoORMBaseModel
 from ... import models
 from .. import base
 

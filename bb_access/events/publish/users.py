@@ -1,6 +1,6 @@
 from django.dispatch import receiver
 from django.contrib.auth.signals import user_logged_in
-from djfapi.utils.pydantic_django import transfer_from_orm
+from djdantic.utils.pydantic_django import transfer_from_orm
 from djpykafka.events.publish import EventPublisher, DataChangePublisher
 from ... import models
 from ...schemas import response

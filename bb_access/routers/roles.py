@@ -1,10 +1,11 @@
 from typing import List, Optional
-from djfapi.utils.sync import sync_to_async
+from async_tools import sync_to_async
 from django.db.models import Q
 from fastapi import APIRouter, Security, Depends, Path, Query
-from djfapi.schemas import Access, Pagination
+from djdantic.utils.dict import remove_none
+from djdantic.schemas import Access
+from djfapi.schemas import Pagination
 from djfapi.utils.fastapi import depends_pagination
-from djfapi.utils.dict import remove_none
 from ..utils import JWTToken
 from .. import models
 from ..schemas import response, request

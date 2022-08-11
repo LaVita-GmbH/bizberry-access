@@ -13,9 +13,9 @@ from django.utils import timezone
 from dirtyfields import DirtyFieldsMixin
 from djpykafka.models import KafkaPublishMixin
 from djutils.crypt import random_string_generator
-from djfapi.schemas import Access, Error, AccessScope
+from djdantic.schemas import Access, Error, AccessScope
 from djfapi.exceptions import AuthError, ConstraintError
-from djfapi.security.jwt import access as access_ctx
+from djdantic import context
 from . import Scope, Role, Tenant
 
 
@@ -245,7 +245,7 @@ class User(DirtyFieldsMixin, KafkaPublishMixin, AbstractUser):
     def _invalidate_old_otps(self, *, type, create_new_threshold: Optional[int] = None):
         old_otps = self.otps.filter(type=type, used_at__isnull=True)
         try:
-            scopes = access_ctx.get().token.get_scopes()
+            scopes = context.access.get().token.get_scopes()
             if AccessScope.from_str('access.users.create_otp.any') in scopes:
                 create_new_threshold = None
 
@@ -363,7 +363,7 @@ class UserAccessToken(models.Model):
         return token
 
 
-class UserOTP(models.Model):
+class UserOTP(KafkaPublishMixin, models.Model):
     _value = None
 
     class UserOTPType(models.TextChoices):

@@ -1,5 +1,5 @@
 from pydantic import Field
-from djfapi.utils.pydantic_django import DjangoORMBaseModel
+from djdantic.utils.pydantic_django import DjangoORMBaseModel
 from ... import models
 
 

@@ -1,6 +1,6 @@
 from typing import List, Optional
 from pydantic import BaseModel, EmailStr, SecretStr, Field, validator
-from djfapi.utils.pydantic import to_optional
+from djdantic.utils.pydantic import to_optional
 from ... import models
 from .. import base
 

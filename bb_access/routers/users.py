@@ -1,12 +1,13 @@
-from typing import Dict, List, Optional, Tuple
-from djfapi.utils.sync import sync_to_async
+from typing import List, Optional
 from fastapi import APIRouter, Security, Body, Depends, Path, Query, Response
 from django.db.models import Q
-from djfapi.exceptions import AccessError
-from djfapi.schemas import Access, Pagination
+from async_tools import sync_to_async
+from djdantic.exceptions import AccessError
+from djdantic.utils.dict import remove_none
+from djdantic.utils.pydantic_django import transfer_to_orm, TransferAction
+from djdantic.schemas import Access
+from djfapi.schemas import Pagination
 from djfapi.utils.fastapi import depends_pagination
-from djfapi.utils.dict import remove_none
-from djfapi.utils.pydantic_django import transfer_to_orm, TransferAction
 from ..utils import JWTToken
 from .. import models
 from ..schemas import response, request

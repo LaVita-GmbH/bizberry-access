@@ -1,7 +1,7 @@
 from typing import List
 from pydantic import BaseModel, Field
-from djfapi.utils.pydantic_django import DjangoORMBaseModel
-from djfapi.utils.pydantic import Reference, include_reference
+from djdantic.utils.pydantic_django import DjangoORMBaseModel
+from djdantic.utils.pydantic import Reference, include_reference
 from ... import models
 from .. import base
 from .scope import Scope

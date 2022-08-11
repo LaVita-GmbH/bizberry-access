@@ -1,8 +1,9 @@
-from djfapi.utils.pydantic_django import transfer_to_orm
 from typing import List
-from djfapi.utils.sync import sync_to_async
+from async_tools import sync_to_async
 from fastapi import APIRouter, Security, Body, Depends
-from djfapi.schemas import Access, Pagination
+from djdantic.utils.pydantic_django import transfer_to_orm, TransferAction
+from djdantic.schemas import Access
+from djfapi.schemas import Pagination
 from djfapi.utils.fastapi import depends_pagination
 from ..utils import JWTToken
 from ..models import Tenant, TenantCountry

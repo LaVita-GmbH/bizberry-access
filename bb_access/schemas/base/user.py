@@ -1,8 +1,8 @@
 from typing import Optional
 from pydantic import Field, EmailStr, validator, BaseModel
-from djfapi.utils.pydantic_django import DjangoORMBaseModel
+from djdantic.utils.pydantic_django import DjangoORMBaseModel
 from djfapi.validators.language import format_language
-from djfapi.utils.pydantic import Reference
+from djdantic.utils.pydantic import Reference
 from ... import models
 
 
