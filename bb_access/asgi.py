@@ -14,8 +14,6 @@ from starlette.exceptions import HTTPException
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import IntegrityError
 from jose.exceptions import JOSEError
-from djfapi.handlers.error import generic_exception_handler, object_does_not_exist_handler, jose_error_handler, http_exception_handler, integrity_error_handler
-from djfapi.middleware.sentry import SentryAsgiMiddleware
 from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bb_access.settings')
@@ -23,6 +21,8 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bb_access.settings')
 django_asgi = get_asgi_application()
 
 
+from djfapi.handlers.error import generic_exception_handler, object_does_not_exist_handler, jose_error_handler, http_exception_handler, integrity_error_handler
+from djfapi.middleware.sentry import SentryAsgiMiddleware
 from djfapi.utils.health_check import get_health, Health
 from . import routers
 

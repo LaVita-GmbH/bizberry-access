@@ -1,10 +1,9 @@
 from typing import Optional
-from pydantic import Field
-from djdantic.utils.pydantic_django import DjangoORMBaseModel
+from djdantic import Field, BaseModel
 from ... import models
 
 
-class Scope(DjangoORMBaseModel):
+class Scope(BaseModel, orm_model=models.Scope):
     service: str = Field(max_length=32, orm_field=models.Scope.service)
     resource: str = Field(max_length=24, orm_field=models.Scope.resource)
     action: str = Field(max_length=24, orm_field=models.Scope.action)

@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, Field
-from djdantic.utils.pydantic_django import DjangoORMBaseModel
+from pydantic import BaseModel
+from djdantic import Field, BaseModel
 from ... import models
 
 
@@ -21,7 +21,7 @@ class AuthTransaction(BaseModel):
     token: AuthTransactionToken
 
 
-class AuthOTP(DjangoORMBaseModel):
+class AuthOTP(BaseModel):
     id: str = Field(orm_field=models.UserOTP.id)
     type: models.UserOTP.UserOTPType = Field(orm_field=models.UserOTP.type)
     created_at: datetime = Field(orm_field=models.UserOTP.created_at)

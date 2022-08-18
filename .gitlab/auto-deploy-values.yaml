@@ -1,9 +1,30 @@
 resources:
   limits:
-    cpu: 600m
+    cpu: 300m
     memory: 384Mi
   requests:
     cpu: 100m
     memory: 128Mi
+workers:
+  events:
+    replicaCount: 1
+    command:
+    - python
+    - -m
+    - bb_access.events.subscribe
+    livenessProbe:
+      command:
+      - pidof
+      - python
+      initialDelaySeconds: 15
+      timeoutSeconds: 15
+      probeType: "exec"
+    readinessProbe:
+      command:
+      - pidof
+      - python
+      initialDelaySeconds: 5
+      timeoutSeconds: 3
+      probeType: "exec"
 ingress:
   enabled: false

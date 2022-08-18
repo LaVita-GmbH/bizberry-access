@@ -89,6 +89,11 @@ class User(DirtyFieldsMixin, KafkaPublishMixin, AbstractUser):
         USER = 'USER', _("User")
         SERVICE = 'SERVICE', _("Service")
 
+    class Gender(models.TextChoices):
+        MALE = 'MALE'
+        FEMALE = 'FEMALE'
+        OTHER = 'OTHER'
+
     id = models.CharField(max_length=64, primary_key=True, default=_default_user_id, editable=False)
     tenant: Tenant = models.ForeignKey(Tenant, on_delete=models.RESTRICT, related_name='users')
     email: str = models.CharField(max_length=320, unique=False, db_index=True)
@@ -98,6 +103,7 @@ class User(DirtyFieldsMixin, KafkaPublishMixin, AbstractUser):
     type: Type = models.CharField(max_length=16, choices=Type.choices, default=Type.USER)
     language: str = models.CharField(max_length=8)
     role: Optional[Role] = models.ForeignKey(Role, on_delete=models.SET_NULL, related_name='users', null=True, blank=True)
+    gender: Optional[Gender] = models.CharField(choices=Gender.choices, max_length=8, blank=True, null=True)
     first_name: Optional[str] = models.CharField(max_length=150, blank=True, null=True)
     last_name: Optional[str] = models.CharField(max_length=150, blank=True, null=True)
 
