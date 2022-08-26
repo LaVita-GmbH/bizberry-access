@@ -6,3 +6,4 @@ class AppConfig(DjangoAppConfig):
 
     def ready(self) -> None:
         from .events import publish
+        from . import signals

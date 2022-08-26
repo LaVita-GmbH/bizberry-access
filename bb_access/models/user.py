@@ -1,6 +1,6 @@
 import string
 from datetime import datetime
-from typing import Dict, List, Set, Tuple, Optional
+from typing import Dict, List, Set, Tuple, Optional, Union
 from datetime import timedelta
 from jose import jwt
 from django.db import models
@@ -106,6 +106,7 @@ class User(DirtyFieldsMixin, KafkaPublishMixin, AbstractUser):
     gender: Optional[Gender] = models.CharField(choices=Gender.choices, max_length=8, blank=True, null=True)
     first_name: Optional[str] = models.CharField(max_length=150, blank=True, null=True)
     last_name: Optional[str] = models.CharField(max_length=150, blank=True, null=True)
+    phone: Optional[str] = models.CharField(max_length=150, blank=True, null=True)
 
     objects = UserManager()
 
@@ -270,7 +271,7 @@ class User(DirtyFieldsMixin, KafkaPublishMixin, AbstractUser):
         *,
         type: 'UserOTP.UserOTPType',
         length: Optional[int] = None,
-        validity: Optional[int] = None,
+        validity: Optional[Union[int, timedelta]] = None,
         chars: Optional[str] = None,
         create_new_threshold: Optional[int] = None,
         is_internal: bool = False,
@@ -296,7 +297,7 @@ class User(DirtyFieldsMixin, KafkaPublishMixin, AbstractUser):
         otp = UserOTP(
             user=self,
             type=type,
-            expire_at=timezone.now() + timedelta(seconds=validity),
+            expire_at=timezone.now() + (timedelta(seconds=validity) if isinstance(validity, int) else validity),
             is_internal=is_internal,
         )
         otp.set_value(random_string_generator(size=length, **kwargs))
@@ -312,7 +313,7 @@ class User(DirtyFieldsMixin, KafkaPublishMixin, AbstractUser):
         if not all([self.first_name, self.last_name]):
             self.first_name = self.last_name = None
 
-        return super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     class Meta:
         constraints = [

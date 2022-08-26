@@ -1,7 +1,7 @@
 from typing import Any, List, Optional
 from enum import Enum
 from pydantic import BaseModel, Field
-from djpykafka.events.subscribe import GenericSubscription
+from djpykafka.events.subscribe import GenericSubscription, DataChangeEvent
 from ...... import models
 
 
@@ -63,11 +63,16 @@ class Employees(
 
             except models.User.DoesNotExist:
                 user = models.User(email=self.data.email, tenant_id=self.event.tenant_id)
+                user.set_unusable_password()
 
-        user.email = self.data.email
-        user.first_name = self.data.name.first
-        user.last_name = self.data.name.last
-        user.gender = self.data.gender
-        user.language = self.data.language
+        if self.event.data_op == DataChangeEvent.DataOperation.DELETE:
+            user.delete()
 
-        user.save()
+        else:
+            user.email = self.data.email
+            user.first_name = self.data.name.first
+            user.last_name = self.data.name.last
+            user.gender = self.data.gender
+            user.language = self.data.language
+
+            user.save()
