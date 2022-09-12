@@ -10,8 +10,8 @@ workers:
     replicaCount: 1
     command:
     - python
-    - -m
-    - bb_access.events.subscribe
+    - manage.py
+    - kafka_subscribe
     livenessProbe:
       command:
       - pidof
