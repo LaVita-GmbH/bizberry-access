@@ -78,6 +78,8 @@ def _create_user(access: Access, body: request.UserCreate) -> models.User:
         language=body.language,
         number=body.number,
         role_id=body.role and body.role.id,
+        first_name=body.name.first,
+        last_name=body.name.last,
     )
 
     return new_user
