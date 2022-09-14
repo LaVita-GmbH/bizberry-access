@@ -1,1 +1,1 @@
-{{otp._value}}
+Ihr Einmalkennwort ist {{otp._value}}

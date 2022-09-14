@@ -25,10 +25,14 @@ def user_otp_post_save_receiver(sender, instance: models.UserOTP, created: bool 
     template = f'user_token_{language}.html'
     subject = f''
     destination = instance.user.email
-    if instance.user.phone and instance.type == models.UserOTP.UserOTPType.PIN:
-        template = f'user_otp_pin_{language}.txt'
-        subject = f''
-        destination = instance.user.phone
+    if instance.type == models.UserOTP.UserOTPType.PIN:
+        if instance.user.phone:
+            template = f'user_otp_pin_{language}.txt'
+            subject = f''
+            destination = instance.user.phone
+
+        else:
+            template = f'user_otp_pin_{language}.html'
 
     elif ... and not instance.user.has_usable_password():
         template = f'user_business_{language}.html'
