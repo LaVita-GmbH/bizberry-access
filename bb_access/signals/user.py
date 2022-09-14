@@ -32,6 +32,7 @@ def user_otp_post_save_receiver(sender, instance: models.UserOTP, created: bool 
             destination = instance.user.phone
 
         else:
+            subject = f'Einmalkennwort für Ihren LaVita Zugang'
             template = f'user_otp_pin_{language}.html'
 
     elif ... and not instance.user.has_usable_password():
