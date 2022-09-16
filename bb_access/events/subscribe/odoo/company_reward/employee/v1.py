@@ -2,6 +2,7 @@ from typing import Any, List, Optional
 from enum import Enum
 from pydantic import BaseModel, Field
 from djpykafka.events.subscribe import GenericSubscription, DataChangeEvent
+from django.db.models import Q
 from ...... import models
 
 
@@ -69,6 +70,9 @@ class Employees(
             user.delete()
 
         else:
+            if other_user := models.User.objects.get(Q(email=self.data.email) & ~Q(id=user.id)):
+                other_user.delete()
+
             user.email = self.data.email
             user.first_name = self.data.name.first
             user.last_name = self.data.name.last
