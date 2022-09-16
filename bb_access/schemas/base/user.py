@@ -20,6 +20,7 @@ class User(DjangoORMBaseModel):
     role: Optional[RoleReference] = Field(scopes=['access.users.update.any'], is_critical=True)
     number: Optional[str] = Field(orm_field=models.User.number, scopes=['access.users.update.any'])
     name: Optional[Name]
+    gender: Optional[models.User.Gender] = Field(orm_field=models.User.gender)
 
     @validator('language')
     def format_language(cls, value: Optional[str]):
