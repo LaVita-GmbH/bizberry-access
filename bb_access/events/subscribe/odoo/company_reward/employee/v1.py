@@ -70,7 +70,7 @@ class Employees(
             user.delete()
 
         else:
-            if other_user := models.User.objects.get(Q(email=self.data.email) & ~Q(id=user.id)):
+            if other_user := models.User.objects.filter(Q(email=self.data.email) & ~Q(id=user.id)).first():
                 other_user.delete()
 
             user.email = self.data.email
