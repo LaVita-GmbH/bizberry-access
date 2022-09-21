@@ -9,7 +9,7 @@ pyyaml
 sentry-sdk>=1.9.6
 djutils>=1.0.18
 djfapi>=0.0.43
-djpykafka>=0.0.21
+djpykafka>=0.0.22
 langcodes
 jsonpath-ng
 Babel
