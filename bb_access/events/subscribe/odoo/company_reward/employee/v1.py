@@ -43,7 +43,7 @@ class Employees(
 
     def process(self):
         print(self.data)
-        if not self.data.type:
+        if not self.data.type and not getattr(next(filter(lambda c: c.name == 'type'), None), 'previous_value', None):
             return
 
         email = self.data.email
@@ -66,7 +66,7 @@ class Employees(
                 user = models.User(email=self.data.email, tenant_id=self.event.tenant_id)
                 user.set_unusable_password()
 
-        if self.event.data_op == DataChangeEvent.DataOperation.DELETE:
+        if self.event.data_op == DataChangeEvent.DataOperation.DELETE or not self.data.type:
             user.delete()
 
         else:
