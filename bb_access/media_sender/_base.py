@@ -40,7 +40,11 @@ class Content(BaseModel):
 
     def _template_render(self) -> str:
         with open(os.path.join(settings.BASE_DIR, 'bb_access', 'templates', self.template), 'rb') as template:
-            return self._jinja_env.from_string(str(template.read(), 'utf-8')).render(self.values)
+            template: jinja2.Template = self._jinja_env.from_string(str(template.read(), 'utf-8'))
+            return template.render(
+                self.values,
+                **settings.TEMPLATE_GLOBALS,
+            )
 
     @property
     def body(self) -> str:

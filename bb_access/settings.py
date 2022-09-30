@@ -239,3 +239,17 @@ SENDER_SMS_INTEGRATION_MAILJET_TOKEN = os.getenv('SENDER_SMS_INTEGRATION_MAILJET
 
 # Other
 EMAIL_CHECK_SMTP_HELO_HOST = os.getenv('EMAIL_CHECK_SMTP_HELO_HOST')
+
+WEBSITE_URL = os.getenv('WEBSITE_URL', 'http://localhost')
+WEBSITE_SHOP_URL = os.getenv('WEBSITE_SHOP_URL', 'http://localhost')
+WEBSITE_ASSETS_URL = os.getenv('WEBSITE_ASSETS_URL', 'http://localhost')
+WEBSITE_BUSINESS_URL = os.getenv('WEBSITE_BUSINESS_URL', 'http://localhost')
+WEBSITE_BUSINESS_EMAIL = os.getenv('WEBSITE_BUSINESS_EMAIL', 'http://localhost')
+
+TEMPLATE_GLOBALS = {
+    'website_url': WEBSITE_URL,
+    'website_shop_url': WEBSITE_SHOP_URL,
+    'website_assets_url': WEBSITE_ASSETS_URL,
+    'website_business_url': WEBSITE_BUSINESS_URL,
+    'website_business_email': WEBSITE_BUSINESS_EMAIL,
+}
