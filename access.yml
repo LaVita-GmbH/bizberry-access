@@ -648,6 +648,24 @@ scopes:
                 - key: any
                 - key: own
 
+    - key: contact
+      resources:
+        - key: requests
+          actions:
+            - key: create
+        - key: categories
+          actions:
+            - key: read
+              selectors:
+                - key: any
+            - key: create
+            - key: update
+              selectors:
+                - key: any
+            - key: delete
+              selectors:
+                - key: any
+
 roles:
   - key: default
     is_default: true
@@ -702,6 +720,8 @@ roles:
       - code: taxfree-benefits.campaigns.read.own
       - code: taxfree-benefits.campaigns.update.own
       - code: taxfree-benefits.bills.read.own
+      - code: contact.requests.create
+      - code: contact.categories.read.any
 
   - key: partner
     included_roles:
@@ -880,6 +900,9 @@ roles:
       - code: taxfree-benefits.bills.create
       - code: taxfree-benefits.bills.update.any
       - code: taxfree-benefits.bills.delete.any
+      - code: contact.categories.create
+      - code: contact.categories.update.any
+      - code: contact.categories.delete.any
     included_roles:
       - key: partner
       - key: default
