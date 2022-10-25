@@ -55,6 +55,8 @@ class Employees(
             except StopIteration:
                 pass
 
+        is_existing = True
+
         try:
             user: models.User = models.User.objects.get(email=email, tenant_id=self.event.tenant_id)
 
@@ -65,9 +67,11 @@ class Employees(
             except models.User.DoesNotExist:
                 user = models.User(email=self.data.email, tenant_id=self.event.tenant_id)
                 user.set_unusable_password()
+                is_existing = False
 
         if self.event.data_op == DataChangeEvent.DataOperation.DELETE or not self.data.type:
-            user.delete()
+            if is_existing:
+                user.delete()
 
         else:
             if other_user := models.User.objects.filter(Q(email=self.data.email) & ~Q(id=user.id)).first():
