@@ -43,7 +43,7 @@ class Employees(
 
     def process(self):
         print(self.data)
-        if not self.data.type and not getattr(next(filter(lambda c: c.name == 'type'), None), 'previous_value', None):
+        if not self.data.type and not getattr(next(filter(lambda c: c.name == 'type', self.data.changed), None), 'previous_value', None):
             return
 
         email = self.data.email
