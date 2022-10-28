@@ -19,6 +19,9 @@ def user_otp_post_save_receiver(sender, instance: models.UserOTP, created: bool 
     if not created:
         return
 
+    if instance.is_internal:
+        return
+
     MessageSender = Sender.get_sender('SMS' if instance.user.phone and instance.type == models.UserOTP.UserOTPType.PIN else 'EMAIL')
     language = 'de'
 
