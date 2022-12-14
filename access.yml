@@ -666,6 +666,23 @@ scopes:
               selectors:
                 - key: any
 
+    - key: linker
+      resources:
+        - key: links
+          actions:
+            - key: read
+              selectors:
+                - key: any
+            - key: create
+              selectors:
+                - key: any
+            - key: update
+              selectors:
+                - key: any
+            - key: delete
+              selectors:
+                - key: any
+
 roles:
   - key: default
     is_default: true
@@ -903,6 +920,10 @@ roles:
       - code: contact.categories.create
       - code: contact.categories.update.any
       - code: contact.categories.delete.any
+      - code: linker.links.create.any
+      - code: linker.links.read.any
+      - code: linker.links.update.any
+      - code: linker.links.delete.any
     included_roles:
       - key: partner
       - key: default
