@@ -24,6 +24,7 @@ load_dotenv()
 
 
 APP_NAME = 'BB Access'
+APP_VERSION = '0.0.1'
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
