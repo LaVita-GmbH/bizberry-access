@@ -23,6 +23,8 @@ from sentry_sdk.integrations.django import DjangoIntegration
 load_dotenv()
 
 
+APP_NAME = 'BB Access'
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
