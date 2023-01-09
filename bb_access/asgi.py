@@ -11,6 +11,10 @@ import os
 from django.core.asgi import get_asgi_application
 from fastapi import FastAPI, Response
 from starlette.exceptions import HTTPException
+from starlette.responses import HTMLResponse, JSONResponse
+from starlette.routing import Route
+from fastapi.encoders import jsonable_encoder
+from asyncapi_docgen.docs import get_asyncapi_ui_html
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import IntegrityError
 from jose.exceptions import JOSEError
@@ -21,15 +25,28 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bb_access.settings')
 django_asgi = get_asgi_application()
 
 
+from djpykafka.docs.asyncapi import get_asyncapi
 from djfapi.handlers.error import generic_exception_handler, object_does_not_exist_handler, jose_error_handler, http_exception_handler, integrity_error_handler
 from djfapi.middleware.sentry import SentryAsgiMiddleware
 from djfapi.utils.health_check import get_health, Health
 from . import routers
 
 
+def asyncapi_html(request):
+    return HTMLResponse(get_asyncapi_ui_html(asyncapi_url='/access/asyncapi.json'))
+
+
+def asyncapi_json(request):
+    return JSONResponse(jsonable_encoder(get_asyncapi(), by_alias=True, exclude_none=True))
+
+
 app = FastAPI(
     title="bb_access",
     openapi_url='/access/openapi.json',
+    routes=[
+        Route('/access/asyncapi', asyncapi_html),
+        Route('/access/asyncapi.json', asyncapi_json),
+    ],
 )
 
 

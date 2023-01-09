@@ -22,7 +22,9 @@ class UserOTPBackend(BaseBackend):
                 if otp.type == UserOTP.UserOTPType.PIN and check_password(password, otp.value):
                     otp.used_at = timezone.now()
                     otp.save(update_fields=['used_at',])
-                    return otp.user
+                    user = otp.user
+                    user._login_via = User.LoginMethod.OTP_PIN
+                    return user
 
                 elif otp.type == UserOTP.UserOTPType.TOKEN and check_password(password, otp.value):
                     raise ValidationError(detail=Error(code='cannot_login_using_otp_type_token', detail={'id': otp.id}))

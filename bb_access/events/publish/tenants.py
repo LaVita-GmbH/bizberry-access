@@ -1,6 +1,6 @@
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from djfapi.utils.sentry import capture_exception
+from sentry_tools.decorators import capture_exception
 from djpykafka.events.publish import EventPublisher, DataChangePublisher
 from ... import models
 from ...schemas import response

@@ -135,7 +135,8 @@ async def get_user_token(credentials: request.AuthUser = Body(...)):
     return response.AuthUser(
         token=response.AuthUserToken(
             user=token,
-        )
+        ),
+        via=getattr(user, '_login_via', User.LoginMethod.PASSWORD),
     )
 
 

@@ -94,6 +94,12 @@ class User(DirtyFieldsMixin, KafkaPublishMixin, AbstractUser):
         FEMALE = 'FEMALE'
         OTHER = 'OTHER'
 
+    class LoginMethod(models.TextChoices):
+        PASSWORD = 'PASSWORD'
+        OTP_PIN = 'OTP_PIN'
+        OTP_TOKEN = 'OTP_TOKEN'
+        TOKEN = 'TOKEN'
+
     id = models.CharField(max_length=64, primary_key=True, default=_default_user_id, editable=False)
     tenant: Tenant = models.ForeignKey(Tenant, on_delete=models.RESTRICT, related_name='users')
     email: str = models.CharField(max_length=320, unique=False, db_index=True)

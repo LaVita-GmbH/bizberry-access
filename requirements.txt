@@ -9,7 +9,8 @@ pyyaml
 sentry-sdk==1.9.10
 djutils>=1.0.18
 djfapi>=0.0.43
-djpykafka>=0.0.22
+djpykafka>=0.0.27
+asyncapi-docgen
 langcodes
 jsonpath-ng
 Babel

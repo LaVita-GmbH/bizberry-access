@@ -11,6 +11,7 @@ class AuthUserToken(BaseModel):
 
 class AuthUser(BaseModel):
     token: AuthUserToken
+    via: models.User.LoginMethod
 
 
 class AuthTransactionToken(BaseModel):
