@@ -12,4 +12,6 @@ consumer = Consumer(
     sasl_plain_username=settings.BROKER_SASL_PLAIN_USERNAME,
     sasl_plain_password=settings.BROKER_SASL_PLAIN_PASSWORD,
     ssl_cafile=settings.BROKER_SSL_CERTFILE,
+    max_poll_records=settings.BROKER_MAX_POLL_RECORDS,
+    max_poll_interval_ms=settings.BROKER_MAX_POLL_INTERVAL_MS,
 )

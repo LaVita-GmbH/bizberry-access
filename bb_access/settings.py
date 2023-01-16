@@ -204,6 +204,8 @@ with NamedTemporaryFile(delete=False) as _tempfile:
     _tempfile.write(b64decode(os.getenv('BROKER_SSL_CERT', '')))
 
 BROKER_SSL_CERTFILE = _tempfile.name
+BROKER_MAX_POLL_RECORDS = int(os.getenv('BROKER_MAX_POLL_RECORDS', 1))
+BROKER_MAX_POLL_INTERVAL_MS = os.getenv('BROKER_MAX_POLL_INTERVAL_MS', 300000)
 
 
 # Sentry Integration
