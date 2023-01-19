@@ -291,7 +291,8 @@ class User(DirtyFieldsMixin, KafkaPublishMixin, AbstractUser):
         if create_new_threshold is None:
             create_new_threshold = getattr(settings, f'AUTH_{type}_CREATE_NEW_THRESHOLD')
 
-        self._invalidate_old_otps(type=type, create_new_threshold=create_new_threshold)
+        if not is_internal:
+            self._invalidate_old_otps(type=type, create_new_threshold=create_new_threshold)
 
         kwargs = {}
         if chars:
