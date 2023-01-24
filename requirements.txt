@@ -7,8 +7,8 @@ email-validate
 email-validator
 pyyaml
 sentry-sdk==1.9.10
-djutils>=1.0.18
-djfapi>=0.0.43
+djutils>=1.0.20
+djfapi>=0.0.45
 djpykafka>=0.0.27
 asyncapi-docgen
 langcodes
