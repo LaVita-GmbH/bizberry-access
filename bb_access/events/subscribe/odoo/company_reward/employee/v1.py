@@ -1,6 +1,6 @@
 from typing import Any, List, Optional
 from enum import Enum
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 from djpykafka.events.subscribe import GenericSubscription, DataChangeEvent
 from django.db.models import Q
 from ...... import models
@@ -33,6 +33,10 @@ class Employee(BaseModel):
 
     changed: Optional[List[Change]] = Field(alias='_changed')
 
+    @validator('email')
+    def email_lower(value: str):
+        return value.lower()
+
 
 class Employees(
     GenericSubscription,
@@ -46,11 +50,11 @@ class Employees(
         if not self.data.type and self.data.changed and not getattr(next(filter(lambda c: c.name == 'type', self.data.changed), None), 'previous_value', None):
             return
 
-        email = self.data.email
+        email_curr_or_prev = self.data.email
 
         if self.data.changed:
             try:
-                email = next(filter(lambda c: c.name == 'email', self.data.changed)).previous_value
+                email_curr_or_prev = next(filter(lambda c: c.name == 'email', self.data.changed)).previous_value.lower()
 
             except StopIteration:
                 pass
@@ -58,7 +62,7 @@ class Employees(
         is_existing = True
 
         try:
-            user: models.User = models.User.objects.get(email=email, tenant_id=self.event.tenant_id)
+            user: models.User = models.User.objects.get(email=email_curr_or_prev, tenant_id=self.event.tenant_id)
 
         except models.User.DoesNotExist:
             try:
