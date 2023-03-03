@@ -18,7 +18,7 @@ class SMTPEmailSender(EmailSender):
         message = EmailMessage()
         message['Subject'] = self.content.subject
         message['From'] = Address(settings.SENDER_EMAIL_INTEGRATION_SMTP_SENDER_NAME, addr_spec=settings.SENDER_EMAIL_INTEGRATION_SMTP_SENDER_EMAIL)
-        message['To'] = (Address(addr_spec=self.content.receiver),)
+        message['To'] = self.content.receiver
         message['Message-ID'] = f'<{random_string_generator(size=64)}@{socket.getfqdn()}>'
 
         message.set_default_type('message/rfc822')
