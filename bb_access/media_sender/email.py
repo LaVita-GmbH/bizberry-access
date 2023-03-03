@@ -55,7 +55,7 @@ class SMTPEmailSender(EmailSender):
                 self._send_message(message)
 
             except smtplib.SMTPNotSupportedError as error:
-                if isinstance(error.__cause__, UnicodeDecodeError):
+                if isinstance(error.__cause__, UnicodeEncodeError):
                     self.content.receiver = unidecode(self.content.receiver.replace('ä', 'ae').replace('ö', 'oe').replace('ü', 'ue'))
 
                 else:
