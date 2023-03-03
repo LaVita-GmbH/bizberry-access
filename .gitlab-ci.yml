@@ -1,4 +1,4 @@
 include:
-  - project: lavita-io/bizberry/services/ci-cd
-    file: ci.yml
-    ref: master
+  - project: lavita-io/automations/ci-cd
+    file: k8s-build-deploy.yml
+    ref: main
