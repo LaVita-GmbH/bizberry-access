@@ -1,5 +1,6 @@
 import smtplib
 import socket
+from unidecode import unidecode
 from email.message import EmailMessage
 from email.headerregistry import Address
 from django.conf import settings
@@ -48,5 +49,17 @@ class SMTPEmailSender(EmailSender):
             smtp.send_message(message)
 
     def send(self):
-        message = self._get_message()
-        self._send_message(message)
+        while True:
+            try:
+                message = self._get_message()
+                self._send_message(message)
+
+            except smtplib.SMTPNotSupportedError as error:
+                if isinstance(error.__cause__, UnicodeDecodeError):
+                    self.content.receiver = unidecode(self.content.receiver)
+
+                else:
+                    raise
+
+            else:
+                break

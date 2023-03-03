@@ -16,3 +16,4 @@ jsonpath-ng
 Babel
 Jinja2
 requests
+Unidecode
