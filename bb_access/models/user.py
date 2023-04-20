@@ -100,6 +100,10 @@ class User(DirtyFieldsMixin, KafkaPublishMixin, AbstractUser):
         OTP_TOKEN = 'OTP_TOKEN'
         TOKEN = 'TOKEN'
 
+    class UserAuthority(models.TextChoices):
+        BIZBERRY = 'BIZBERRY'
+        OSHOP = 'OSHOP'
+
     id = models.CharField(max_length=64, primary_key=True, default=_default_user_id, editable=False)
     tenant: Tenant = models.ForeignKey(Tenant, on_delete=models.RESTRICT, related_name='users')
     email: str = models.CharField(max_length=320, unique=False, db_index=True)
@@ -113,6 +117,7 @@ class User(DirtyFieldsMixin, KafkaPublishMixin, AbstractUser):
     first_name: Optional[str] = models.CharField(max_length=150, blank=True, null=True)
     last_name: Optional[str] = models.CharField(max_length=150, blank=True, null=True)
     phone: Optional[str] = models.CharField(max_length=150, blank=True, null=True)
+    authority: UserAuthority = models.CharField(choices=UserAuthority.choices, max_length=12, default=UserAuthority.BIZBERRY)
 
     objects = UserManager()
 
