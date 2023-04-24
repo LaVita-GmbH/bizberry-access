@@ -41,17 +41,6 @@ def access_user(access: Optional[Access] = Security(user_token)) -> Access:
     return access
 
 
-@sync_to_async
-def _get_token_from_access_token(access_token, include_critical: bool = False) -> str:
-    user_accesstoken: UserAccessToken = UserAccessToken.objects.get(token=access_token, is_active=True)
-    return user_accesstoken.create_transaction_token(include_critical=include_critical)
-
-
-@sync_to_async
-def _get_token_for_user(access: Access, user: User, include_critical: bool = False) -> str:
-    return user.create_transaction_token(include_critical=include_critical, used_token=access)
-
-
 @atomic
 def _reset_password(tenant_id: str, *, user: Optional[User] = None, otp_id: Optional[str] = None, value: str, password: str) -> Optional[User]:
     if not user and not otp_id:
@@ -129,7 +118,7 @@ def get_user_token(credentials: request.AuthUser = Body(...)):
 
 
 @router.post('/transaction', response_model=response.AuthTransaction)
-async def get_transaction_token(
+def get_transaction_token(
     access: Optional[Access] = Security(access_user, scopes=['access.users.request_transaction_token']),
     credentials: Optional[request.AuthTransaction] = Body(default=None),
 ):
@@ -140,7 +129,8 @@ async def get_transaction_token(
     include_critical = credentials and credentials.include_critical or False
 
     if credentials and credentials.access_token:
-        transaction_token = await _get_token_from_access_token(credentials.access_token, include_critical=include_critical)
+        user_accesstoken: UserAccessToken = UserAccessToken.objects.get(token=credentials.access_token, is_active=True)
+        transaction_token = user_accesstoken.create_transaction_token(include_critical=include_critical)
 
     elif access and access.user:
         if include_critical and access.token.iat < timezone.now() - timedelta(seconds=settings.AUTH_TOKEN_CRITICAL_THRESHOLD):
@@ -149,7 +139,7 @@ async def get_transaction_token(
                 code='token_too_old_for_include_critical',
             ))
 
-        transaction_token = await _get_token_for_user(access, access.user, include_critical=include_critical)
+        transaction_token = access.user.create_transaction_token(include_critical=include_critical, used_token=access)
 
     else:
         raise AuthError
