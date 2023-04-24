@@ -1,6 +1,6 @@
 django~=4.1.0
 python-dotenv
-fastapi==0.65.3
+fastapi~=0.95.1
 python-multipart
 django-dirtyfields
 email-validate
@@ -8,7 +8,7 @@ email-validator
 pyyaml
 sentry-sdk==1.9.10
 djutils>=1.0.20
-djfapi>=0.0.45
+djfapi>=0.0.48
 djpykafka>=0.0.37
 asyncapi-docgen
 langcodes
