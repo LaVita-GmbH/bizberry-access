@@ -24,7 +24,6 @@ user_token = JWTToken(
 transaction_token = JWTToken(scheme_name="Transaction Token")
 
 
-@sync_to_async(thread_sensitive=True)
 def authenticate(*args, **kwargs) -> Optional[User]:
     user = sync_authenticate(*args, **kwargs)
     if user:
@@ -43,11 +42,6 @@ def access_user(access: Optional[Access] = Security(user_token)) -> Access:
 
 
 @sync_to_async
-def _create_token(user):
-    return user.create_user_token()
-
-
-@sync_to_async
 def _get_token_from_access_token(access_token, include_critical: bool = False) -> str:
     user_accesstoken: UserAccessToken = UserAccessToken.objects.get(token=access_token, is_active=True)
     return user_accesstoken.create_transaction_token(include_critical=include_critical)
@@ -58,12 +52,6 @@ def _get_token_for_user(access: Access, user: User, include_critical: bool = Fal
     return user.create_transaction_token(include_critical=include_critical, used_token=access)
 
 
-@sync_to_async
-def _get_user(**filters):
-    return User.objects.get(status=User.Status.ACTIVE, **filters)
-
-
-@sync_to_async
 @atomic
 def _reset_password(tenant_id: str, *, user: Optional[User] = None, otp_id: Optional[str] = None, value: str, password: str) -> Optional[User]:
     if not user and not otp_id:
@@ -93,10 +81,10 @@ def _reset_password(tenant_id: str, *, user: Optional[User] = None, otp_id: Opti
 
 
 @router.post('/user', response_model=response.AuthUser)
-async def get_user_token(credentials: request.AuthUser = Body(...)):
+def get_user_token(credentials: request.AuthUser = Body(...)):
     _user = None
     if credentials.otp:
-        user: User = await _reset_password(
+        user: User = _reset_password(
             tenant_id=credentials.tenant.id,
             otp_id=credentials.otp.id,
             value=credentials.otp.value,
@@ -106,18 +94,18 @@ async def get_user_token(credentials: request.AuthUser = Body(...)):
     elif credentials.email or credentials.id:
         if credentials.email:
             try:
-                _user: User = await _get_user(tenant_id=credentials.tenant.id, email=credentials.email.lower())
+                _user: User = User.objects.get(status=User.Status.ACTIVE, tenant_id=credentials.tenant.id, email=credentials.email.lower())
 
             except User.DoesNotExist:
-                _user: User = await _get_user(tenant_id=credentials.tenant.id, number=credentials.email)
+                _user: User = User.objects.get(status=User.Status.ACTIVE, tenant_id=credentials.tenant.id, number=credentials.email)
 
         elif credentials.id:
-            _user: User = await _get_user(tenant_id=credentials.tenant.id, id=credentials.id)
+            _user: User = User.objects.get(status=User.Status.ACTIVE, tenant_id=credentials.tenant.id, id=credentials.id)
 
         else:
             raise NotImplementedError
 
-        user: User = await authenticate(id=_user.id, password=credentials.password)
+        user: User = authenticate(id=_user.id, password=credentials.password)
 
     else:
         raise NotImplementedError
@@ -130,7 +118,7 @@ async def get_user_token(credentials: request.AuthUser = Body(...)):
             status_code=status.HTTP_401_UNAUTHORIZED,
         )
 
-    token = await _create_token(user)
+    token = user.create_user_token()
 
     return response.AuthUser(
         token=response.AuthUserToken(
@@ -174,15 +162,15 @@ async def get_transaction_token(
 
 
 @router.post('/otp', response_model=response.AuthOTP)
-async def post_otp(
+def post_otp(
     body: request.AuthUserReset = Body(...),
 ):
     """
     Request a one time password (used as PIN or TOKEN)
     """
-    user: User = await _get_user(email=body.email.lower(), tenant_id=body.tenant.id)
-    otp: UserOTP = await sync_to_async(user.request_otp)(type=body.type)
-    return await response.AuthOTP.from_orm(otp)
+    user: User = User.objects.get(status=User.Status.ACTIVE, email=body.email.lower(), tenant_id=body.tenant.id)
+    otp: UserOTP = user.request_otp(type=body.type)
+    return response.AuthOTP.from_orm(otp)
 
 
 @router.post('/check', response_model=response.AuthCheck)
