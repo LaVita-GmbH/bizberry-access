@@ -8,8 +8,8 @@ email-validator
 pyyaml
 sentry-sdk==1.9.10
 djutils>=1.0.20
-djfapi>=0.0.48
-djpykafka>=0.0.37
+djfapi==0.0.54
+djpykafka==0.0.39
 asyncapi-docgen
 langcodes
 jsonpath-ng
