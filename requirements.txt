@@ -1,5 +1,4 @@
 django~=4.1.0
-django-health-check==3.17.0
 python-dotenv
 fastapi~=0.95.1
 python-multipart
@@ -9,7 +8,7 @@ email-validator
 pyyaml
 sentry-sdk==1.9.10
 djutils>=1.0.20
-djfapi==0.0.70
+djfapi==0.0.72b14
 djpykafka==0.0.43
 djdantic==0.0.26b7
 pydantic~=1.10.9
