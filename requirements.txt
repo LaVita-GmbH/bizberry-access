@@ -1,5 +1,5 @@
 django~=4.1.0
-django-health-check==3.18.1
+django-health-check==3.18.0
 python-dotenv
 fastapi~=0.95.1
 python-multipart
