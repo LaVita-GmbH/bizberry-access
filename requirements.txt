@@ -4,7 +4,6 @@ python-dotenv
 fastapi~=0.95.1
 python-multipart
 django-dirtyfields
-email-validate
 email-validator
 pyyaml
 sentry-sdk==1.9.10
