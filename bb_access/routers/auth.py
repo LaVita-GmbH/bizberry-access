@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.conf import settings
 from django.contrib.auth import authenticate as sync_authenticate
 from django.contrib.auth.signals import user_logged_in
-from email_validate import validate as validate_email
+from validate_email import validate_email
 from djdantic.schemas import Access, Error
 from djfapi.exceptions import AuthError, ValidationError
 
