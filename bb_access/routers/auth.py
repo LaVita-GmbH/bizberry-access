@@ -206,33 +206,3 @@ def post_otp(
     )
     otp: UserOTP = user.request_otp(type=body.type)
     return response.AuthOTP.from_orm(otp)
-
-
-@router.post("/check", response_model=response.AuthCheck)
-def contact_check(
-    access: Access = Security(
-        transaction_token, scopes=["access.users.create", "access.users.read.own"]
-    ),
-    body: request.AuthCheck = Body(...),
-):
-    res = response.AuthCheck()
-
-    if body.email:
-        res.email = response.AuthCheck.Email(
-            is_valid=bool(
-                validate_email(
-                    email_address=body.email,
-                    smtp_timeout=5,
-                    dns_timeout=5,
-                    check_blacklist=False,
-                    smtp_helo_host=settings.EMAIL_CHECK_SMTP_HELO_HOST,
-                )
-            ),
-            is_existing=bool(
-                User.objects.filter(
-                    tenant_id=access.tenant_id, email=body.email.lower()
-                ).count()
-            ),
-        )
-
-    return res
