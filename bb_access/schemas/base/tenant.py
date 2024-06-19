@@ -1,6 +1,8 @@
 from typing import Optional
+
 from djdantic import Field, BaseModel
-from ... import models
+
+from bb_access import models
 
 
 class Tenant(BaseModel, orm_model=models.Tenant):
@@ -8,4 +10,6 @@ class Tenant(BaseModel, orm_model=models.Tenant):
 
 
 class TenantCountry(BaseModel, orm_model=models.TenantCountry):
-    code: str = Field(description="ISO 3166 Alpha-2 Country Code", orm_field=models.TenantCountry.code)
+    code: str = Field(
+        description="ISO 3166 Alpha-2 Country Code", orm_field=models.TenantCountry.code
+    )

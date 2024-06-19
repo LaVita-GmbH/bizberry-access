@@ -1,5 +1,6 @@
 from typing import Optional
 from datetime import timedelta
+
 from fastapi import APIRouter, HTTPException, status, Body, Security, Path
 from django.db.transaction import atomic
 from django.utils import timezone
@@ -7,18 +8,18 @@ from django.conf import settings
 from django.contrib.auth import authenticate as sync_authenticate
 from django.contrib.auth.signals import user_logged_in
 from email_validate import validate as validate_email
-from async_tools import sync_to_async
 from djdantic.schemas import Access, Error
 from djfapi.exceptions import AuthError, ValidationError
-from ..utils import JWTToken
-from ..models import User, UserAccessToken, UserOTP
-from ..schemas import request, response
+
+from bb_access.utils import JWTToken
+from bb_access.models import User, UserAccessToken, UserOTP
+from bb_access.schemas import request, response
 
 
 router = APIRouter()
 
 user_token = JWTToken(
-    scheme_name='User Token',
+    scheme_name="User Token",
     auto_error=False,
 )
 transaction_token = JWTToken(scheme_name="Transaction Token")
@@ -27,7 +28,9 @@ transaction_token = JWTToken(scheme_name="Transaction Token")
 def authenticate(*args, **kwargs) -> Optional[User]:
     user = sync_authenticate(*args, **kwargs)
     if user:
-        user_logged_in.send(sender=user.__class__, instance=user, user=user, request=None)
+        user_logged_in.send(
+            sender=user.__class__, instance=user, user=user, request=None
+        )
 
     return user
 
@@ -42,13 +45,25 @@ def access_user(access: Optional[Access] = Security(user_token)) -> Access:
 
 
 @atomic
-def _reset_password(tenant_id: str, *, user: Optional[User] = None, otp_id: Optional[str] = None, value: str, password: str) -> Optional[User]:
+def _reset_password(
+    tenant_id: str,
+    *,
+    user: Optional[User] = None,
+    otp_id: Optional[str] = None,
+    value: str,
+    password: str
+) -> Optional[User]:
     if not user and not otp_id:
-        raise ValidationError(detail=Error(code='user_or_id_required'))
+        raise ValidationError(detail=Error(code="user_or_id_required"))
 
     otp: UserOTP
     if otp_id:
-        otp = UserOTP.objects.get(id=otp_id, user__tenant_id=tenant_id, used_at__isnull=True, type=UserOTP.UserOTPType.TOKEN)
+        otp = UserOTP.objects.get(
+            id=otp_id,
+            user__tenant_id=tenant_id,
+            used_at__isnull=True,
+            type=UserOTP.UserOTPType.TOKEN,
+        )
         user = otp.user
 
     elif user:
@@ -61,7 +76,11 @@ def _reset_password(tenant_id: str, *, user: Optional[User] = None, otp_id: Opti
         return None
 
     otp.used_at = timezone.now()
-    otp.save(update_fields=['used_at',])
+    otp.save(
+        update_fields=[
+            "used_at",
+        ]
+    )
     user.set_password(password)
     user.save()
     user_logged_in.send(sender=user.__class__, instance=user, user=user, request=None)
@@ -69,7 +88,7 @@ def _reset_password(tenant_id: str, *, user: Optional[User] = None, otp_id: Opti
     return user
 
 
-@router.post('/user', response_model=response.AuthUser)
+@router.post("/user", response_model=response.AuthUser)
 def get_user_token(credentials: request.AuthUser = Body(...)):
     _user = None
     if credentials.otp:
@@ -83,13 +102,25 @@ def get_user_token(credentials: request.AuthUser = Body(...)):
     elif credentials.email or credentials.id:
         if credentials.email:
             try:
-                _user: User = User.objects.get(status=User.Status.ACTIVE, tenant_id=credentials.tenant.id, email=credentials.email.lower())
+                _user: User = User.objects.get(
+                    status=User.Status.ACTIVE,
+                    tenant_id=credentials.tenant.id,
+                    email=credentials.email.lower(),
+                )
 
             except User.DoesNotExist:
-                _user: User = User.objects.get(status=User.Status.ACTIVE, tenant_id=credentials.tenant.id, number=credentials.email)
+                _user: User = User.objects.get(
+                    status=User.Status.ACTIVE,
+                    tenant_id=credentials.tenant.id,
+                    number=credentials.email,
+                )
 
         elif credentials.id:
-            _user: User = User.objects.get(status=User.Status.ACTIVE, tenant_id=credentials.tenant.id, id=credentials.id)
+            _user: User = User.objects.get(
+                status=User.Status.ACTIVE,
+                tenant_id=credentials.tenant.id,
+                id=credentials.id,
+            )
 
         else:
             raise NotImplementedError
@@ -101,7 +132,7 @@ def get_user_token(credentials: request.AuthUser = Body(...)):
 
     if not user:
         if _user and not _user.has_usable_password():
-            raise AuthError(detail=Error(code='password_reset_required'))
+            raise AuthError(detail=Error(code="password_reset_required"))
 
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -113,13 +144,15 @@ def get_user_token(credentials: request.AuthUser = Body(...)):
         token=response.AuthUserToken(
             user=token,
         ),
-        via=getattr(user, '_login_via', User.LoginMethod.PASSWORD),
+        via=getattr(user, "_login_via", User.LoginMethod.PASSWORD),
     )
 
 
-@router.post('/transaction', response_model=response.AuthTransaction)
+@router.post("/transaction", response_model=response.AuthTransaction)
 def get_transaction_token(
-    access: Optional[Access] = Security(access_user, scopes=['access.users.request_transaction_token']),
+    access: Optional[Access] = Security(
+        access_user, scopes=["access.users.request_transaction_token"]
+    ),
     credentials: Optional[request.AuthTransaction] = Body(default=None),
 ):
     """
@@ -129,17 +162,27 @@ def get_transaction_token(
     include_critical = credentials and credentials.include_critical or False
 
     if credentials and credentials.access_token:
-        user_accesstoken: UserAccessToken = UserAccessToken.objects.get(token=credentials.access_token, is_active=True)
-        transaction_token = user_accesstoken.create_transaction_token(include_critical=include_critical)
+        user_accesstoken: UserAccessToken = UserAccessToken.objects.get(
+            token=credentials.access_token, is_active=True
+        )
+        transaction_token = user_accesstoken.create_transaction_token(
+            include_critical=include_critical
+        )
 
     elif access and access.user:
-        if include_critical and access.token.iat < timezone.now() - timedelta(seconds=settings.AUTH_TOKEN_CRITICAL_THRESHOLD):
-            raise AuthError(detail=Error(
-                type='AuthError',
-                code='token_too_old_for_include_critical',
-            ))
+        if include_critical and access.token.iat < timezone.now() - timedelta(
+            seconds=settings.AUTH_TOKEN_CRITICAL_THRESHOLD
+        ):
+            raise AuthError(
+                detail=Error(
+                    type="AuthError",
+                    code="token_too_old_for_include_critical",
+                )
+            )
 
-        transaction_token = access.user.create_transaction_token(include_critical=include_critical, used_token=access)
+        transaction_token = access.user.create_transaction_token(
+            include_critical=include_critical, used_token=access
+        )
 
     else:
         raise AuthError
@@ -151,36 +194,44 @@ def get_transaction_token(
     )
 
 
-@router.post('/otp', response_model=response.AuthOTP)
+@router.post("/otp", response_model=response.AuthOTP)
 def post_otp(
     body: request.AuthUserReset = Body(...),
 ):
     """
     Request a one time password (used as PIN or TOKEN)
     """
-    user: User = User.objects.get(status=User.Status.ACTIVE, email=body.email.lower(), tenant_id=body.tenant.id)
+    user: User = User.objects.get(
+        status=User.Status.ACTIVE, email=body.email.lower(), tenant_id=body.tenant.id
+    )
     otp: UserOTP = user.request_otp(type=body.type)
     return response.AuthOTP.from_orm(otp)
 
 
-@router.post('/check', response_model=response.AuthCheck)
+@router.post("/check", response_model=response.AuthCheck)
 def contact_check(
-    access: Access = Security(transaction_token, scopes=['access.users.create', 'access.users.read.own']),
+    access: Access = Security(
+        transaction_token, scopes=["access.users.create", "access.users.read.own"]
+    ),
     body: request.AuthCheck = Body(...),
 ):
     res = response.AuthCheck()
 
     if body.email:
         res.email = response.AuthCheck.Email(
-            is_valid=bool(validate_email(
-                email_address=body.email,
-                smtp_timeout=5,
-                dns_timeout=5,
-                check_blacklist=False,
-                smtp_helo_host=settings.EMAIL_CHECK_SMTP_HELO_HOST,
-            )),
+            is_valid=bool(
+                validate_email(
+                    email_address=body.email,
+                    smtp_timeout=5,
+                    dns_timeout=5,
+                    check_blacklist=False,
+                    smtp_helo_host=settings.EMAIL_CHECK_SMTP_HELO_HOST,
+                )
+            ),
             is_existing=bool(
-                User.objects.filter(tenant_id=access.tenant_id, email=body.email.lower()).count()
+                User.objects.filter(
+                    tenant_id=access.tenant_id, email=body.email.lower()
+                ).count()
             ),
         )
 

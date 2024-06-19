@@ -1,6 +1,7 @@
 from pydantic import Field
-from ... import models
-from .. import base
+
+from bb_access import models
+from bb_access.schemas import base
 
 
 class Scope(base.Scope):

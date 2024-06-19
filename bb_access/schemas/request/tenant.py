@@ -1,6 +1,8 @@
 from typing import Optional
+
 from pydantic import BaseModel
-from .. import base
+
+from bb_access.schemas import base
 
 
 class TenantReference(BaseModel):

@@ -1,7 +1,9 @@
 from typing import List, Optional
+
 from pydantic import BaseModel, Field
-from ... import models
-from .. import base
+
+from bb_access import models
+from bb_access.schemas import base
 
 
 class TenantCountry(base.TenantCountry):

@@ -1,19 +1,26 @@
 from django.contrib.admin import ModelAdmin, register, TabularInline
-from ..models import Tenant, TenantCountry
+
+from bb_access.models import Tenant, TenantCountry
 
 
 class TenantCountryInline(TabularInline):
     model = TenantCountry
-    fields = ('code',)
+    fields = ("code",)
     extra = 0
 
 
 @register(Tenant)
 class TenantAdmin(ModelAdmin):
-    fields = ('id', 'name',)
-    readonly_fields = ('id',)
+    fields = (
+        "id",
+        "name",
+    )
+    readonly_fields = ("id",)
 
-    list_display = ('id', 'name',)
+    list_display = (
+        "id",
+        "name",
+    )
 
     inlines = [
         TenantCountryInline,

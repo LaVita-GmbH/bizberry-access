@@ -2,6 +2,7 @@ import string
 from datetime import datetime
 from typing import Dict, List, Set, Tuple, Optional, Union
 from datetime import timedelta
+
 from jose import jwt
 from django.db import models
 from django.db.transaction import atomic
@@ -16,6 +17,7 @@ from djutils.crypt import random_string_generator
 from djdantic.schemas import Access, Error, AccessScope
 from djfapi.exceptions import AuthError, ConstraintError
 from djdantic import context
+
 from . import Scope, Role, Tenant
 
 
@@ -49,11 +51,11 @@ class UserManager(BaseUserManager):
         """
         Create and save a user with the given username, email, and password.
         """
-        if extra_fields.get('id'):
-            raise ValueError('The ID cannot be given on creation')
+        if extra_fields.get("id"):
+            raise ValueError("The ID cannot be given on creation")
 
-        elif 'id' in extra_fields:
-            del extra_fields['id']
+        elif "id" in extra_fields:
+            del extra_fields["id"]
 
         email = email and self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
@@ -68,64 +70,78 @@ class UserManager(BaseUserManager):
         return user
 
     def create_user(self, email=None, password=None, **extra_fields):
-        extra_fields.setdefault('is_superuser', False)
+        extra_fields.setdefault("is_superuser", False)
         return self._create_user(email, password, **extra_fields)
 
     def create_superuser(self, email=None, password=None, **extra_fields):
-        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault("is_superuser", True)
 
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError('Superuser must have is_superuser=True.')
+        if extra_fields.get("is_superuser") is not True:
+            raise ValueError("Superuser must have is_superuser=True.")
 
         return self._create_user(email, password, **extra_fields)
 
 
 class User(DirtyFieldsMixin, KafkaPublishMixin, AbstractUser):
     class Status(models.TextChoices):
-        ACTIVE = 'ACTIVE', _("Active")
-        TERMINATED = 'TERMINATED', _("Terminated")
+        ACTIVE = "ACTIVE", _("Active")
+        TERMINATED = "TERMINATED", _("Terminated")
 
     class Type(models.TextChoices):
-        USER = 'USER', _("User")
-        SERVICE = 'SERVICE', _("Service")
+        USER = "USER", _("User")
+        SERVICE = "SERVICE", _("Service")
 
     class Gender(models.TextChoices):
-        MALE = 'MALE'
-        FEMALE = 'FEMALE'
-        OTHER = 'OTHER'
+        MALE = "MALE"
+        FEMALE = "FEMALE"
+        OTHER = "OTHER"
 
     class LoginMethod(models.TextChoices):
-        PASSWORD = 'PASSWORD'
-        OTP_PIN = 'OTP_PIN'
-        OTP_TOKEN = 'OTP_TOKEN'
-        TOKEN = 'TOKEN'
+        PASSWORD = "PASSWORD"
+        OTP_PIN = "OTP_PIN"
+        OTP_TOKEN = "OTP_TOKEN"
+        TOKEN = "TOKEN"
 
     class UserAuthority(models.TextChoices):
-        BIZBERRY = 'BIZBERRY'
-        OSHOP = 'OSHOP'
+        BIZBERRY = "BIZBERRY"
+        OSHOP = "OSHOP"
 
-    id = models.CharField(max_length=64, primary_key=True, default=_default_user_id, editable=False)
-    tenant: Tenant = models.ForeignKey(Tenant, on_delete=models.RESTRICT, related_name='users')
+    id = models.CharField(
+        max_length=64, primary_key=True, default=_default_user_id, editable=False
+    )
+    tenant: Tenant = models.ForeignKey(
+        Tenant, on_delete=models.RESTRICT, related_name="users"
+    )
     email: str = models.CharField(max_length=320, unique=False, db_index=True)
     number: Optional[str] = models.CharField(max_length=16, null=True, blank=True)
-    password: str = models.CharField(_('password'), max_length=144)
-    status: Status = models.CharField(max_length=16, choices=Status.choices, default=Status.ACTIVE)
-    type: Type = models.CharField(max_length=16, choices=Type.choices, default=Type.USER)
+    password: str = models.CharField(_("password"), max_length=144)
+    status: Status = models.CharField(
+        max_length=16, choices=Status.choices, default=Status.ACTIVE
+    )
+    type: Type = models.CharField(
+        max_length=16, choices=Type.choices, default=Type.USER
+    )
     language: str = models.CharField(max_length=8)
-    role: Optional[Role] = models.ForeignKey(Role, on_delete=models.SET_NULL, related_name='users', null=True, blank=True)
-    gender: Optional[Gender] = models.CharField(choices=Gender.choices, max_length=8, blank=True, null=True)
+    role: Optional[Role] = models.ForeignKey(
+        Role, on_delete=models.SET_NULL, related_name="users", null=True, blank=True
+    )
+    gender: Optional[Gender] = models.CharField(
+        choices=Gender.choices, max_length=8, blank=True, null=True
+    )
     first_name: Optional[str] = models.CharField(max_length=150, blank=True, null=True)
     last_name: Optional[str] = models.CharField(max_length=150, blank=True, null=True)
     phone: Optional[str] = models.CharField(max_length=150, blank=True, null=True)
-    authority: UserAuthority = models.CharField(choices=UserAuthority.choices, max_length=12, default=UserAuthority.BIZBERRY)
+    authority: UserAuthority = models.CharField(
+        choices=UserAuthority.choices, max_length=12, default=UserAuthority.BIZBERRY
+    )
 
     objects = UserManager()
 
-    USERNAME_FIELD = 'id'
+    USERNAME_FIELD = "id"
     REQUIRED_FIELDS = [
-        'email',
-        'tenant_id',
-        'language',
+        "email",
+        "tenant_id",
+        "language",
     ]
 
     @property
@@ -166,13 +182,15 @@ class User(DirtyFieldsMixin, KafkaPublishMixin, AbstractUser):
 
     def get_scopes(self, include_critical: bool = True) -> Set[Scope]:
         role = self.get_role()
-        
+
         return role.get_scopes(include_critical=include_critical)
 
     def get_roles(self) -> List[Role]:
         role = self.get_role()
 
-        def _get_roles(role: Role, _excluded_role_ids: Optional[Set[id]] = None) -> Dict[Role, None]:
+        def _get_roles(
+            role: Role, _excluded_role_ids: Optional[Set[id]] = None
+        ) -> Dict[Role, None]:
             roles = {role: None}
             if not _excluded_role_ids:
                 _excluded_role_ids = set()
@@ -180,7 +198,9 @@ class User(DirtyFieldsMixin, KafkaPublishMixin, AbstractUser):
 
             for included_role in role.included_roles.exclude(id__in=_excluded_role_ids):
                 _excluded_role_ids.add(included_role.id)
-                roles.update(_get_roles(included_role, _excluded_role_ids=_excluded_role_ids))
+                roles.update(
+                    _get_roles(included_role, _excluded_role_ids=_excluded_role_ids)
+                )
 
             return roles
 
@@ -193,7 +213,7 @@ class User(DirtyFieldsMixin, KafkaPublishMixin, AbstractUser):
         audiences: List[str] = [],
         include_critical: bool = False,
         store_in_db: bool = False,
-        token_type: Optional['UserToken.Types'] = None,
+        token_type: Optional["UserToken.Types"] = None,
     ) -> Tuple[str, str]:
         time_now = timezone.now()
         time_expire = time_now + validity
@@ -201,22 +221,22 @@ class User(DirtyFieldsMixin, KafkaPublishMixin, AbstractUser):
         token_id = random_string_generator(size=128)
 
         claims = {
-            'iss': settings.JWT_ISSUER,
-            'iat': time_now,
-            'nbf': time_now,
-            'exp': time_expire,
-            'sub': self.id,
-            'ten': self.tenant.id,
-            'crt': include_critical,
-            'aud': audiences,
-            'rls': [role.name for role in self.get_roles()],
-            'jti': token_id,
+            "iss": settings.JWT_ISSUER,
+            "iat": time_now,
+            "nbf": time_now,
+            "exp": time_expire,
+            "sub": self.id,
+            "ten": self.tenant.id,
+            "crt": include_critical,
+            "aud": audiences,
+            "rls": [role.name for role in self.get_roles()],
+            "jti": token_id,
         }
 
         token = jwt.encode(
             claims=claims,
             key=settings.JWT_PRIVATE_KEY,
-            algorithm='ES512',
+            algorithm="ES512",
         )
 
         if store_in_db:
@@ -224,21 +244,27 @@ class User(DirtyFieldsMixin, KafkaPublishMixin, AbstractUser):
 
         return token, token_id
 
-    def create_transaction_token(self, include_critical: bool = False, used_token: Optional[Access] = None) -> str:
-        audiences: List[str] = [scope.code for scope in self.get_scopes(include_critical=include_critical)]
+    def create_transaction_token(
+        self, include_critical: bool = False, used_token: Optional[Access] = None
+    ) -> str:
+        audiences: List[str] = [
+            scope.code for scope in self.get_scopes(include_critical=include_critical)
+        ]
 
         if self.status == self.Status.TERMINATED:
-            raise AuthError(detail=Error(code='user_terminated'))
+            raise AuthError(detail=Error(code="user_terminated"))
 
         if used_token:
             try:
-                user_token = self.tokens.get(id=used_token.token.jti, type=UserToken.Types.USER)
+                user_token = self.tokens.get(
+                    id=used_token.token.jti, type=UserToken.Types.USER
+                )
 
             except UserToken.DoesNotExist as error:
-                raise AuthError(detail=Error(code='invalid_user_token')) from error
+                raise AuthError(detail=Error(code="invalid_user_token")) from error
 
             if not user_token.is_active:
-                raise AuthError(detail=Error(code='invalid_user_token:not_active'))
+                raise AuthError(detail=Error(code="invalid_user_token:not_active"))
 
         token, _ = self._create_token(
             validity=timedelta(minutes=5),
@@ -251,9 +277,7 @@ class User(DirtyFieldsMixin, KafkaPublishMixin, AbstractUser):
     def create_user_token(self) -> str:
         token, token_id = self._create_token(
             validity=timedelta(days=365),
-            audiences=[
-                'access.users.request_transaction_token'
-            ],
+            audiences=["access.users.request_transaction_token"],
             store_in_db=True,
             token_type=UserToken.Types.USER,
         )
@@ -264,15 +288,19 @@ class User(DirtyFieldsMixin, KafkaPublishMixin, AbstractUser):
         old_otps = self.otps.filter(type=type, used_at__isnull=True)
         try:
             scopes = context.access.get().token.get_scopes()
-            if AccessScope.from_str('access.users.create_otp.any') in scopes:
+            if AccessScope.from_str("access.users.create_otp.any") in scopes:
                 create_new_threshold = None
 
         except LookupError:
             pass
 
         for old_otp in old_otps:
-            if create_new_threshold and old_otp.created_at > timezone.now() - timedelta(seconds=create_new_threshold):
-                raise ConstraintError(detail=Error(code='create_new_otp_threshold_not_reached'))
+            if create_new_threshold and old_otp.created_at > timezone.now() - timedelta(
+                seconds=create_new_threshold
+            ):
+                raise ConstraintError(
+                    detail=Error(code="create_new_otp_threshold_not_reached")
+                )
 
             old_otp.used_at = timezone.now()
             old_otp.save()
@@ -280,36 +308,41 @@ class User(DirtyFieldsMixin, KafkaPublishMixin, AbstractUser):
     def request_otp(
         self,
         *,
-        type: 'UserOTP.UserOTPType',
+        type: "UserOTP.UserOTPType",
         length: Optional[int] = None,
         validity: Optional[Union[int, timedelta]] = None,
         chars: Optional[str] = None,
         create_new_threshold: Optional[int] = None,
         is_internal: bool = False,
-    ) -> 'UserOTP':
+    ) -> "UserOTP":
         if length is None:
-            length = getattr(settings, f'AUTH_{type}_LENGTH')
+            length = getattr(settings, f"AUTH_{type}_LENGTH")
 
         if validity is None:
-            validity = getattr(settings, f'AUTH_{type}_VALIDITY')
+            validity = getattr(settings, f"AUTH_{type}_VALIDITY")
 
         if create_new_threshold is None:
-            create_new_threshold = getattr(settings, f'AUTH_{type}_CREATE_NEW_THRESHOLD')
+            create_new_threshold = getattr(
+                settings, f"AUTH_{type}_CREATE_NEW_THRESHOLD"
+            )
 
         if not is_internal:
-            self._invalidate_old_otps(type=type, create_new_threshold=create_new_threshold)
+            self._invalidate_old_otps(
+                type=type, create_new_threshold=create_new_threshold
+            )
 
         kwargs = {}
         if chars:
-            kwargs['chars'] = chars
+            kwargs["chars"] = chars
 
         elif type == UserOTP.UserOTPType.PIN:
-            kwargs['chars'] = string.digits
+            kwargs["chars"] = string.digits
 
         otp = UserOTP(
             user=self,
             type=type,
-            expire_at=timezone.now() + (timedelta(seconds=validity) if isinstance(validity, int) else validity),
+            expire_at=timezone.now()
+            + (timedelta(seconds=validity) if isinstance(validity, int) else validity),
             is_internal=is_internal,
         )
         otp.set_value(random_string_generator(size=length, **kwargs))
@@ -319,7 +352,7 @@ class User(DirtyFieldsMixin, KafkaPublishMixin, AbstractUser):
     @atomic
     def save(self, *args, **kwargs):
         modified = self.get_dirty_fields(check_relationship=True)
-        if 'email' in modified:
+        if "email" in modified:
             self.email = self.email.lower()
 
         if not all([self.first_name, self.last_name]):
@@ -330,33 +363,56 @@ class User(DirtyFieldsMixin, KafkaPublishMixin, AbstractUser):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=('tenant', 'email',),
-                name='tenant_email_unique',
-                condition=(
-                    ~models.Q(status='TERMINATED')
+                fields=(
+                    "tenant",
+                    "email",
                 ),
+                name="tenant_email_unique",
+                condition=(~models.Q(status="TERMINATED")),
             ),
         ]
 
 
 class UserToken(models.Model):
     class Types(models.TextChoices):
-        USER = 'USER', _('User Token')
+        USER = "USER", _("User Token")
 
-    id = models.CharField(max_length=128, primary_key=True, default=_default_user_token_id, editable=False)
-    user: User = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tokens')
+    id = models.CharField(
+        max_length=128, primary_key=True, default=_default_user_token_id, editable=False
+    )
+    user: User = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="tokens"
+    )
     type: str = models.CharField(max_length=16, choices=Types.choices)
     create_date: datetime = models.DateTimeField(auto_now_add=True)
     is_active: bool = models.BooleanField(default=True)
 
 
 class UserAccessToken(models.Model):
-    id = models.CharField(max_length=64, primary_key=True, default=_default_user_accesstoken_id, editable=False)
-    token: str = models.CharField(max_length=128, unique=True, db_index=True, default=_default_user_accesstoken_token, editable=False)
-    user: User = models.ForeignKey(User, on_delete=models.CASCADE, related_name='access_tokens')
+    id = models.CharField(
+        max_length=64,
+        primary_key=True,
+        default=_default_user_accesstoken_id,
+        editable=False,
+    )
+    token: str = models.CharField(
+        max_length=128,
+        unique=True,
+        db_index=True,
+        default=_default_user_accesstoken_token,
+        editable=False,
+    )
+    user: User = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="access_tokens"
+    )
     last_used: datetime = models.DateTimeField(null=True, blank=True)
     create_date: datetime = models.DateTimeField(auto_now_add=True)
-    scopes = models.ManyToManyField(Scope, related_name='user_access_tokens', limit_choices_to={'is_active': True, 'is_internal': False}, blank=True)
+    scopes = models.ManyToManyField(
+        Scope,
+        related_name="user_access_tokens",
+        limit_choices_to={"is_active": True, "is_internal": False},
+        blank=True,
+    )
     is_active: bool = models.BooleanField(default=True)
 
     def get_scopes(self, include_critical: bool = True) -> Set[Scope]:
@@ -369,7 +425,9 @@ class UserAccessToken(models.Model):
     def create_transaction_token(self, include_critical: bool = False) -> str:
         scopes: Set[Scope] = self.user.get_scopes()
         if self.scopes.count():
-            scopes = scopes.intersection(self.get_scopes(include_critical=include_critical))
+            scopes = scopes.intersection(
+                self.get_scopes(include_critical=include_critical)
+            )
 
         audiences: List[str] = [scope.code for scope in scopes]
 
@@ -386,12 +444,14 @@ class UserOTP(KafkaPublishMixin, models.Model):
     _value = None
 
     class UserOTPType(models.TextChoices):
-        PIN = 'PIN', "PIN"
-        TOKEN = 'TOKEN', "Token"
+        PIN = "PIN", "PIN"
+        TOKEN = "TOKEN", "Token"
 
     id = models.CharField(max_length=64, primary_key=True, default=_default_user_otp_id)
-    user: User = models.ForeignKey(User, on_delete=models.CASCADE, related_name='otps')
-    type: str = models.CharField(max_length=16, choices=UserOTPType.choices, db_index=True)
+    user: User = models.ForeignKey(User, on_delete=models.CASCADE, related_name="otps")
+    type: str = models.CharField(
+        max_length=16, choices=UserOTPType.choices, db_index=True
+    )
     created_at: datetime = models.DateTimeField(auto_now_add=True)
     expire_at: datetime = models.DateTimeField()
     length: int = models.IntegerField()
@@ -414,22 +474,31 @@ class UserOTP(KafkaPublishMixin, models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=('user', 'type', 'used_at',),
-                name='user_type_used_at_unique',
+                fields=(
+                    "user",
+                    "type",
+                    "used_at",
+                ),
+                name="user_type_used_at_unique",
             ),
         ]
 
 
 class UserFlag(models.Model):
-    id = models.CharField(max_length=72, primary_key=True, default=_default_user_flag_id)
-    user: User = models.ForeignKey(User, on_delete=models.CASCADE, related_name='flags')
+    id = models.CharField(
+        max_length=72, primary_key=True, default=_default_user_flag_id
+    )
+    user: User = models.ForeignKey(User, on_delete=models.CASCADE, related_name="flags")
     key: str = models.CharField(max_length=64)
     created_at: datetime = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=('user', 'key',),
-                name='user_flag_key_unique',
+                fields=(
+                    "user",
+                    "key",
+                ),
+                name="user_flag_key_unique",
             ),
         ]

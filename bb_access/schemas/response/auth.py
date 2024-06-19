@@ -1,8 +1,10 @@
 from datetime import datetime
 from typing import Optional
+
 from pydantic import BaseModel
 from djdantic import Field, BaseModel
-from ... import models
+
+from bb_access import models
 
 
 class AuthUserToken(BaseModel):

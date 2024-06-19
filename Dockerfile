@@ -4,7 +4,7 @@ EXPOSE 5000
 COPY ./ /app
 WORKDIR /app
 
-RUN pip install fastapi uvicorn psycopg2-binary django_cockroachdb~=4.1.0
+RUN pip install fastapi psycopg2-binary django_cockroachdb~=4.1.0
 RUN pip install -r requirements.txt
 RUN pip uninstall -y httptools
 

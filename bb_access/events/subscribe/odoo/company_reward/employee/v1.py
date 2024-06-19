@@ -1,9 +1,11 @@
 from typing import Any, List, Optional
 from enum import Enum
+
 from pydantic import BaseModel, Field, validator
 from djpykafka.events.subscribe import GenericSubscription, DataChangeEvent
 from django.db.models import Q
-from ...... import models
+
+from bb_access import models
 
 
 class Change(BaseModel):
@@ -13,8 +15,8 @@ class Change(BaseModel):
 
 class Employee(BaseModel):
     class Type(Enum):
-        OWNER = 'OWNER'
-        ADMIN = 'ADMIN'
+        OWNER = "OWNER"
+        ADMIN = "ADMIN"
 
     class Reference(BaseModel):
         id: str
@@ -31,9 +33,9 @@ class Employee(BaseModel):
     email: str
     language: str
 
-    changed: Optional[List[Change]] = Field(alias='_changed')
+    changed: Optional[List[Change]] = Field(alias="_changed")
 
-    @validator('email')
+    @validator("email")
     def email_lower(value: str):
         return value.lower()
 
@@ -41,20 +43,30 @@ class Employee(BaseModel):
 class Employees(
     GenericSubscription,
     event_schema=Employee,
-    topic='odoo.company_reward.employee',
+    topic="odoo.company_reward.employee",
 ):
     data: Employee
 
     def process(self):
         print(self.data)
-        if not self.data.type and self.data.changed and not getattr(next(filter(lambda c: c.name == 'type', self.data.changed), None), 'previous_value', None):
+        if (
+            not self.data.type
+            and self.data.changed
+            and not getattr(
+                next(filter(lambda c: c.name == "type", self.data.changed), None),
+                "previous_value",
+                None,
+            )
+        ):
             return
 
         email_curr_or_prev = self.data.email
 
         if self.data.changed:
             try:
-                email_curr_or_prev = next(filter(lambda c: c.name == 'email', self.data.changed)).previous_value.lower()
+                email_curr_or_prev = next(
+                    filter(lambda c: c.name == "email", self.data.changed)
+                ).previous_value.lower()
 
             except StopIteration:
                 pass
@@ -62,23 +74,34 @@ class Employees(
         is_existing = True
 
         try:
-            user: models.User = models.User.objects.get(email=email_curr_or_prev, tenant_id=self.event.tenant_id)
+            user: models.User = models.User.objects.get(
+                email=email_curr_or_prev, tenant_id=self.event.tenant_id
+            )
 
         except models.User.DoesNotExist:
             try:
-                user: models.User = models.User.objects.get(email=self.data.email, tenant_id=self.event.tenant_id)
+                user: models.User = models.User.objects.get(
+                    email=self.data.email, tenant_id=self.event.tenant_id
+                )
 
             except models.User.DoesNotExist:
-                user = models.User(email=self.data.email, tenant_id=self.event.tenant_id)
+                user = models.User(
+                    email=self.data.email, tenant_id=self.event.tenant_id
+                )
                 user.set_unusable_password()
                 is_existing = False
 
-        if self.event.data_op == DataChangeEvent.DataOperation.DELETE or not self.data.type:
+        if (
+            self.event.data_op == DataChangeEvent.DataOperation.DELETE
+            or not self.data.type
+        ):
             if is_existing:
                 user.delete()
 
         else:
-            if other_user := models.User.objects.filter(Q(email=self.data.email) & ~Q(id=user.id)).first():
+            if other_user := models.User.objects.filter(
+                Q(email=self.data.email) & ~Q(id=user.id)
+            ).first():
                 other_user.delete()
 
             user.email = self.data.email

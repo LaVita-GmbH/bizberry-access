@@ -1,5 +1,6 @@
 from djdantic import Field, BaseModel
-from ... import models
+
+from bb_access import models
 
 
 class Role(BaseModel, orm_model=models.Role):

@@ -1,6 +1,8 @@
 from typing import Optional
+
 from djdantic import Field, BaseModel
-from ... import models
+
+from bb_access import models
 
 
 class Scope(BaseModel, orm_model=models.Scope):

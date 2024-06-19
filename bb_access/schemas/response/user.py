@@ -1,15 +1,17 @@
 from typing import List, Optional
 from datetime import datetime
+
 from djdantic.utils.pydantic import Reference, include_reference
 from pydantic import BaseModel, Field
 from djdantic.utils.pydantic_django import DjangoORMBaseModel
-from ... import models
-from .. import base
+
+from bb_access import models
+from bb_access.schemas import base
 
 
 @include_reference()
 class User(base.User):
-    class TenantReference(Reference, rel='bizberry/access/tenants'):
+    class TenantReference(Reference, rel="bizberry/access/tenants"):
         id: str = Field(orm_field=models.User.tenant)
 
     id: str = Field(orm_field=models.User.id)
@@ -18,7 +20,7 @@ class User(base.User):
     status: models.User.Status = Field(orm_field=models.User.status)
     created_at: datetime = Field(orm_field=models.User.date_joined)
     is_password_usable: bool = Field(orm_method=models.User.has_usable_password)
-    flags: List['UserFlag'] = Field(orm_field=models.User.flags)
+    flags: List["UserFlag"] = Field(orm_field=models.User.flags)
 
 
 class UsersList(BaseModel):

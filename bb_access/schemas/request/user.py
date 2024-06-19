@@ -1,19 +1,25 @@
 from typing import List, Optional
+
 from pydantic import SecretStr
 from djdantic import BaseModel, Field
 from djdantic.utils.pydantic import to_optional
-from ... import models
-from .. import base
+
+from bb_access import models
+from bb_access.schemas import base
 
 
 class UserCreate(base.User):
     password: Optional[SecretStr] = ...
-    flags: Optional[List['UserFlagCreate']] = Field(orm_field=models.User.flags, scopes=['access.users.update.any'])
+    flags: Optional[List["UserFlagCreate"]] = Field(
+        orm_field=models.User.flags, scopes=["access.users.update.any"]
+    )
 
 
 @to_optional()
 class UserUpdate(base.User):
-    password: Optional[SecretStr] = Field(orm_method=models.User.set_password, is_critical=True)
+    password: Optional[SecretStr] = Field(
+        orm_method=models.User.set_password, is_critical=True
+    )
 
 
 class UserOTPCreate(BaseModel):

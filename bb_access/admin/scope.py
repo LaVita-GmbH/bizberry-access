@@ -1,13 +1,24 @@
 from django.contrib.admin import ModelAdmin, register
-from ..models import Scope
+
+from bb_access.models import Scope
 
 
 @register(Scope)
 class ScopeAdmin(ModelAdmin):
-    fields = ('service', 'resource', 'action', 'selector', 'is_active',)
+    fields = (
+        "service",
+        "resource",
+        "action",
+        "selector",
+        "is_active",
+    )
     list_display = fields
     list_display_links = fields[0:4]
-    list_filter = ('is_active', 'service', 'resource',)
+    list_filter = (
+        "is_active",
+        "service",
+        "resource",
+    )
 
     ordering = fields
 
