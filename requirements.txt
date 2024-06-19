@@ -21,3 +21,4 @@ Jinja2
 requests
 Unidecode
 uvicorn
+
